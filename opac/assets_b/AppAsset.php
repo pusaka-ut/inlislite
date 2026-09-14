@@ -32,6 +32,7 @@ class AppAsset extends AssetBundle
         'css/AdminLTE.css',
         'css/site.css',
         'css/styles.css',
+        'css/modern-opac.css',
         
         
     ];
