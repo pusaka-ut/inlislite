@@ -15,6 +15,7 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
 - [x] Pembuatan controller publik OPAC `opac/controllers/RakController.php` (akses instan tanpa login).
 - [x] Pembuatan view publik OPAC mobile-first di `opac/views/rak/index.php` (pencarian instan, penonjolan nomor panggil, filter status ketersediaan, dan link rincian katalog).
 - [x] Pembaruan dokumentasi Single Source of Truth di `docs/architecture.md` dan `docs/database.md`.
+- [x] Push seluruh codebase profesional INLISLite v3 beserta fitur QR Code Rak ke GitHub `https://github.com/pusaka-ut/inlislite.git` (branch `master`).
 
 ## 2. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).
