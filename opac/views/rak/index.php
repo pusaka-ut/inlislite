@@ -324,11 +324,11 @@ $totalCount = count($collections);
 <body>
     <header class="header-nav">
         <div class="header-top">
-            <a href="<?= Url::to(['/opac']) ?>" class="brand-badge">
+            <a href="https://opac.ut.ac.id/" class="brand-badge" target="_blank">
                 <span class="ut-pill">UT</span>
                 <span class="brand-title">Perpustakaan Universitas Terbuka</span>
             </a>
-            <a href="<?= Url::to(['/opac']) ?>" class="opac-link">
+            <a href="https://opac.ut.ac.id/" class="opac-link" target="_blank">
                 <i class="fa fa-home"></i> OPAC
             </a>
         </div>
@@ -359,13 +359,13 @@ $totalCount = count($collections);
         </div>
 
         <div class="filters">
-            <a href="<?= Url::to(['/opac/rak', 'id' => $model->id, 'q' => $q]) ?>" class="filter-chip <?= empty($status) ? 'active' : '' ?>">
+            <a href="<?= Url::to(['rak/index', 'id' => $model->id, 'q' => $q]) ?>" class="filter-chip <?= empty($status) ? 'active' : '' ?>">
                 <i class="fa fa-th-large"></i> Semua Koleksi (<?= $totalAll ?>)
             </a>
-            <a href="<?= Url::to(['/opac/rak', 'id' => $model->id, 'q' => $q, 'status' => 'tersedia']) ?>" class="filter-chip <?= $status === 'tersedia' ? 'active' : '' ?>">
+            <a href="<?= Url::to(['rak/index', 'id' => $model->id, 'q' => $q, 'status' => 'tersedia']) ?>" class="filter-chip <?= $status === 'tersedia' ? 'active' : '' ?>">
                 <i class="fa fa-check-circle text-success"></i> Tersedia di Rak
             </a>
-            <a href="<?= Url::to(['/opac/rak', 'id' => $model->id, 'q' => $q, 'status' => 'dipinjam']) ?>" class="filter-chip <?= $status === 'dipinjam' ? 'active' : '' ?>">
+            <a href="<?= Url::to(['rak/index', 'id' => $model->id, 'q' => $q, 'status' => 'dipinjam']) ?>" class="filter-chip <?= $status === 'dipinjam' ? 'active' : '' ?>">
                 <i class="fa fa-clock-o text-danger"></i> Sedang Dipinjam
             </a>
         </div>
@@ -389,7 +389,7 @@ $totalCount = count($collections);
                         $isDipinjam = (strpos(strtolower($statusName), 'pinjam') !== false);
                         $coverUrl = ($cat && !empty($cat->CoverURL)) ? $cat->CoverURL : null;
                         $catalogId = $cat ? $cat->ID : null;
-                        $detailUrl = $catalogId ? Url::to(['/opac/detail-opac', 'id' => $catalogId]) : '#';
+                        $detailUrl = $catalogId ? 'https://opac.ut.ac.id/detail-opac?id=' . urlencode($catalogId) : '#';
                         $title = $cat ? $cat->Title : 'Buku Tanpa Judul';
                         $author = ($cat && !empty($cat->Author)) ? $cat->Author : 'Penulis tidak terdata';
                         $year = ($cat && !empty($cat->PublishYear)) ? $cat->PublishYear : null;
