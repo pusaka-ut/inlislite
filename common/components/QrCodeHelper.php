@@ -4,7 +4,7 @@ namespace common\components;
 
 use Yii;
 
-require_once dirname(__DIR__, 2) . '/vendor/mpdf/mpdf/qrcode/qrcode.class.php';
+require_once dirname(dirname(__DIR__)) . '/vendor/mpdf/mpdf/qrcode/qrcode.class.php';
 
 class QrCodeHelper
 {
