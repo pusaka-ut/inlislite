@@ -183,52 +183,6 @@ class PencarianSederhanaController extends \yii\web\Controller {
             $params = [':keyword' => $Keyword, ':ruas' => $ruas, ':bahan1' => $bahan1, ':fAuthor' => $fAuthor, ':fPublisher' => $fPublisher, ':fPublishLoc' => $fPublishLoc, ':fPublishYear' => $fPublishYear, ':fSubject' => $fSubject, ':fBahasa' => $fBahasa, ':dariTGL' => $dariTGL, ':sampaiTGL' => $sampaiTGL ];
             $params2 = [':keyword' => $Keyword, ':ruas' => $ruas, ':bahan1' => $bahan1, ':fAuthor' => $fAuthor, ':fPublisher' => $fPublisher, ':fPublishLoc' => $fPublishLoc, ':fPublishYear' => $fPublishYear, ':fSubject' => $fSubject, ':fBahasa' => $fBahasa, ':dariTGL' => $dariTGL, ':sampaiTGL' => $sampaiTGL, ':limitAwal' => $limitAwal, ':limit' => $limit ];
             
-            //biar kalo pagging ga panggil insertTempOpacSederhana langsung nyari ke temporari
-
-            if (!isset($_GET['page']) || (!isset($_SESSION['countSearch']))) {
-                if ($location)
-                {
-                    $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac(:keyword,:ruas,:bahan1,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',".$location." );");
-                    $command->bindValues($params);
-                    $command->execute();
-                } else {
-                    $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac(:keyword,:ruas,:bahan1,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',0 );");
-                    $command->bindValues($params);
-                    $command->execute();
-                }
-
-
-            }
-                else {
-
-                if (!$location)
-                {
-                    $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac0(:keyword,:ruas,:bahan1,:limitAwal,:limit,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',0 );");
-                    $command->bindValues($params2);
-                    $command->execute();
-                } else {
-                    $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac0(:keyword,:ruas,:bahan1,:limitAwal,:limit,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',".$location." );");
-                    $command->bindValues($params2);
-                    $command->execute();
-                }
-
-            }
-
-            /*$count = Yii::$app->db->createCommand("CALL countPencarianSederhanaOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "');")->queryScalar();
-
-            $sqlSearch = "CALL pencarianSederhanaOpacLimit1('0','" . $limit . "','" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "');";
-            $dataProviderSearch = new SqlDataProvider([
-                'sql' => $sqlSearch,
-                'pagination' => false,
-            ]);
-
-            $modelSearch = $dataProviderSearch->getModels();
-            $countSearch = $dataProviderSearch->getCount();*/
-
-            $count = Yii::$app->db->createCommand("select count(1) from tempCariOpac")->queryScalar();
-            $hasilSearch = Yii::$app->db->createCommand("select * from tempCariOpac limit 0,$limit")->queryAll();
-
-            //get max faced
             $FacedAuthorMax = Yii::$app->config->get('FacedAuthorMax');
             $FacedPublisherMax = Yii::$app->config->get('FacedPublisherMax');
             $FacedPublishLocationMax = Yii::$app->config->get('FacedPublishLocationMax');
@@ -236,7 +190,6 @@ class PencarianSederhanaController extends \yii\web\Controller {
             $FacedSubjectMax = Yii::$app->config->get('FacedSubjectMax');
             $FacedBahasaMax = Yii::$app->config->get('FacedBahasaMax');
 
-            //get min faced
             $FacedAuthorMin = Yii::$app->config->get('FacedAuthorMin');
             $FacedPublisherMin = Yii::$app->config->get('FacedPublisherMin');
             $FacedPublishLocationMin = Yii::$app->config->get('FacedPublishLocationMin');
@@ -244,65 +197,85 @@ class PencarianSederhanaController extends \yii\web\Controller {
             $FacedSubjectMin = Yii::$app->config->get('FacedSubjectMin');
             $FacedBahasaMin = Yii::$app->config->get('FacedBahasaMin');
 
+            $hasilSearch = [];
+            $count = isset($_SESSION['countSearch']) ? $_SESSION['countSearch'] : 0;
+            $dataFacedAuthor = isset($_SESSION['dataFacedAuthor']) ? $_SESSION['dataFacedAuthor'] : [];
+            $dataFacedPublisher = isset($_SESSION['dataFacedPublisher']) ? $_SESSION['dataFacedPublisher'] : [];
+            $dataFacedPublishLocation = isset($_SESSION['dataFacedPublishLocation']) ? $_SESSION['dataFacedPublishLocation'] : [];
+            $dataFacedPublishYear = isset($_SESSION['dataFacedPublishYear']) ? $_SESSION['dataFacedPublishYear'] : [];
+            $dataFacedSubject = isset($_SESSION['dataFacedSubject']) ? $_SESSION['dataFacedSubject'] : [];
+            $dataFacedBahasa = isset($_SESSION['dataFacedBahasa']) ? $_SESSION['dataFacedBahasa'] : [];
 
-            //buat generate faced
+            try {
+                if (!isset($_GET['page']) || (!isset($_SESSION['countSearch']))) {
+                    if ($location) {
+                        $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac(:keyword,:ruas,:bahan1,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',".$location." );");
+                        $command->bindValues($params);
+                        $command->execute();
+                    } else {
+                        $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac(:keyword,:ruas,:bahan1,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',0 );");
+                        $command->bindValues($params);
+                        $command->execute();
+                    }
+                } else {
+                    if (!$location) {
+                        $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac0(:keyword,:ruas,:bahan1,:limitAwal,:limit,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',0 );");
+                        $command->bindValues($params2);
+                        $command->execute();
+                    } else {
+                        $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac0(:keyword,:ruas,:bahan1,:limitAwal,:limit,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',".$location." );");
+                        $command->bindValues($params2);
+                        $command->execute();
+                    }
+                }
 
-            /*$dataFacedAuthor = Yii::$app->db->createCommand("CALL facedAuthorOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','" . $FacedAuthorMax . "');")->queryAll();
-            $dataFacedPublisher = Yii::$app->db->createCommand("CALL facedPublisherOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','" . $FacedPublisherMax . "');")->queryAll();
-            $dataFacedPublishLocation = Yii::$app->db->createCommand("CALL facedPublishLocationOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','" . $FacedPublishLocationMax . "');")->queryAll();
-            $dataFacedPublishYear = Yii::$app->db->createCommand("CALL facedPublishYearOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','" . $FacedPublishYearMax . "');")->queryAll();
-            $dataFacedSubject = Yii::$app->db->createCommand("CALL facedSubjectOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','" . $FacedSubjectMax . "');")->queryAll();
-            $dataFacedBahasa = Yii::$app->db->createCommand("CALL facedBahasaOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','" . $FacedBahasaMax . "');")->queryAll();
+                $count = Yii::$app->db->createCommand("select count(1) from tempCariOpac")->queryScalar();
+                $hasilSearch = Yii::$app->db->createCommand("select * from tempCariOpac limit 0,$limit")->queryAll();
 
+                if (!isset($_GET['page']) || (!isset($_SESSION['countSearch']))) {
+                    $req = [
+                        'fAuthor' => $fAuthor,
+                        'fPublisher' => $fPublisher,
+                        'fPublishLoc' => $fPublishLoc,
+                        'fPublishYear' => $fPublishYear,
+                        'fSubject' => $fSubject,
+                        'fBahasa' => $fBahasa
+                    ];
+                    $dataFacedAuthor = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('Author', $req), 'Author');
+                    $dataFacedPublisher = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('Publisher', $req), 'Publisher');
+                    $dataFacedPublishLocation = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('PublishLocation', $req), 'PublishLocation');
+                    $dataFacedPublishYear = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('PublishYear', $req), 'PublishYear');
+                    $dataFacedSubject = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('SUBJECT', $req), 'SUBJECT');
+                    $dataFacedBahasa = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('bahasa', $req), 'bahasa');
 
-            $dataFacedAuthor = OpacHelpers::facedGenerator($dataFacedAuthor,'Author');
-            $dataFacedPublisher = OpacHelpers::facedGenerator($dataFacedPublisher,'Publisher');
-            $dataFacedPublishLocation = OpacHelpers::facedGenerator($dataFacedPublishLocation,'PublishLocation');
-            $dataFacedPublishYear = OpacHelpers::facedGenerator($dataFacedPublishYear,'PublishYear');
-            $dataFacedSubject = OpacHelpers::facedGenerator($dataFacedSubject,'SUBJECT');
-            $dataFacedBahasa = OpacHelpers::facedGenerator($dataFacedBahasa,'bahasa');*/
-
-            //faced tidak menggunakan sp lagi
-            $req=array(
-                'fAuthor' => $fAuthor,
-                'fPublisher' => $fPublisher,
-                'fPublishLoc' =>$fPublishLoc,
-                'fPublishYear' => $fPublishYear,
-                'fSubject' => $fSubject,
-                'fBahasa' => $fBahasa);
-            $dataFacedAuthor = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('Author',$req),'Author');
-            $dataFacedPublisher = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('Publisher',$req),'Publisher');
-            $dataFacedPublishLocation = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('PublishLocation',$req),'PublishLocation');
-            $dataFacedPublishYear = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('PublishYear',$req),'PublishYear');
-            $dataFacedSubject = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('SUBJECT',$req),'SUBJECT');
-            $dataFacedBahasa = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('bahasa',$req),'bahasa');
-
-
-            if (!isset($_GET['page']) || (!isset($_SESSION['countSearch']))) {
-                $_SESSION['dataFacedAuthor'] = $dataFacedAuthor;
-                $_SESSION['dataFacedPublisher'] = $dataFacedPublisher;
-                $_SESSION['dataFacedPublishLocation'] = $dataFacedPublishLocation;
-                $_SESSION['dataFacedPublishYear'] = $dataFacedPublishYear;
-                $_SESSION['dataFacedSubject'] = $dataFacedSubject;
-                $_SESSION['dataFacedBahasa'] = $dataFacedBahasa;
-            } else {
-
-                $dataFacedAuthor = $_SESSION['dataFacedAuthor'];
-                $dataFacedPublisher = $_SESSION['dataFacedPublisher'];
-                $dataFacedPublishLocation = $_SESSION['dataFacedPublishLocation'];
-                $dataFacedPublishYear = $_SESSION['dataFacedPublishYear'];
-                $dataFacedSubject = $_SESSION['dataFacedSubject'];
-                $dataFacedBahasa = $_SESSION['dataFacedBahasa'];
-            }
-
-            //buat nyimpen total record yg dicari setiap pencarian
-            //#temporary table problems fixed
-
-            if (!isset($_GET['page']) || (!isset($_SESSION['countSearch']))) {
-                $_SESSION['countSearch'] = $count;
-            } else {
-
-                $count = $_SESSION['countSearch'];
+                    $_SESSION['dataFacedAuthor'] = $dataFacedAuthor;
+                    $_SESSION['dataFacedPublisher'] = $dataFacedPublisher;
+                    $_SESSION['dataFacedPublishLocation'] = $dataFacedPublishLocation;
+                    $_SESSION['dataFacedPublishYear'] = $dataFacedPublishYear;
+                    $_SESSION['dataFacedSubject'] = $dataFacedSubject;
+                    $_SESSION['dataFacedBahasa'] = $dataFacedBahasa;
+                    $_SESSION['countSearch'] = $count;
+                } else {
+                    $dataFacedAuthor = isset($_SESSION['dataFacedAuthor']) ? $_SESSION['dataFacedAuthor'] : [];
+                    $dataFacedPublisher = isset($_SESSION['dataFacedPublisher']) ? $_SESSION['dataFacedPublisher'] : [];
+                    $dataFacedPublishLocation = isset($_SESSION['dataFacedPublishLocation']) ? $_SESSION['dataFacedPublishLocation'] : [];
+                    $dataFacedPublishYear = isset($_SESSION['dataFacedPublishYear']) ? $_SESSION['dataFacedPublishYear'] : [];
+                    $dataFacedSubject = isset($_SESSION['dataFacedSubject']) ? $_SESSION['dataFacedSubject'] : [];
+                    $dataFacedBahasa = isset($_SESSION['dataFacedBahasa']) ? $_SESSION['dataFacedBahasa'] : [];
+                    $count = isset($_SESSION['countSearch']) ? $_SESSION['countSearch'] : $count;
+                }
+            } catch (\Exception $e) {
+                Yii::error($e->getMessage(), 'opac.search');
+                Yii::$app->getSession()->setFlash('error', [
+                    'type' => 'danger',
+                    'duration' => 6000,
+                    'icon' => 'glyphicon glyphicon-exclamation-sign',
+                    'message' => Yii::t('app', 'Layanan pencarian katalog sedang mengalami kepadatan antrean transaksi di server database. Silakan segarkan halaman atau coba sesaat lagi.'),
+                    'title' => 'Peringatan Server',
+                    'positonY' => Yii::$app->params['flashMessagePositionY'],
+                    'positonX' => Yii::$app->params['flashMessagePositionX']
+                ]);
+                $alert = true;
             }
 
             foreach ($hasilSearch as $key => $value) {

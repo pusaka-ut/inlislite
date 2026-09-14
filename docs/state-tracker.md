@@ -27,12 +27,18 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *Table Action Buttons:* Penyisipan margin spasi renggang (`margin: 2px 3px !important`) agar tombol tidak saling menempel, ukuran proporsional ergonomis (`padding: 4px 10px !important`), serta pemisahan semantik warna mutlak: Koreksi (Royal Blue `#2563eb`), Detail (Teal Cyan `#0891b2`), dan Hapus (Crimson Red `#e11d48`).
 - [ ] **Fase 5: Deployment & Verifikasi Server:** Eksekusi sinkronisasi ke server intranet UT `172.30.14.94`.
 
-## 3. Current Sprint / Fokus Pengujian Saat Ini
+## 3. Inisiatif Stabilitas Database & OPAC
+- [x] **Mitigasi Error 1637 InnoDB:** Penambahan mekanisme `try ... catch (\Exception $e)` pada eksekusi stored procedure pencarian katalog di `opac/controllers/PencarianSederhanaController.php`.
+- [x] **Optimasi Query Paginasi:** Mengeliminasi 6 query facet (`Author`, `Publisher`, `PublishLocation`, `PublishYear`, `SUBJECT`, `bahasa`) yang redundan saat pengguna berpindah halaman dengan memanfaatkan session cache yang sudah terbentuk pada halaman pertama.
+- [x] **Perlindungan User Experience:** Menampilkan flash notification sistem yang ramah kepada pengguna tanpa memaparkan trace error teknis database jika terjadi antrean transaksi di server database.
+
+## 4. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).
 - [x] Pengujian tambah 1 rak uji coba di Admin (Lantai 2, DDC 330 - 339).
+- [ ] Pengujian pencarian katalog dan paginasi di OPAC setelah penerapan error-handling dan optimasi query.
 - [ ] Pengujian cetak stiker rak dan scan melalui kamera ponsel di jaringan `172.30.14.94`.
 
-## 4. Catatan Konfigurasi Lingkungan
+## 5. Catatan Konfigurasi Lingkungan
 - **Alamat Server Web Intranet:** `http://172.30.14.94/inlislite3`
 - **Rute Backend Admin:** `http://172.30.14.94/inlislite3/backend/rak/index`
 - **Rute Publik OPAC:** `http://172.30.14.94/inlislite3/opac/rak?id=<id_rak>`
