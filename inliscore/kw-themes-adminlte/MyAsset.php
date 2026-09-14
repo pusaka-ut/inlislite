@@ -26,6 +26,7 @@ class MyAsset extends AssetBundle
         'css/iCheck/square/blue.css',
         'css/sweetalert/sweetalert.css',
         'css/morris/morris.css',
+        'css/modern-adminlte.css',
     ];
     public $js = [
         //'js/bootstrap.min.js',

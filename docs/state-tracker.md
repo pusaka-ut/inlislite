@@ -17,12 +17,18 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
 - [x] Pembaruan dokumentasi Single Source of Truth di `docs/architecture.md` dan `docs/database.md`.
 - [x] Push seluruh codebase profesional INLISLite v3 beserta fitur QR Code Rak ke GitHub `https://github.com/pusaka-ut/inlislite.git` (branch `master`).
 
-## 2. Current Sprint / Fokus Pengujian Saat Ini
+## 2. Inisiatif Modernisasi UI/UX (Zero Layout & Flow Breaking)
+- [x] **Fase 1: Desain & Tokens UT:** Dokumentasi design tokens resmi Perpustakaan Universitas Terbuka di `docs/design.md`.
+- [x] **Fase 2: OPAC Skin:** Pembuatan `opac/assets_b/css/modern-opac.css` dan pendaftaran pada `AppAsset.php` (telah di-push ke GitHub).
+- [x] **Fase 3: Backend AdminLTE Skin:** Pembuatan `inliscore/kw-themes-adminlte/assets/css/modern-adminlte.css` dan pendaftaran pada `MyAsset.php` (sidebar navy dark `#001f3f`, gold accent `#ffcc00`, clean white navbar, soft elevation card).
+- [ ] **Fase 4: Deployment & Verifikasi Server:** Eksekusi sinkronisasi ke server intranet UT `172.30.14.94`.
+
+## 3. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).
-- [ ] Pengujian tambah 1 rak uji coba di Admin (misal: Lantai 2, DDC 330 - 339).
+- [x] Pengujian tambah 1 rak uji coba di Admin (Lantai 2, DDC 330 - 339).
 - [ ] Pengujian cetak stiker rak dan scan melalui kamera ponsel di jaringan `172.30.14.94`.
 
-## 3. Catatan Konfigurasi Lingkungan
+## 4. Catatan Konfigurasi Lingkungan
 - **Alamat Server Web Intranet:** `http://172.30.14.94/inlislite3`
 - **Rute Backend Admin:** `http://172.30.14.94/inlislite3/backend/rak/index`
 - **Rute Publik OPAC:** `http://172.30.14.94/inlislite3/opac/rak?id=<id_rak>`

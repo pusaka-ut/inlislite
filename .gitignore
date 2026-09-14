@@ -3,6 +3,8 @@
 .data
 */runtime/*
 assets/
+*/assets/
+*/web/assets/
 _backup/
 */_backup/*
 *.sql
