@@ -115,17 +115,17 @@ else {
                 <div class="container">
                     <div class="navbar-header">
                         <div class="title">
-                           <!--  <div class="image"> <a href='<?=$homeUrl?>'> <img src="../<?=Yii::getAlias('@upload')."/aplikasi/logo_perpusnas_2015.png"?>" class="img-logo" height="65" width="70"> </a></div> -->
-                           <!--  <div class="image"> <a href='<?=$homeUrl?>'> <img src="<?= Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/logo_perpusnas_2015.png') ?>" class="img-logo" height="65" width="70"> </a></div> -->
-                            <div class="image"><img src="<?= Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/logo_perpusnas_2015.png') ?>" class="img-logo" height="65" width="70"></div>
-                            <div class="text">
-                                <h3 style="margin-top: 20px;">Online Public Access Catalog</h3>
-                                <div class="clear"></div>
-                                <div class="time"><?= $namaperpus ?></div><br/>
-                                <div class="clear"></div>
-                                <div class="timeddr" style="margin-bottom: 10px"><?= $alamat ?></div>
-                                <div class="clear"></div>
-                            </div>
+                            <a href="<?= $homeUrl ?>" class="brand-link" style="display:inline-flex; align-items:center; text-decoration:none; color:inherit;">
+                                <div class="image"><img src="<?= Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/logo_perpusnas_2015.png') ?>" class="img-logo" height="65" width="70"></div>
+                                <div class="text">
+                                    <h3 style="margin-top: 20px;">Online Public Access Catalog</h3>
+                                    <div class="clear"></div>
+                                    <div class="time"><?= $namaperpus ?></div><br/>
+                                    <div class="clear"></div>
+                                    <div class="timeddr" style="margin-bottom: 10px"><?= $alamat ?></div>
+                                    <div class="clear"></div>
+                                </div>
+                            </a>
                             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
                                 <i class="fa fa-bars"></i>
                             </button>

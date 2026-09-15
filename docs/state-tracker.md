@@ -25,12 +25,20 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *OPAC Search Hero:* Rekonstruksi elevated search card putih bersih, batas tepi input tegas (`1.5px solid #cbd5e1`), tinggi field `44px`, tombol Cari gradasi UT Royal Blue (`#002b55` - `#004080`), dan tabs Cari/Browse rapi.
   - [x] *Backend Admin Header:* Unifikasi seluruh navbar menjadi satu kesatuan UT Dark Navy (`#001f3f` ke `#002b55`), garis aksen emas UT (`#ffcc00`) 3px di bawah header, logo transparan terintegrasi tanpa kotak terpotong, harmonisasi toggle burger putih dan jam digital emas.
   - [x] *Table Action Buttons:* Penyisipan margin spasi renggang (`margin: 2px 3px !important`) agar tombol tidak saling menempel, ukuran proporsional ergonomis (`padding: 4px 10px !important`), serta pemisahan semantik warna mutlak: Koreksi (Royal Blue `#2563eb`), Detail (Teal Cyan `#0891b2`), dan Hapus (Crimson Red `#e11d48`).
-- [ ] **Fase 5: Deployment & Verifikasi Server:** Eksekusi sinkronisasi ke server intranet UT `172.30.14.94`.
+- [x] **Fase 6: Revitalisasi UI/UX OPAC Menyeluruh (Sprint Permintaan Bos):**
+  - [x] *Navigasi Logo ke Home:* Membungkus logo UT dan teks judul OPAC dalam tautan `<a href="<?= $homeUrl ?>">` di seluruh layout OPAC (`main-sederhana.php`, `main-sederhana-search.php`, `main.php`, `main-advance.php`, `main-advance-search.php`).
+  - [x] *Grid Form Pencarian Sederhana:* Menyeimbangkan grid kolom (`col-md-5`, `col-md-3`, `col-md-2`, `col-md-2`) agar tombol Cari leluasa, serta memperbaiki penutupan tag form yang benar.
+  - [x] *Solusi Paten Sticky Footer Flexbox:* Mengunci layout dengan `min-height: 100vh` pada `body` & `.wrapper` serta `margin-top: auto` pada footer, mencegah footer melayang di tengah layar saat konten halaman pendek.
+  - [x] *Header Component Alignment:* Transformasi jam digital menjadi translucent subtle pill badge, serta tombol Tampung, Login, dan Registrasi menjadi modern action pills berjarak rapi (Registrasi emas UT).
+  - [x] *Upgrade Kartu Buku (Search Results & Carousel):* Kartu buku hasil pencarian bertransformasi menjadi elevated card terisolasi (`border-radius: 12px`, soft shadow, hover lift), dan kartu carousel dilengkapi 2-line title clamp dan tombol navigasi bulat melayang (*floating circular controls*) putih ber-shadow elegan.
+- [ ] **Fase 7: Deployment & Verifikasi Server:** Eksekusi sinkronisasi ke server intranet UT `172.30.14.94`.
 
 ## 3. Inisiatif Stabilitas Database & OPAC
-- [x] **Mitigasi Error 1637 InnoDB:** Penambahan mekanisme `try ... catch (\Exception $e)` pada eksekusi stored procedure pencarian katalog di `opac/controllers/PencarianSederhanaController.php`.
-- [x] **Optimasi Query Paginasi:** Mengeliminasi 6 query facet (`Author`, `Publisher`, `PublishLocation`, `PublishYear`, `SUBJECT`, `bahasa`) yang redundan saat pengguna berpindah halaman dengan memanfaatkan session cache yang sudah terbentuk pada halaman pertama.
-- [x] **Perlindungan User Experience:** Menampilkan flash notification sistem yang ramah kepada pengguna tanpa memaparkan trace error teknis database jika terjadi antrean transaksi di server database.
+- [x] **Solusi Paten Anti-Error 1637 InnoDB:** Mengeliminasi stored procedure `insertTempSederhanaOpac0` yang membebani rollback segment temporary tablespace (`ibtmp1`) saat paginasi (halaman 2, 3, 4, dst.).
+- [x] **Direct Read-Only Streaming:** Mengganti alur paginasi dengan method `getDirectSearchData()` yang mengeksekusi query `SELECT DISTINCT ... LIMIT :offset, :limit` murni read-only yang 100% kebal dari Error 1637.
+- [x] **Autonomous Fallback Pencarian Awal:** Menambahkan method `getDirectSearchCount()` dan fallback otomatis pada halaman 1 jika database server kehabisan slot temporary table, sehingga pengguna tetap menerima hasil katalog tanpa crash.
+- [x] **Optimasi Query Facet:** Menghilangkan 6 query facet redundan saat paginasi dan mengandalkan session cache yang sudah terbentuk.
+- [x] **Zero-Comments & Linter:** Kode 100% bersih dari komentar dan lolos uji sintaks `php -l`.
 
 ## 4. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).

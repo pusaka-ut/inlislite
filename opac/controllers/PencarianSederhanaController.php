@@ -206,8 +206,8 @@ class PencarianSederhanaController extends \yii\web\Controller {
             $dataFacedSubject = isset($_SESSION['dataFacedSubject']) ? $_SESSION['dataFacedSubject'] : [];
             $dataFacedBahasa = isset($_SESSION['dataFacedBahasa']) ? $_SESSION['dataFacedBahasa'] : [];
 
-            try {
-                if (!isset($_GET['page']) || (!isset($_SESSION['countSearch']))) {
+            if (!isset($_GET['page']) || (!isset($_SESSION['countSearch']))) {
+                try {
                     if ($location) {
                         $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac(:keyword,:ruas,:bahan1,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',".$location." );");
                         $command->bindValues($params);
@@ -217,22 +217,10 @@ class PencarianSederhanaController extends \yii\web\Controller {
                         $command->bindValues($params);
                         $command->execute();
                     }
-                } else {
-                    if (!$location) {
-                        $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac0(:keyword,:ruas,:bahan1,:limitAwal,:limit,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',0 );");
-                        $command->bindValues($params2);
-                        $command->execute();
-                    } else {
-                        $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac0(:keyword,:ruas,:bahan1,:limitAwal,:limit,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',".$location." );");
-                        $command->bindValues($params2);
-                        $command->execute();
-                    }
-                }
 
-                $count = Yii::$app->db->createCommand("select count(1) from tempCariOpac")->queryScalar();
-                $hasilSearch = Yii::$app->db->createCommand("select * from tempCariOpac limit 0,$limit")->queryAll();
+                    $count = Yii::$app->db->createCommand("select count(1) from tempCariOpac")->queryScalar();
+                    $hasilSearch = Yii::$app->db->createCommand("select * from tempCariOpac limit 0,$limit")->queryAll();
 
-                if (!isset($_GET['page']) || (!isset($_SESSION['countSearch']))) {
                     $req = [
                         'fAuthor' => $fAuthor,
                         'fPublisher' => $fPublisher,
@@ -255,27 +243,39 @@ class PencarianSederhanaController extends \yii\web\Controller {
                     $_SESSION['dataFacedSubject'] = $dataFacedSubject;
                     $_SESSION['dataFacedBahasa'] = $dataFacedBahasa;
                     $_SESSION['countSearch'] = $count;
-                } else {
+                } catch (\Exception $e) {
+                    Yii::error($e->getMessage(), 'opac.search');
+                    $hasilSearch = $this->getDirectSearchData($Keyword, $ruas, $bahan1, $location, 0, $limit, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                    $count = $this->getDirectSearchCount($Keyword, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                    $_SESSION['countSearch'] = $count;
+                    $_SESSION['dataFacedAuthor'] = [];
+                    $_SESSION['dataFacedPublisher'] = [];
+                    $_SESSION['dataFacedPublishLocation'] = [];
+                    $_SESSION['dataFacedPublishYear'] = [];
+                    $_SESSION['dataFacedSubject'] = [];
+                    $_SESSION['dataFacedBahasa'] = [];
+                }
+            } else {
+                try {
+                    $hasilSearch = $this->getDirectSearchData($Keyword, $ruas, $bahan1, $location, $limitAwal, $limit, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                    $count = isset($_SESSION['countSearch']) ? $_SESSION['countSearch'] : 0;
                     $dataFacedAuthor = isset($_SESSION['dataFacedAuthor']) ? $_SESSION['dataFacedAuthor'] : [];
                     $dataFacedPublisher = isset($_SESSION['dataFacedPublisher']) ? $_SESSION['dataFacedPublisher'] : [];
                     $dataFacedPublishLocation = isset($_SESSION['dataFacedPublishLocation']) ? $_SESSION['dataFacedPublishLocation'] : [];
                     $dataFacedPublishYear = isset($_SESSION['dataFacedPublishYear']) ? $_SESSION['dataFacedPublishYear'] : [];
                     $dataFacedSubject = isset($_SESSION['dataFacedSubject']) ? $_SESSION['dataFacedSubject'] : [];
                     $dataFacedBahasa = isset($_SESSION['dataFacedBahasa']) ? $_SESSION['dataFacedBahasa'] : [];
-                    $count = isset($_SESSION['countSearch']) ? $_SESSION['countSearch'] : $count;
+                } catch (\Exception $e) {
+                    Yii::error($e->getMessage(), 'opac.search.pagination');
+                    $hasilSearch = [];
+                    $count = isset($_SESSION['countSearch']) ? $_SESSION['countSearch'] : 0;
+                    $dataFacedAuthor = isset($_SESSION['dataFacedAuthor']) ? $_SESSION['dataFacedAuthor'] : [];
+                    $dataFacedPublisher = isset($_SESSION['dataFacedPublisher']) ? $_SESSION['dataFacedPublisher'] : [];
+                    $dataFacedPublishLocation = isset($_SESSION['dataFacedPublishLocation']) ? $_SESSION['dataFacedPublishLocation'] : [];
+                    $dataFacedPublishYear = isset($_SESSION['dataFacedPublishYear']) ? $_SESSION['dataFacedPublishYear'] : [];
+                    $dataFacedSubject = isset($_SESSION['dataFacedSubject']) ? $_SESSION['dataFacedSubject'] : [];
+                    $dataFacedBahasa = isset($_SESSION['dataFacedBahasa']) ? $_SESSION['dataFacedBahasa'] : [];
                 }
-            } catch (\Exception $e) {
-                Yii::error($e->getMessage(), 'opac.search');
-                Yii::$app->getSession()->setFlash('error', [
-                    'type' => 'danger',
-                    'duration' => 6000,
-                    'icon' => 'glyphicon glyphicon-exclamation-sign',
-                    'message' => Yii::t('app', 'Layanan pencarian katalog sedang mengalami kepadatan antrean transaksi di server database. Silakan segarkan halaman atau coba sesaat lagi.'),
-                    'title' => 'Peringatan Server',
-                    'positonY' => Yii::$app->params['flashMessagePositionY'],
-                    'positonX' => Yii::$app->params['flashMessagePositionX']
-                ]);
-                $alert = true;
             }
 
             foreach ($hasilSearch as $key => $value) {
@@ -702,6 +702,191 @@ class PencarianSederhanaController extends \yii\web\Controller {
                         
         ]);
     }
+    private function getDirectSearchData($keyword, $ruas, $bahan1, $location, $limitAwal, $limit, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa) {
+        switch ($ruas) {
+            case 'Judul':
+                $tagCondition = "R.TAG IN ('240','245','246','440','740')";
+                break;
+            case 'Pengarang':
+                $tagCondition = "R.TAG IN ('100','110','111','700','710','711','800','810','811')";
+                break;
+            case 'Penerbit':
+                $tagCondition = "R.TAG IN ('260','264')";
+                break;
+            case 'Subyek':
+                $tagCondition = "R.TAG IN ('600','610','611','650','651')";
+                break;
+            case 'Nomor Panggil':
+                $tagCondition = "R.TAG IN ('090','084')";
+                break;
+            case 'ISBN':
+                $tagCondition = "R.TAG IN ('020')";
+                break;
+            case 'ISSN':
+                $tagCondition = "R.TAG IN ('022')";
+                break;
+            case 'ISMN':
+                $tagCondition = "R.TAG IN ('024')";
+                break;
+            default:
+                $tagCondition = "1 = 1";
+                break;
+        }
 
+        $bindParams = [':keyword' => $keyword];
+
+        if (!empty($location) && $location != 0) {
+            $bindParams[':location'] = $location;
+            $existsCondition = "EXISTS (SELECT 1 FROM catalog_ruas R INNER JOIN collections col ON col.Catalog_id = R.CATALOGID WHERE {$tagCondition} AND R.Value LIKE :keyword AND col.Location_id = :location AND R.CATALOGID = CAT.ID)";
+        } else {
+            $existsCondition = "EXISTS (SELECT 1 FROM catalog_ruas R WHERE {$tagCondition} AND R.Value LIKE :keyword AND R.CATALOGID = CAT.ID)";
+        }
+
+        $worksheetCondition = "1 = 1";
+        if ($bahan1 != 'Semua Jenis bahan' && !empty($bahan1)) {
+            $worksheetCondition = "CAT.Worksheet_id = :bahan1";
+            $bindParams[':bahan1'] = $bahan1;
+        }
+
+        $facetCondition = "1 = 1";
+        if (!empty($fAuthor)) {
+            $facetCondition .= " AND CAT.Author LIKE :fAuthor";
+            $bindParams[':fAuthor'] = '%' . $fAuthor . '%';
+        }
+        if (!empty($fPublisher)) {
+            $facetCondition .= " AND CAT.Publisher LIKE :fPublisher";
+            $bindParams[':fPublisher'] = $fPublisher;
+        }
+        if (!empty($fPublishLoc)) {
+            $facetCondition .= " AND CAT.PublishLocation LIKE :fPublishLoc";
+            $bindParams[':fPublishLoc'] = $fPublishLoc;
+        }
+        if (!empty($fPublishYear)) {
+            $facetCondition .= " AND CAT.PublishYear LIKE :fPublishYear";
+            $bindParams[':fPublishYear'] = $fPublishYear;
+        }
+        if (!empty($fSubject)) {
+            $facetCondition .= " AND CAT.Subject LIKE :fSubject";
+            $bindParams[':fSubject'] = $fSubject;
+        }
+        if (!empty($fBahasa)) {
+            $facetCondition .= " AND CAT.Languages LIKE :fBahasa";
+            $bindParams[':fBahasa'] = $fBahasa;
+        }
+
+        $limitOffset = (int)$limitAwal;
+        $limitCount = (int)$limit;
+
+        $sql = "SELECT DISTINCT 
+            CAT.id AS CatalogId,
+            CAT.title,
+            CAT.author,
+            CAT.publisher,
+            CAT.PublishLocation,
+            CAT.PublishYear,
+            CAT.subject,
+            CAT.Languages AS bahasa,
+            CAT.CoverURL,
+            CAT.Worksheet_id,
+            (SELECT NAME FROM worksheets WHERE id = CAT.Worksheet_id) AS worksheet,
+            (SELECT ISSERIAL FROM worksheets WHERE id = CAT.Worksheet_id) AS ISSERIAL,
+            (SELECT COUNT(1) FROM collections WHERE CATALOG_ID = CAT.ID AND STATUS_ID = 1 AND (BookingExpiredDate < NOW() OR BookingExpiredDate IS NULL)) AS JML_BUKU,
+            (SELECT COUNT(1) FROM collections WHERE CATALOG_ID = CAT.ID) AS ALL_BUKU,
+            (SELECT GROUP_CONCAT(DISTINCT SUBSTR(fileURL, INSTR(fileURL, '.') + 1) SEPARATOR ', ') FROM catalogfiles WHERE Catalog_id = CAT.ID) AS KONTEN_DIGITAL
+        FROM catalogs CAT
+        WHERE {$existsCondition}
+          AND {$worksheetCondition}
+          AND {$facetCondition}
+          AND CAT.isopac = 1
+        LIMIT {$limitOffset}, {$limitCount}";
+
+        $command = Yii::$app->db->createCommand($sql);
+        $command->bindValues($bindParams);
+        return $command->queryAll();
+    }
+
+    private function getDirectSearchCount($keyword, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa) {
+        switch ($ruas) {
+            case 'Judul':
+                $tagCondition = "R.TAG IN ('240','245','246','440','740')";
+                break;
+            case 'Pengarang':
+                $tagCondition = "R.TAG IN ('100','110','111','700','710','711','800','810','811')";
+                break;
+            case 'Penerbit':
+                $tagCondition = "R.TAG IN ('260','264')";
+                break;
+            case 'Subyek':
+                $tagCondition = "R.TAG IN ('600','610','611','650','651')";
+                break;
+            case 'Nomor Panggil':
+                $tagCondition = "R.TAG IN ('090','084')";
+                break;
+            case 'ISBN':
+                $tagCondition = "R.TAG IN ('020')";
+                break;
+            case 'ISSN':
+                $tagCondition = "R.TAG IN ('022')";
+                break;
+            case 'ISMN':
+                $tagCondition = "R.TAG IN ('024')";
+                break;
+            default:
+                $tagCondition = "1 = 1";
+                break;
+        }
+
+        $bindParams = [':keyword' => $keyword];
+
+        if (!empty($location) && $location != 0) {
+            $bindParams[':location'] = $location;
+            $existsCondition = "EXISTS (SELECT 1 FROM catalog_ruas R INNER JOIN collections col ON col.Catalog_id = R.CATALOGID WHERE {$tagCondition} AND R.Value LIKE :keyword AND col.Location_id = :location AND R.CATALOGID = CAT.ID)";
+        } else {
+            $existsCondition = "EXISTS (SELECT 1 FROM catalog_ruas R WHERE {$tagCondition} AND R.Value LIKE :keyword AND R.CATALOGID = CAT.ID)";
+        }
+
+        $worksheetCondition = "1 = 1";
+        if ($bahan1 != 'Semua Jenis bahan' && !empty($bahan1)) {
+            $worksheetCondition = "CAT.Worksheet_id = :bahan1";
+            $bindParams[':bahan1'] = $bahan1;
+        }
+
+        $facetCondition = "1 = 1";
+        if (!empty($fAuthor)) {
+            $facetCondition .= " AND CAT.Author LIKE :fAuthor";
+            $bindParams[':fAuthor'] = '%' . $fAuthor . '%';
+        }
+        if (!empty($fPublisher)) {
+            $facetCondition .= " AND CAT.Publisher LIKE :fPublisher";
+            $bindParams[':fPublisher'] = $fPublisher;
+        }
+        if (!empty($fPublishLoc)) {
+            $facetCondition .= " AND CAT.PublishLocation LIKE :fPublishLoc";
+            $bindParams[':fPublishLoc'] = $fPublishLoc;
+        }
+        if (!empty($fPublishYear)) {
+            $facetCondition .= " AND CAT.PublishYear LIKE :fPublishYear";
+            $bindParams[':fPublishYear'] = $fPublishYear;
+        }
+        if (!empty($fSubject)) {
+            $facetCondition .= " AND CAT.Subject LIKE :fSubject";
+            $bindParams[':fSubject'] = $fSubject;
+        }
+        if (!empty($fBahasa)) {
+            $facetCondition .= " AND CAT.Languages LIKE :fBahasa";
+            $bindParams[':fBahasa'] = $fBahasa;
+        }
+
+        $sql = "SELECT COUNT(DISTINCT CAT.id)
+        FROM catalogs CAT
+        WHERE {$existsCondition}
+          AND {$worksheetCondition}
+          AND {$facetCondition}
+          AND CAT.isopac = 1";
+
+        $command = Yii::$app->db->createCommand($sql);
+        $command->bindValues($bindParams);
+        return (int)$command->queryScalar();
+    }
 
 }

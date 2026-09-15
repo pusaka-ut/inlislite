@@ -36,9 +36,14 @@ Dokumentasi ini adalah Single Source of Truth untuk standar desain, warna, tipog
   - Elevated Shadow: `0 10px 25px -5px rgba(0, 43, 85, 0.12)`
   - Focus Ring: `0 0 0 3px rgba(0, 64, 128, 0.15)`
 
-## 4. Komponen Kunci
+## 4. Komponen Kunci OPAC & Admin
 
-- **Header / Navbar:** Gradasi Navy dengan aksen emas UT di border bawah.
-- **Search Hero:** Input besar dengan soft focus ring dan tombol pencarian royal blue.
-- **Book Cards:** Kartu terangkat dengan efek hover lift (`translateY(-2px)`), Call Number kontras tinggi.
+- **Header / Navbar:** Gradasi Navy dengan aksen emas UT di border bawah. Logo institusi dibungkus tautan aktif ke halaman beranda (`brand-link`).
+- **Header Components Alignment:** Jam digital berwujud subtle translucent glass pill badge, tombol Tampung, Login, dan Registrasi berwujud modern action pills (Registrasi berlatar emas UT).
+- **Sticky Footer Flexbox Lock:** Kunci layout `min-height: 100vh` pada `body` & `.wrapper`, dengan `margin-top: auto` pada footer untuk mencegah footer melayang pada konten pendek.
+- **Search Hero:** Input field dengan border fisik (`1.5px solid #cbd5e1`), tombol Cari proporsional (`col-md-2`), dan sublinks teratur dengan divider halus.
+- **Book Cards & Carousel:**
+  - Kartu buku hasil pencarian: Elevated block cards dengan border-radius `12px`, soft shadow, hover lift, dan sampul ber-radius `8px`.
+  - Carousel koleksi (Unggulan & Terbaru): Kartu buku rapi dengan 2-line title clamp dan tombol navigasi bulat melayang (*floating circular controls*) berlatar putih dengan elevasi lembut.
+  - Section Header: Aksen bar emas vertikal UT (`border-left: 4px solid #ffcc00`) dengan tipografi tebal UT Deep Navy.
 - **Badges:** Pill badge halus dengan border transparan lembut.

@@ -118,17 +118,17 @@ else {
                 <div class="container">
                     <div class="navbar-header">
                         <div class="title">
-                           <!--  <div class="image"> <a href='<?=$homeUrl?>'> <img src="../<?=Yii::getAlias('@upload')."/aplikasi/logo_perpusnas_2015.png"?>" class="img-logo" height="65" width="70"> </a></div> -->
-                           <!--  <div class="image"> <a href='<?=$homeUrl?>'> <img src="<?= Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/logo_perpusnas_2015.png') ?>" class="img-logo" height="65" width="70"> </a></div> -->
-                            <div class="image"><img src="<?= Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/logo_perpusnas_2015.png') ?>" class="img-logo" height="65" width="70"></div>
-                            <div class="text">
-                                <h3 style="margin-top: 20px;">Online Public Access Catalog</h3>
-                                <div class="clear"></div>
-                                <div class="time"><?= $namaperpus ?></div><br/>
-                                <div class="clear"></div>
-                                <div class="timeddr" style="margin-bottom: 10px"><?= $alamat ?></div>
-                                <div class="clear"></div>
-                            </div>
+                            <a href="<?= $homeUrl ?>" class="brand-link" style="display:inline-flex; align-items:center; text-decoration:none; color:inherit;">
+                                <div class="image"><img src="<?= Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/logo_perpusnas_2015.png') ?>" class="img-logo" height="65" width="70"></div>
+                                <div class="text">
+                                    <h3 style="margin-top: 20px;">Online Public Access Catalog</h3>
+                                    <div class="clear"></div>
+                                    <div class="time"><?= $namaperpus ?></div><br/>
+                                    <div class="clear"></div>
+                                    <div class="timeddr" style="margin-bottom: 10px"><?= $alamat ?></div>
+                                    <div class="clear"></div>
+                                </div>
+                            </a>
                             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
                                 <i class="fa fa-bars"></i>
                             </button>
@@ -137,7 +137,6 @@ else {
                         </div>
                     </div>
 
-                    <!-- Collect the nav links, forms, and other content for toggling -->
                     <div class="collapse navbar-collapse pull-right" id="navbar-collapse">
                         <span class="pull-right" style="color:#fff; margin-right:5px; margin-top:5px" id="clocktime" ></span><br>
                         <ul class="nav navbar-nav pull-right">        
@@ -163,12 +162,9 @@ else {
                           
                   </ul>
 
-                    </div><!-- /.navbar-collapse -->
-                    <!-- Navbar Right Menu -->
-                    <!-- /.navbar-custom-menu -->
-                </div><!-- /.container-fluid -->
+                    </div>
+                </div>
             </nav>
-            <!-- /navbar -->
         </header>
 
                 <section class="content-search">
@@ -184,51 +180,53 @@ else {
                         </span>
                         </div>
                         </div>
-                    <form action="<?php echo $homeUrl; ?>search/index" method="GET"/>
+                    <form action="<?php echo $homeUrl; ?>search/index" method="GET">
                     <input type="hidden" name="action" value="pencarianSederhana"/>
 
                         <div class="tab-content">
                             <div class="tab-pane active" id="tab_1">
-                  <div class="col-sm-4"><div class="form-group">
-                          <input type="text" class="form-control" name="katakunci" id="KataKunci" placeholder='<?= Yii::t('app', 'Kata Kunci')?>' size="25" ></div></div>
-                      <div class="col-sm-4"><div class="form-group">
-
-                    <select  class="form-control" name="ruas">
-                      <option value="Judul"><?= Yii::t('app', 'Judul')?></option>
-                      <option value="Pengarang"><?= Yii::t('app', 'Pengarang')?></option>
-                      <option value="Penerbit"><?= Yii::t('app', 'Penerbitan')?></option>
-                      <option value="Subyek"><?= Yii::t('app', 'Subyek')?></option>
-                      <option value="Nomor Panggil"><?= Yii::t('app', 'Nomor Panggil')?></option>
-                      <option value="ISBN">ISBN</option>
-                      <option value="ISSN">ISSN</option>                    
-                      <option value="ISMN">ISMN</option>
-                      <option value="Semua Ruas"><?= Yii::t('app', 'Sembarang')?></option> 
-
-                    </select>
-                              </form>
-                      </div></div>
-                      <div class="col-sm-3"><div class="form-group">
-
-                              <select class="form-control" name="bahan" onChange="getData(this);" >
-                      <?php
-                      for ($i=0; $i <sizeof($Worksheets) ; $i++) { 
-                      echo"<option value ='".$Worksheets[$i]['ID']."'>".$Worksheets[$i]['Name']."</option> ";
-                      }
-                      ?>
-
-                      <option value="Semua Jenis Bahan" selected><?= Yii::t('app', 'Semua Bahan')?></option>
-
-                    </select>
-                              
-                      </div></div>
-                      <div class="col-sm-1"><input class="btn btn-success" type="submit" value=<?= Yii::t('app', 'Cari')?>  align="right"></div>
-                   </div>
-
-                   </div>
-                  <div class="row">&nbsp;</div>
-                  <div class="row">
-                  <div class="col-sm-12">&nbsp; &nbsp; <a href="<?php echo $homeUrl."pencarian-lanjut"; ?>"><?= Yii::t('app', 'Pencarian lanjut')?> </a> - <a href="<?php echo $homeUrl."riwayat-pencarian"; ?>"><?= Yii::t('app', 'Riwayat Pencarian')?> </a> - <a href="" data-toggle="modal" data-target="#modalBantuan"><?= Yii::t('app', 'Bantuan')?></a> </div>
-                  </div>
+                                <div class="col-md-5 col-sm-4">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="katakunci" id="KataKunci" placeholder='<?= Yii::t('app', 'Kata Kunci')?>' size="25">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-3">
+                                    <div class="form-group">
+                                        <select class="form-control" name="ruas">
+                                            <option value="Judul"><?= Yii::t('app', 'Judul')?></option>
+                                            <option value="Pengarang"><?= Yii::t('app', 'Pengarang')?></option>
+                                            <option value="Penerbit"><?= Yii::t('app', 'Penerbitan')?></option>
+                                            <option value="Subyek"><?= Yii::t('app', 'Subyek')?></option>
+                                            <option value="Nomor Panggil"><?= Yii::t('app', 'Nomor Panggil')?></option>
+                                            <option value="ISBN">ISBN</option>
+                                            <option value="ISSN">ISSN</option>
+                                            <option value="ISMN">ISMN</option>
+                                            <option value="Semua Ruas"><?= Yii::t('app', 'Sembarang')?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-3">
+                                    <div class="form-group">
+                                        <select class="form-control" name="bahan" onChange="getData(this);">
+                                            <?php
+                                            for ($i=0; $i <sizeof($Worksheets) ; $i++) { 
+                                                echo"<option value ='".$Worksheets[$i]['ID']."'>".$Worksheets[$i]['Name']."</option> ";
+                                            }
+                                            ?>
+                                            <option value="Semua Jenis Bahan" selected><?= Yii::t('app', 'Semua Bahan')?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-2">
+                                    <input class="btn btn-success" type="submit" value="<?= Yii::t('app', 'Cari')?>">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">&nbsp;</div>
+                    <div class="row">
+                        <div class="col-sm-12 search-sublinks">&nbsp; &nbsp; <a href="<?php echo $homeUrl."pencarian-lanjut"; ?>"><?= Yii::t('app', 'Pencarian lanjut')?> </a> <span class="search-divider">|</span> <a href="<?php echo $homeUrl."riwayat-pencarian"; ?>"><?= Yii::t('app', 'Riwayat Pencarian')?> </a> <span class="search-divider">|</span> <a href="" data-toggle="modal" data-target="#modalBantuan"><?= Yii::t('app', 'Bantuan')?></a> </div>
+                    </div>
                   
 
                  <!-- Modal -->
