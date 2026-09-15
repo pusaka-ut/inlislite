@@ -99,10 +99,10 @@ else {
     <title>OPAC - Perpustakaan UT</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <link rel="shortcut icon" type='image/x-icon' href="<?=Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/favicon.png');?>">
-
-
-    <!--  <link rel="shortcut icon" type='image/x-icon' href="../..<?=Yii::getAlias('@upload')."/aplikasi/favicon.png"?>"> -->
+    <link rel="shortcut icon" type="image/x-icon" href="<?= Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/favicon.png'); ?>">
+    <link rel="icon" type="image/png" href="<?= Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/favicon.png'); ?>">
+    <link rel="icon" type="image/x-icon" href="<?= $homeUrl ?>favicon.ico">
+    <link rel="icon" type="image/png" href="<?= $homeUrl ?>favicon.png">
 
     <?php $this->head() ?>
 
@@ -111,57 +111,43 @@ else {
 
 <body class="skin-blue layout-top-nav">
     <div class="wrapper" style=" background-color: #FFF;">
-        <!-- Header web -->
         <header class="main-header">
-            <!-- navbar -->
             <nav class="navbar navbar-static-top">
                 <div class="container">
                     <div class="navbar-header">
                         <div class="title">
                             <a href="<?= $homeUrl ?>" class="brand-link" style="display:inline-flex; align-items:center; text-decoration:none; color:inherit;">
-                                <div class="image"><img src="<?= Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/logo_perpusnas_2015.png') ?>" class="img-logo" height="65" width="70"></div>
-                                <div class="text">
-                                    <h3 style="margin-top: 20px;">Online Public Access Catalog</h3>
-                                    <div class="clear"></div>
-                                    <div class="time"><?= $namaperpus ?></div><br/>
-                                    <div class="clear"></div>
-                                    <div class="timeddr" style="margin-bottom: 10px"><?= $alamat ?></div>
-                                    <div class="clear"></div>
+                                <div class="image"><img src="<?= Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/logo_perpusnas_2015.png') ?>" class="img-logo" height="60" width="auto"></div>
+                                <div class="brand-text-col" style="display:flex; flex-direction:column; justify-content:center; margin-left:12px;">
+                                    <div class="brand-title" style="color:#ffffff; font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:700; line-height:1.2; letter-spacing:-0.01em;">Online Public Access Catalog</div>
+                                    <div class="brand-subtitle" style="color:#ffcc00; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-top:2px;"><?= $namaperpus ?></div>
                                 </div>
                             </a>
                             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
                                 <i class="fa fa-bars"></i>
                             </button>
-                            <div class="clear">
-                            </div>
                         </div>
                     </div>
 
                     <div class="collapse navbar-collapse pull-right" id="navbar-collapse">
-                        <span class="pull-right" style="color:#fff; margin-right:5px; margin-top:5px" id="clocktime" ></span><br>
-                        <ul class="nav navbar-nav pull-right">        
-            
-                    <li> <a class="bookmarkShow" href="javascript:void(0)"  onclick='tampilBooking()' ></a> </li>     
-                    <li> <a href="<?php echo $homeUrl."bookmark"; ?>"><?= Yii::t('app', 'Tampung')?></a> </li>
-                      <?php 
-                      if (Yii::$app->user->isGuest) {
-                        echo"
-
-                         <li> <a href=\"javascript:void(0)\"  onclick='tampilLogin()'>Login</a> </li>
-                        <li> <a href=\"../".Url::to('pendaftaran')."\">" .Yii::t('app', 'Registrasi')."</a> </li>
-                        ";
-                      } else {
-                        echo"
-                        <li> <a href=\"".$homeUrl."site/logout  \">Logout (" . $noAnggota.")</a> </li>
-
-                        ";
-
-                        $_SESSION['__NoAnggota']= $noAnggota;
-                      }
-                      ?>
-                          
-                  </ul>
-
+                        <div class="header-right-wrapper" style="display:flex; align-items:center; justify-content:flex-end; gap:8px; padding-top:10px;">
+                            <span id="clocktime"></span>
+                            <ul class="nav navbar-nav" style="display:flex; align-items:center; margin:0; padding:0;">        
+                            <?php if (!Yii::$app->user->isGuest): ?>
+                                <li> <a class="bookmarkShow" href="javascript:void(0)" onclick='tampilBooking()' style="display:none;"></a> </li>
+                            <?php endif; ?>
+                                <li> <a href="<?php echo $homeUrl."bookmark"; ?>"><?= Yii::t('app', 'Tampung')?></a> </li>
+                                <?php 
+                                if (Yii::$app->user->isGuest) {
+                                    echo "<li> <a href=\"javascript:void(0)\" onclick='tampilLogin()'>Login</a> </li>
+                                    <li> <a href=\"../".Url::to('pendaftaran')."\">" .Yii::t('app', 'Registrasi')."</a> </li>";
+                                } else {
+                                    echo "<li> <a href=\"".$homeUrl."site/logout\">Logout (" . $noAnggota.")</a> </li>";
+                                    $_SESSION['__NoAnggota']= $noAnggota;
+                                }
+                                ?>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </nav>

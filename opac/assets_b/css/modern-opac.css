@@ -35,6 +35,11 @@ html, body {
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   background-color: var(--ut-slate-bg) !important;
+  background-image: 
+    radial-gradient(1200px 500px at 50% -50px, rgba(0, 43, 85, 0.06), rgba(0, 64, 128, 0.02), transparent 70%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
   color: var(--ut-text-primary) !important;
   font-size: 13.5px !important;
   line-height: 1.6 !important;
@@ -49,7 +54,7 @@ body {
   flex-direction: column !important;
   min-height: 100vh !important;
   flex: 1 0 auto !important;
-  background-color: var(--ut-slate-bg) !important;
+  background-color: transparent !important;
 }
 
 .content-wrapper {
@@ -70,7 +75,6 @@ header {
 .brand-link {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 12px !important;
   text-decoration: none !important;
   color: inherit !important;
 }
@@ -87,6 +91,32 @@ header {
 
 .brand-link .image img {
   transition: transform 0.2s ease !important;
+}
+
+.brand-text-col {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  margin-left: 12px !important;
+}
+
+.brand-title {
+  color: #ffffff !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.brand-subtitle {
+  color: var(--ut-gold) !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  margin-top: 2px !important;
 }
 
 .navbar-header {
@@ -187,6 +217,18 @@ header {
   border-color: rgba(255, 255, 255, 0.25) !important;
   color: #ffffff !important;
   font-weight: 700 !important;
+}
+
+.navbar-nav > li > a.bookmarkShow:empty,
+.navbar-nav > li:has(> a.bookmarkShow:empty) {
+  display: none !important;
+}
+
+.title .text {
+  display: flex !important;
+  flex-direction: column !important;
+  width: auto !important;
+  float: none !important;
 }
 
 .title .text,
@@ -577,45 +619,48 @@ a.topnav-content:hover,
 
 .clients-carousel {
   position: relative !important;
-  padding: 10px 4px !important;
+  padding: 10px 42px !important;
 }
 
 .clients-carousel .thumbnail {
   background: #ffffff !important;
-  border: 1px solid var(--ut-slate-border) !important;
-  border-radius: 12px !important;
-  padding: 16px 12px 14px 12px !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 14px !important;
+  padding: 18px 14px 16px 14px !important;
   text-align: center !important;
-  height: 255px !important;
+  height: 260px !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: flex-start !important;
   text-decoration: none !important;
-  box-shadow: 0 2px 8px rgba(0, 43, 85, 0.05) !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 43, 85, 0.06), 0 2px 6px -1px rgba(0, 43, 85, 0.04) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
   margin-bottom: 14px !important;
+  position: relative !important;
+  overflow: hidden !important;
 }
 
 .clients-carousel .thumbnail:hover {
-  transform: translateY(-5px) !important;
-  box-shadow: 0 12px 24px -4px rgba(0, 43, 85, 0.14), 0 0 0 1px rgba(0, 64, 128, 0.1) !important;
-  border-color: #cbd5e1 !important;
+  transform: translateY(-6px) !important;
+  box-shadow: 0 16px 32px -4px rgba(0, 43, 85, 0.12), 0 8px 16px -2px rgba(0, 64, 128, 0.08), 0 0 0 1px rgba(0, 64, 128, 0.15) !important;
+  border-color: rgba(0, 64, 128, 0.25) !important;
 }
 
 .clients-carousel .thumbnail img {
-  width: 105px !important;
-  height: 152px !important;
+  width: 108px !important;
+  height: 154px !important;
   object-fit: cover !important;
   border-radius: 8px !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 6px 14px rgba(0, 43, 85, 0.14) !important;
   margin-bottom: 12px !important;
   flex-shrink: 0 !important;
-  transition: transform 0.2s ease !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
 }
 
 .clients-carousel .thumbnail:hover img {
-  transform: scale(1.02) !important;
+  transform: scale(1.03) !important;
+  box-shadow: 0 8px 18px rgba(0, 43, 85, 0.22) !important;
 }
 
 .clients-carousel .thumbnail p {
@@ -640,41 +685,47 @@ a.topnav-content:hover,
 
 .clients-carousel .carousel-control.left,
 .clients-carousel .carousel-control.right {
-  width: 40px !important;
-  height: 40px !important;
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  bottom: auto !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  background: #ffffff !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(8px) !important;
   background-image: none !important;
-  border: 1px solid var(--ut-slate-border) !important;
+  border: 1px solid rgba(203, 213, 225, 0.85) !important;
   border-radius: 50% !important;
   color: var(--ut-navy-deep) !important;
   opacity: 0.95 !important;
-  box-shadow: 0 4px 14px rgba(0, 43, 85, 0.16) !important;
+  box-shadow: 0 4px 16px rgba(0, 43, 85, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 24px !important;
+  font-size: 22px !important;
   line-height: 1 !important;
   text-shadow: none !important;
-  transition: all 0.2s ease !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
   z-index: 5 !important;
 }
 
 .clients-carousel .carousel-control.left {
-  left: -16px !important;
+  left: 0px !important;
 }
 
 .clients-carousel .carousel-control.right {
-  right: -16px !important;
+  right: 0px !important;
 }
 
 .clients-carousel .carousel-control:hover {
-  background: var(--ut-navy-deep) !important;
+  background: var(--ut-blue-royal) !important;
   color: #ffffff !important;
-  border-color: var(--ut-navy-deep) !important;
-  transform: translateY(-50%) scale(1.1) !important;
-  box-shadow: 0 6px 18px rgba(0, 43, 85, 0.25) !important;
+  border-color: var(--ut-blue-royal) !important;
+  transform: translateY(-50%) scale(1.08) !important;
+  box-shadow: 0 8px 24px rgba(0, 43, 85, 0.25) !important;
   opacity: 1 !important;
 }
 
@@ -688,18 +739,19 @@ a.topnav-content:hover,
 
 .table2.table-striped > tbody > tr > td {
   background: #ffffff !important;
-  border: 1px solid var(--ut-slate-border) !important;
-  border-radius: 12px !important;
-  padding: 20px !important;
-  box-shadow: 0 2px 8px rgba(0, 43, 85, 0.04) !important;
-  transition: all 0.25s ease !important;
+  border: 1px solid rgba(226, 232, 240, 0.85) !important;
+  border-radius: 14px !important;
+  padding: 22px !important;
+  box-shadow: 0 4px 18px -2px rgba(0, 43, 85, 0.06), 0 2px 6px -1px rgba(0, 43, 85, 0.03) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
   display: block !important;
+  position: relative !important;
 }
 
 .table2.table-striped > tbody > tr > td:hover {
-  box-shadow: 0 8px 24px -4px rgba(0, 43, 85, 0.1) !important;
-  border-color: #cbd5e1 !important;
-  transform: translateY(-2px) !important;
+  box-shadow: 0 16px 36px -4px rgba(0, 43, 85, 0.12), 0 8px 16px -2px rgba(0, 64, 128, 0.06) !important;
+  border-color: rgba(0, 64, 128, 0.25) !important;
+  transform: translateY(-3px) !important;
 }
 
 .table2.table-striped img {
@@ -801,6 +853,93 @@ footer a:hover,
   color: var(--ut-blue-royal) !important;
 }
 
+.content-wrapper .box.box-default {
+  background: #ffffff !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 43, 85, 0.08), 0 2px 8px -2px rgba(0, 43, 85, 0.04) !important;
+  padding: 16px 24px !important;
+  margin-top: 24px !important;
+  border-top: 3px solid var(--ut-blue-royal) !important;
+}
+
+.content-wrapper .box.box-default:empty {
+  display: none !important;
+}
+
+.content-wrapper .box input[type="text"],
+.content-wrapper .box select {
+  height: 42px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  background-color: #ffffff !important;
+  color: var(--ut-text-primary) !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  padding: 6px 12px !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.content-wrapper .box input[type="text"]:focus,
+.content-wrapper .box select:focus {
+  border-color: var(--ut-blue-royal) !important;
+  box-shadow: 0 0 0 3px rgba(0, 64, 128, 0.15) !important;
+  outline: none !important;
+}
+
+.content-wrapper .box label {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--ut-text-primary) !important;
+  margin-top: 8px !important;
+}
+
+.content-wrapper .box input[type="submit"],
+.content-wrapper .box .btn-success {
+  height: 42px !important;
+  background: linear-gradient(135deg, var(--ut-navy-deep) 0%, var(--ut-blue-royal) 100%) !important;
+  border: 1px solid var(--ut-navy-deep) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  letter-spacing: 0.02em !important;
+  padding: 0 24px !important;
+  box-shadow: 0 2px 8px rgba(0, 43, 85, 0.2) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.content-wrapper .box input[type="submit"]:hover,
+.content-wrapper .box .btn-success:hover {
+  background: linear-gradient(135deg, var(--ut-navy-dark) 0%, var(--ut-navy-deep) 100%) !important;
+  box-shadow: 0 4px 14px rgba(0, 43, 85, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+#AddInpElem {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  background: rgba(0, 64, 128, 0.08) !important;
+  color: var(--ut-blue-royal) !important;
+  font-size: 20px !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+  margin-top: 2px !important;
+}
+
+#AddInpElem:hover {
+  background: var(--ut-blue-royal) !important;
+  color: #ffffff !important;
+  transform: scale(1.1) !important;
+}
+
 @media (max-width: 767px) {
   .navbar .container {
     flex-direction: column !important;
@@ -814,6 +953,9 @@ footer a:hover,
     flex-wrap: wrap !important;
     justify-content: center !important;
     gap: 6px !important;
+  }
+  .clients-carousel {
+    padding: 10px 18px !important;
   }
   .clients-carousel .carousel-control.left {
     left: 2px !important;
