@@ -138,8 +138,8 @@ $rootPath=\Yii::$app->basePath;
              <?php
              if(sizeof($modelUnggul)>4){
              echo"
-             <a data-slide=\"prev\" href=\"#clients-slider\" class=\"left carousel-control\">‹</a>
-                       <a data-slide=\"next\" href=\"#clients-slider\" class=\"right carousel-control\">›</a>
+             <a data-slide=\"prev\" href=\"#clients-slider\" class=\"left carousel-control\"><i class=\"fa fa-chevron-left\"></i></a>
+                       <a data-slide=\"next\" href=\"#clients-slider\" class=\"right carousel-control\"><i class=\"fa fa-chevron-right\"></i></a>
              ";
              }
 
@@ -276,12 +276,12 @@ $rootPath=\Yii::$app->basePath;
 
              </div>
              <?php
-             if(sizeof($modelTC)>4){
-             echo"
-             <a data-slide=\"prev\" href=\"#clients-slider2\" class=\"left carousel-control\">‹</a>
-                       <a data-slide=\"next\" href=\"#clients-slider2\" class=\"right carousel-control\">›</a>
-             ";
-             }
+              if(sizeof($modelTC)>4){
+              echo"
+              <a data-slide=\"prev\" href=\"#clients-slider2\" class=\"left carousel-control\"><i class=\"fa fa-chevron-left\"></i></a>
+                        <a data-slide=\"next\" href=\"#clients-slider2\" class=\"right carousel-control\"><i class=\"fa fa-chevron-right\"></i></a>
+              ";
+              }
 
               ?>
 
@@ -410,12 +410,12 @@ $rootPath=\Yii::$app->basePath;
 
              </div>
              <?php
-             if(sizeof($modelNC)>4){
-             echo"
-             <a data-slide=\"prev\" href=\"#clients-slider3\" class=\"left carousel-control\">‹</a>
-                       <a data-slide=\"next\" href=\"#clients-slider3\" class=\"right carousel-control\">›</a>
-             ";
-             }
+              if(sizeof($modelNC)>4){
+              echo"
+              <a data-slide=\"prev\" href=\"#clients-slider3\" class=\"left carousel-control\"><i class=\"fa fa-chevron-left\"></i></a>
+                        <a data-slide=\"next\" href=\"#clients-slider3\" class=\"right carousel-control\"><i class=\"fa fa-chevron-right\"></i></a>
+              ";
+              }
 
               ?>
 

@@ -36,9 +36,14 @@ body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   background-color: var(--ut-slate-bg) !important;
   background-image: 
-    radial-gradient(1200px 500px at 50% -50px, rgba(0, 43, 85, 0.06), rgba(0, 64, 128, 0.02), transparent 70%),
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
+    linear-gradient(180deg, 
+      rgba(248, 250, 252, 0.92) 0%, 
+      rgba(241, 245, 249, 0.89) 35%, 
+      rgba(238, 242, 246, 0.94) 100%),
+    url('../images/modern_library_bg.jpg') !important;
   background-repeat: no-repeat !important;
+  background-position: center top !important;
+  background-size: cover !important;
   background-attachment: fixed !important;
   color: var(--ut-text-primary) !important;
   font-size: 13.5px !important;
@@ -940,10 +945,141 @@ footer a:hover,
   transform: scale(1.1) !important;
 }
 
+.clients-carousel {
+  position: relative !important;
+  padding: 10px 32px !important;
+}
+
+.clients-carousel .thumbnail {
+  background: #ffffff !important;
+  border: 1px solid var(--ut-slate-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px -2px rgba(0, 43, 85, 0.08) !important;
+  padding: 12px !important;
+  transition: all 0.25s ease !important;
+  margin-bottom: 20px !important;
+}
+
+.clients-carousel .thumbnail:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 24px -4px rgba(0, 43, 85, 0.16) !important;
+  border-color: var(--ut-blue-royal) !important;
+}
+
+.clients-carousel .thumbnail img {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: transform 0.25s ease !important;
+}
+
+.clients-carousel .thumbnail:hover img {
+  transform: scale(1.02) !important;
+}
+
+.clients-carousel .carousel-control,
+.carousel-control {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 40px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: var(--ut-navy-deep) !important;
+  opacity: 0.95 !important;
+  text-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 15px !important;
+  box-shadow: 0 4px 12px rgba(0, 43, 85, 0.12) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  z-index: 10 !important;
+}
+
+.clients-carousel .carousel-control.left,
+.carousel-control.left {
+  left: -8px !important;
+  right: auto !important;
+}
+
+.clients-carousel .carousel-control.right,
+.carousel-control.right {
+  right: -8px !important;
+  left: auto !important;
+}
+
+.clients-carousel .carousel-control:hover,
+.carousel-control:hover,
+.clients-carousel .carousel-control:focus,
+.carousel-control:focus {
+  background: var(--ut-navy-deep) !important;
+  color: #ffffff !important;
+  border-color: var(--ut-navy-deep) !important;
+  box-shadow: 0 6px 18px rgba(0, 43, 85, 0.24) !important;
+  transform: translateY(-50%) scale(1.06) !important;
+  opacity: 1 !important;
+}
+
+.clients-carousel .carousel-control:active,
+.carousel-control:active {
+  transform: translateY(-50%) scale(0.96) !important;
+}
+
+.clients-carousel .caption h4,
+.clients-carousel .caption h5 {
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  line-height: 1.4 !important;
+  color: var(--ut-navy-deep) !important;
+  margin-top: 10px !important;
+  margin-bottom: 6px !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  height: 38px !important;
+}
+
+@media (max-width: 991px) {
+  .brand-link .image img {
+    height: 44px !important;
+    width: auto !important;
+  }
+  .brand-title {
+    font-size: 14px !important;
+  }
+  .brand-subtitle {
+    font-size: 10px !important;
+  }
+  .clients-carousel {
+    padding: 10px 24px !important;
+  }
+}
+
 @media (max-width: 767px) {
+  body {
+    background-attachment: scroll !important;
+  }
   .navbar .container {
     flex-direction: column !important;
     align-items: stretch !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .brand-link .image img {
+    height: 40px !important;
+    width: auto !important;
+  }
+  .brand-title {
+    font-size: 13px !important;
+    white-space: normal !important;
+  }
+  .brand-subtitle {
+    font-size: 9.5px !important;
   }
   #navbar-collapse {
     align-items: center !important;
@@ -954,13 +1090,58 @@ footer a:hover,
     justify-content: center !important;
     gap: 6px !important;
   }
-  .clients-carousel {
-    padding: 10px 18px !important;
+  .search-sublinks {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 8px !important;
   }
-  .clients-carousel .carousel-control.left {
+  .search-sublinks a {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+  .clients-carousel {
+    padding: 10px 14px !important;
+  }
+  .clients-carousel .carousel-control,
+  .carousel-control {
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+  }
+  .clients-carousel .carousel-control.left,
+  .carousel-control.left {
     left: 2px !important;
   }
-  .clients-carousel .carousel-control.right {
+  .clients-carousel .carousel-control.right,
+  .carousel-control.right {
     right: 2px !important;
+  }
+  .footer,
+  footer {
+    text-align: center !important;
+    padding: 20px 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-text-col {
+    margin-left: 8px !important;
+  }
+  .brand-title {
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+  .brand-subtitle {
+    font-size: 8.5px !important;
+  }
+  .search-container {
+    padding: 16px 12px !important;
+  }
+  .clients-carousel .caption h4,
+  .clients-carousel .caption h5 {
+    font-size: 12px !important;
+    height: 34px !important;
   }
 }

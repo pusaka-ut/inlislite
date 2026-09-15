@@ -107,7 +107,7 @@ else {
 
 
 <body class="skin-blue layout-top-nav">
-    <div class="wrapper" style=" background-color: #FFF;">
+    <div class="wrapper">
         <header class="main-header">
             <nav class="navbar navbar-static-top">
                 <div class="container">
