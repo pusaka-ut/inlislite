@@ -109,7 +109,7 @@ else {
 
 
 <body class="skin-blue layout-top-nav">
-    <div class="wrapper" style=" background-color: #FFF;">
+    <div class="wrapper">
         <header class="main-header">
             <nav class="navbar navbar-static-top">
                 <div class="container">
@@ -279,12 +279,12 @@ else {
         <?php 
             $checkOpacCounter = \common\components\OpacHelpers::tableExist('opac_counter');
             if($checkOpacCounter !== 0){ 
-          ?>
-            <div class="col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-2">
-              <p>Counter : <?=str_pad(\common\models\OpacCounter::find()->count(), 7, '0', STR_PAD_LEFT)?></p>
+        ?>
+            <div class="footer-counter-container">
+              <span class="opac-counter-pill"><i class="fa fa-eye"></i> Kunjungan: <?= number_format(\common\models\OpacCounter::find()->count(), 0, ',', '.') ?></span>
             </div>
         <?php } ?>
-      </div> <!-- /.container -->
+      </div>
     </footer>
         <?php $this->endBody() ?>
     </div><!-- ./wrapper -->

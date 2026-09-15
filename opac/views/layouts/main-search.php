@@ -107,7 +107,7 @@ else {
 
 
 <body class="skin-blue layout-top-nav">
-    <div class="wrapper" style=" background-color: #FFF;">
+    <div class="wrapper">
         <header class="main-header">
             <nav class="navbar navbar-static-top">
                 <div class="container">
@@ -177,7 +177,16 @@ else {
           <?=\Yii::$app->params['footerInfoRight'];?>
         </div>
         <?= yii::t('app',\Yii::$app->params['footerInfoLeft']); ?> &copy; <?= yii::t('app',\Yii::$app->params['year']); ?> <a href="http://inlislite.perpusnas.go.id" target="_blank"><?= yii::t('app','Perpustakaan Nasional Republik Indonesia') ?></a>
-      </div> <!-- /.container -->
+
+        <?php 
+            $checkOpacCounter = \common\components\OpacHelpers::tableExist('opac_counter');
+            if($checkOpacCounter !== 0){ 
+        ?>
+            <div class="footer-counter-container">
+              <span class="opac-counter-pill"><i class="fa fa-eye"></i> Kunjungan: <?= number_format(\common\models\OpacCounter::find()->count(), 0, ',', '.') ?></span>
+            </div>
+        <?php } ?>
+      </div>
     </footer>
         <?php $this->endBody() ?>
     </div><!-- ./wrapper -->

@@ -36,14 +36,9 @@ body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   background-color: var(--ut-slate-bg) !important;
   background-image: 
-    linear-gradient(180deg, 
-      rgba(248, 250, 252, 0.92) 0%, 
-      rgba(241, 245, 249, 0.89) 35%, 
-      rgba(238, 242, 246, 0.94) 100%),
-    url('../images/modern_library_bg.jpg') !important;
+    radial-gradient(1200px 500px at 50% -50px, rgba(0, 43, 85, 0.05), rgba(0, 64, 128, 0.02), transparent 70%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
   background-repeat: no-repeat !important;
-  background-position: center top !important;
-  background-size: cover !important;
   background-attachment: fixed !important;
   color: var(--ut-text-primary) !important;
   font-size: 13.5px !important;
@@ -688,51 +683,6 @@ a.topnav-content:hover,
   color: var(--ut-blue-royal) !important;
 }
 
-.clients-carousel .carousel-control.left,
-.clients-carousel .carousel-control.right {
-  width: 44px !important;
-  min-width: 44px !important;
-  max-width: 44px !important;
-  height: 44px !important;
-  min-height: 44px !important;
-  max-height: 44px !important;
-  bottom: auto !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  background: rgba(255, 255, 255, 0.96) !important;
-  backdrop-filter: blur(8px) !important;
-  background-image: none !important;
-  border: 1px solid rgba(203, 213, 225, 0.85) !important;
-  border-radius: 50% !important;
-  color: var(--ut-navy-deep) !important;
-  opacity: 0.95 !important;
-  box-shadow: 0 4px 16px rgba(0, 43, 85, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 22px !important;
-  line-height: 1 !important;
-  text-shadow: none !important;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  z-index: 5 !important;
-}
-
-.clients-carousel .carousel-control.left {
-  left: 0px !important;
-}
-
-.clients-carousel .carousel-control.right {
-  right: 0px !important;
-}
-
-.clients-carousel .carousel-control:hover {
-  background: var(--ut-blue-royal) !important;
-  color: #ffffff !important;
-  border-color: var(--ut-blue-royal) !important;
-  transform: translateY(-50%) scale(1.08) !important;
-  box-shadow: 0 8px 24px rgba(0, 43, 85, 0.25) !important;
-  opacity: 1 !important;
-}
 
 .table2.table-striped {
   border-collapse: separate !important;
@@ -980,34 +930,39 @@ footer a:hover,
 .carousel-control {
   position: absolute !important;
   top: 50% !important;
+  bottom: auto !important;
   transform: translateY(-50%) !important;
-  width: 40px !important;
-  height: 40px !important;
-  line-height: 40px !important;
-  border-radius: 10px !important;
-  background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  color: var(--ut-navy-deep) !important;
-  opacity: 0.95 !important;
+  width: 32px !important;
+  height: 48px !important;
+  line-height: 48px !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #94a3b8 !important;
+  opacity: 0.8 !important;
   text-shadow: none !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 15px !important;
-  box-shadow: 0 4px 12px rgba(0, 43, 85, 0.12) !important;
+  font-size: 28px !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   z-index: 10 !important;
+  cursor: pointer !important;
+  outline: none !important;
 }
 
 .clients-carousel .carousel-control.left,
 .carousel-control.left {
-  left: -8px !important;
+  left: -12px !important;
   right: auto !important;
 }
 
 .clients-carousel .carousel-control.right,
 .carousel-control.right {
-  right: -8px !important;
+  right: -12px !important;
   left: auto !important;
 }
 
@@ -1015,17 +970,41 @@ footer a:hover,
 .carousel-control:hover,
 .clients-carousel .carousel-control:focus,
 .carousel-control:focus {
-  background: var(--ut-navy-deep) !important;
-  color: #ffffff !important;
-  border-color: var(--ut-navy-deep) !important;
-  box-shadow: 0 6px 18px rgba(0, 43, 85, 0.24) !important;
-  transform: translateY(-50%) scale(1.06) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--ut-navy-deep) !important;
   opacity: 1 !important;
+  transform: translateY(-50%) scale(1.2) !important;
 }
 
 .clients-carousel .carousel-control:active,
 .carousel-control:active {
-  transform: translateY(-50%) scale(0.96) !important;
+  transform: translateY(-50%) scale(0.95) !important;
+}
+
+.footer-counter-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-top: 10px !important;
+  width: 100% !important;
+}
+
+.opac-counter-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 9999px !important;
+  padding: 4px 14px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: var(--ut-gold) !important;
+  letter-spacing: 0.02em !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) !important;
 }
 
 .clients-carousel .caption h4,
@@ -1104,11 +1083,14 @@ footer a:hover,
   }
   .clients-carousel .carousel-control,
   .carousel-control {
-    width: 36px !important;
-    height: 36px !important;
-    line-height: 36px !important;
-    font-size: 13px !important;
-    border-radius: 8px !important;
+    width: 28px !important;
+    height: 40px !important;
+    line-height: 40px !important;
+    font-size: 24px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
   }
   .clients-carousel .carousel-control.left,
   .carousel-control.left {
