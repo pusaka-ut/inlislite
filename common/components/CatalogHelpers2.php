@@ -26,19 +26,35 @@ class CatalogHelpers2
 	    $index=0;
 	    foreach ($modelcatruas as $data) {
 	        $dataField = Fields::getByTag((string)$data->Tag);
-	        $taglist[$index]["id"] = $dataField->ID;
-			$taglist[$index]["name"] = $dataField->Name;
-			$taglist[$index]["tag"] = $data->Tag;
-			$taglist[$index]["ind1"] = $data->Indicator1;
-			$taglist[$index]["ind2"] = $data->Indicator2;
-			$taglist[$index]["value"] = $data->Value;
-			$taglist[$index]["mandatory"] = $dataField->Mandatory;
-			$taglist[$index]["length"] = $dataField->Length;
-			$taglist[$index]["enabled"] = $dataField->Enabled;
-			$taglist[$index]["iscustomable"] = $dataField->IsCustomable;
-			$taglist[$index]["fixed"] = $dataField->Fixed;
-			$taglist[$index]["repeatable"] = $dataField->Repeatable;
-	        $index++;
+	        if ($dataField) {
+	            $taglist[$index]["id"] = $dataField->ID;
+	            $taglist[$index]["name"] = $dataField->Name;
+	            $taglist[$index]["tag"] = $data->Tag;
+	            $taglist[$index]["ind1"] = $data->Indicator1;
+	            $taglist[$index]["ind2"] = $data->Indicator2;
+	            $taglist[$index]["value"] = $data->Value;
+	            $taglist[$index]["mandatory"] = $dataField->Mandatory;
+	            $taglist[$index]["length"] = $dataField->Length;
+	            $taglist[$index]["enabled"] = $dataField->Enabled;
+	            $taglist[$index]["iscustomable"] = $dataField->IsCustomable;
+	            $taglist[$index]["fixed"] = $dataField->Fixed;
+	            $taglist[$index]["repeatable"] = $dataField->Repeatable;
+	            $index++;
+	        } else {
+	            $taglist[$index]["id"] = null;
+	            $taglist[$index]["name"] = '';
+	            $taglist[$index]["tag"] = $data->Tag;
+	            $taglist[$index]["ind1"] = $data->Indicator1;
+	            $taglist[$index]["ind2"] = $data->Indicator2;
+	            $taglist[$index]["value"] = $data->Value;
+	            $taglist[$index]["mandatory"] = 0;
+	            $taglist[$index]["length"] = 0;
+	            $taglist[$index]["enabled"] = 1;
+	            $taglist[$index]["iscustomable"] = 0;
+	            $taglist[$index]["fixed"] = 0;
+	            $taglist[$index]["repeatable"] = 0;
+	            $index++;
+	        }
 	    }
 
 	    return $taglist;

@@ -1508,7 +1508,8 @@ class KatalogController extends Controller
             'jumlahEksemplar'=>$jumlahEksemplar,
             'rulesColl' => $rulesColl,
             'searchModelColl' => $searchModelColl,
-            'dataProviderColl' => $dataProviderColl
+            'dataProviderColl' => $dataProviderColl,
+            'for' => 'cat'
             ]);
     }     
 

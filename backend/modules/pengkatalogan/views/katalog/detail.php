@@ -17,6 +17,7 @@ use yii\helpers\ArrayHelper;
  * @var common\models\Collections $model
  */
 
+$for = isset($for) ? $for : 'cat';
 $this->title = 'Detail Katalog - '.$model->BIBID;
 $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Detail Katalog'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $model->BIBID;

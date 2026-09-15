@@ -514,38 +514,85 @@ textarea.form-control {
 .table td a.catalog-title-link,
 a.catalog-title-link {
   color: var(--admin-navy-deep) !important;
-  font-weight: 700 !important;
-  font-size: 13.5px !important;
+  font-weight: 650 !important;
+  font-size: 13px !important;
   text-decoration: none !important;
   background-color: transparent !important;
   border: none !important;
+  border-bottom: 2px solid transparent !important;
   box-shadow: none !important;
   display: inline-block !important;
-  line-height: 1.5 !important;
-  transition: color 0.15s ease !important;
+  line-height: 1.45 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
 }
 
 .table td a:not(.btn):hover,
 .table td a.catalog-title-link:hover,
-a.catalog-title-link:hover {
-  color: #1d4ed8 !important;
-  text-decoration: underline !important;
+a.catalog-title-link:hover,
+.table td a:not(.btn):focus,
+.table td a.catalog-title-link:focus,
+a.catalog-title-link:focus {
+  color: #2563eb !important;
+  border-bottom: 2px solid #2563eb !important;
+  text-decoration: none !important;
+  transform: translateX(3px) !important;
+}
+
+.bibid-badge {
+  font-family: "JetBrains Mono", Consolas, "Courier New", monospace !important;
+  background: #f1f5f9 !important;
+  padding: 3px 8px !important;
+  border-radius: 5px !important;
+  color: #334155 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border: 1px solid #e2e8f0 !important;
+  display: inline-block !important;
+  letter-spacing: 0.02em !important;
+  transition: all 0.15s ease !important;
+}
+
+.bibid-badge:hover {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
 }
 
 .table td a.btn[href*="update"],
 .table td a.btn[href*="edit"],
-.table td a.btn.btn-primary {
+.table td a.btn.btn-primary:not(.btn-detail-action) {
   color: #ffffff !important;
   background: linear-gradient(135deg, #002b55, #004080) !important;
   border-color: #002b55 !important;
 }
 
-.table td a.btn[href*="view"],
+.table td a.btn.btn-detail-action,
 .table td a.btn[href*="detail"],
+.table td a.btn[href*="view"],
 .table td a.btn.btn-info {
   color: #ffffff !important;
-  background-color: #0891b2 !important;
-  border-color: #0891b2 !important;
+  background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+  border-color: #0284c7 !important;
+  border-radius: 6px !important;
+  padding: 5px 12px !important;
+  font-weight: 600 !important;
+  font-size: 11.5px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  box-shadow: 0 1px 3px rgba(0, 43, 85, 0.15) !important;
+  transition: all 0.2s ease !important;
+}
+
+.table td a.btn.btn-detail-action:hover,
+.table td a.btn[href*="detail"]:hover,
+.table td a.btn[href*="view"]:hover,
+.table td a.btn.btn-info:hover {
+  background: linear-gradient(135deg, #0369a1, #075985) !important;
+  border-color: #0369a1 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(2, 132, 199, 0.3) !important;
 }
 
 .table td a.btn[href*="delete"],

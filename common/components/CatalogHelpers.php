@@ -1090,11 +1090,11 @@ class CatalogHelpers extends Catalogs
 
                     if($tags['tag'] == $datadetail->field->Tag)
                     {
-                        //Khusus untuk tag 100,7XX handle $e
                         if($tags['tag'] == '100' || $tags['tag'] == '700' || $tags['tag'] == '710' || $tags['tag'] == '711')
                         {
                             $tval =  explode("$", $tags['value']);
-                            $valueE='';
+                            $valueA = '';
+                            $valueE = '';
                             foreach ($tval as $tkey => $tvalue) {
                                 $tvalue = trim($tvalue);
                                 if(substr($tvalue,0,1) == "a")
@@ -1111,7 +1111,7 @@ class CatalogHelpers extends Catalogs
                                 $valueE = " (".$valueE.")";
                             } 
 
-                            if($result[$key]['Value'] == NULL)
+                            if(!isset($result[$key]['Value']) || $result[$key]['Value'] === null)
                             {
                                 $result[$key]['Value'] =   $valueA.$valueE;
                             }else{
@@ -1119,7 +1119,7 @@ class CatalogHelpers extends Catalogs
                             }
 
                         }else{
-                            if($result[$key]['Value'] == NULL)
+                            if(!isset($result[$key]['Value']) || $result[$key]['Value'] === null)
                             {
                                 $result[$key]['Value'] =   trim(preg_replace($regexReplaceDollar, '', $tags['value']));
                             }else{

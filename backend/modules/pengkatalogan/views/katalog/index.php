@@ -290,7 +290,8 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
                 'attribute' => 'BIBID',
                 'format' => 'raw',
                 'value' => function($data) {
-                    return '<span style="font-family: monospace; background: #f1f5f9; padding: 3px 7px; border-radius: 5px; color: #334155; font-size: 12px; font-weight: 600; border: 1px solid #e2e8f0; display: inline-block;">' . Html::encode($data->BIBID) . '</span>';
+                    $cleanBibid = trim(strip_tags($data->BIBID));
+                    return '<span class="bibid-badge" style="font-family: monospace; background: #f1f5f9; padding: 3px 7px; border-radius: 5px; color: #334155; font-size: 12px; font-weight: 600; border: 1px solid #e2e8f0; display: inline-block;">' . Html::encode($cleanBibid) . '</span>';
                 },
                 'contentOptions' => ['style' => 'white-space: nowrap; vertical-align: top; width: 110px;']
             ],
@@ -303,10 +304,11 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
                     } else {
                         $url = Url::to(['update', 'for' => 'cat', 'rda' => (int)$data->IsRDA, 'id' => $data->ID, 'edit' => 't']);
                     }
-                    return Html::a($data->Title, $url, [
+                    $cleanTitle = trim(strip_tags($data->Title));
+                    return Html::a($cleanTitle, $url, [
                         'class' => 'catalog-title-link',
                         'title' => Yii::t('app', 'Koreksi Data'),
-                        'style' => 'color: #002b55 !important; font-weight: 600 !important; text-decoration: none !important; display: inline-block; line-height: 1.45;'
+                        'data-pjax' => '0'
                     ]); 
                 },
                 'contentOptions' => ['style' => 'min-width: 220px; vertical-align: top;']
@@ -387,8 +389,8 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
 				'detail' => function ($url, $model) {
                                     return Html::a('<span class="glyphicon glyphicon-book"></span> '.Yii::t('app', 'Detail'), Yii::$app->urlManager->createUrl(['pengkatalogan/katalog/detail','id' => $model->ID]), [
                                                     'title' => Yii::t('app', 'Detail'), 
-                                                    //'data-toggle' => 'tooltip',
-                                                    'class' => 'btn btn-primary btn-sm'
+                                                    'class' => 'btn btn-primary btn-sm btn-detail-action',
+                                                    'data-pjax' => '0'
                                                   ]);},
                 'restore' => function ($url, $model) {
                                     return Html::a('<span class="glyphicon glyphicon-retweet"></span> '.Yii::t('app', 'Restore'), Yii::$app->urlManager->createUrl(['pengkatalogan/katalog/restore','id' => $model->ID,'edit'=>'t']), [
