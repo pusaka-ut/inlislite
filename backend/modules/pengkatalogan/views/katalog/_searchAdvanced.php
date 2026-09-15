@@ -60,62 +60,45 @@ QueryBuilderForm::begin([
             ['id' => 'Edition', 'label' => 'Edisi', 'type' => 'string'],
             ['id' => 'PhysicalDescription', 'label' => 'Deskripsi Fisik', 'type' => 'string'],
             [
-                'id' => 'YEAR(catalogfiles.CreateDate)', 'label' => 'Tahun Upload', 'type' => 'integer','input' => 'text'
-                /*'validation'=> [
-                      'format'=> 'YYYY'
-                ],
-                'plugin'=> 'datepicker',
-                'pluginConfig'=> [
-                  'format'=> 'yyyy',
-                  'todayBtn'=> 'linked',
-                  'todayHighlight'=> true,
-                  'autoclose'=> true
-                ]*/
-
+                'id' => 'YEAR(catalogfiles.CreateDate)', 
+                'label' => 'Tahun Upload', 
+                'type' => 'integer',
+                'input' => 'text'
             ],
             ['id' => 'catalogs.ID', 'label' => 'Catalog ID', 'type' => 'string'],
-            /*['id' => 'collections.NoInduk', 'label' => 'No. Induk', 'type' => 'string'],
-            ['id' => 'collections.NomorBarcode', 'label' => 'Nomor Barcode', 'type' => 'string'],
-            ['id' => 'collections.RFID', 'label' => 'RFID', 'type' => 'string'],*/
             ['id' => 'usercreateby.username', 'label' => 'Operator (Tambah)', 'type' => 'string'],
             ['id' => 'userupdateby.username', 'label' => 'Operator (Ubah Terakhir)', 'type' => 'string'],
             [
-                'id' => 'DATE(catalogs.CreateDate)', 'label' => 'Tanggal Entri', 'type' => 'date',
-                // 'validation'=> [
-                //       'format'=> 'YYYY-MM-DD'
-                // ],
-                'plugin'=> 'datepicker',
-                'pluginConfig'=> [
-                  'format'=> 'yyyy-mm-dd',
-                  'todayBtn'=> 'linked',
-                  'todayHighlight'=> true,
-                  'autoclose'=> true
+                'id' => 'DATE(catalogs.CreateDate)', 
+                'label' => 'Tanggal Entri', 
+                'type' => 'date',
+                'plugin' => 'datepicker',
+                'pluginConfig' => [
+                    'format' => 'yyyy-mm-dd',
+                    'todayBtn' => 'linked',
+                    'todayHighlight' => true,
+                    'autoclose' => true
                 ]
-
             ],
             [
-                'id' => 'DATE(catalogs.UpdateDate)', 'label' => 'Tanggal Ubah Terakhir', 'type' => 'date',
-                // 'validation'=> [
-                //       'format'=> 'YYYY-MM-DD'
-                // ],
-                'plugin'=> 'datepicker',
-                'pluginConfig'=> [
-                  'format'=> 'yyyy-mm-dd',
-                  'todayBtn'=> 'linked',
-                  'todayHighlight'=> true,
-                  'autoclose'=> true
+                'id' => 'DATE(catalogs.UpdateDate)', 
+                'label' => 'Tanggal Ubah Terakhir', 
+                'type' => 'date',
+                'plugin' => 'datepicker',
+                'pluginConfig' => [
+                    'format' => 'yyyy-mm-dd',
+                    'todayBtn' => 'linked',
+                    'todayHighlight' => true,
+                    'autoclose' => true
                 ]
-
             ],
-            
-             
         ]
     ]
  ])?>
  <input type="hidden" name="for" value="<?=$for?>">
-  <div class="form-group pull-right" style="margin-top: 10px; margin-bottom: 12px;">
-      <?= Html::submitButton('<i class="glyphicon glyphicon-search"></i>'.Yii::t('app',' Cari') , ['class' => 'btn btn-primary btn-sm']); ?>
-      <?= Html::a('<i class="glyphicon glyphicon-repeat"></i> '.Yii::t('app','Ulangi'), ['index'], ['class' => 'btn btn-info btn-sm']); ?>
+  <div class="form-group pull-right query-action-buttons" style="margin-top: 12px; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 8px;">
+      <?= Html::submitButton('<i class="glyphicon glyphicon-search"></i> '.Yii::t('app','Cari') , ['class' => 'btn btn-primary btn-sm btn-search-query', 'style' => 'background: linear-gradient(135deg, #002b55, #004080) !important; border-color: #002b55 !important; border-radius: 6px !important; padding: 6px 18px !important; font-weight: 600 !important; box-shadow: 0 2px 6px rgba(0,43,85,0.2) !important; margin-right: 6px !important;']); ?>
+      <?= Html::a('<i class="glyphicon glyphicon-repeat"></i> '.Yii::t('app','Ulangi'), ['index'], ['class' => 'btn btn-default btn-sm btn-reset-query', 'style' => 'border-radius: 6px !important; padding: 6px 16px !important; font-weight: 600 !important; background: #ffffff !important; border: 1px solid #cbd5e1 !important; color: #475569 !important;']); ?>
   </div>
   <div class="clearfix"></div>
  <?php QueryBuilderForm::end() ?>

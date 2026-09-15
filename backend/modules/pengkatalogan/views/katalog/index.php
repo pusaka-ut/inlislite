@@ -73,9 +73,9 @@ $jmlJudul = number_format($jumlahJudul);
 $jmlEks = number_format($jumlahEksemplar);
 $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'Title')." <b>".str_replace(",", ".", $jmlEks)."</b> ".Yii::t('app', 'Copies').")";
 ?>
-<div class="batch-action-toolbar">
-  <label for="inputType" class="control-label control-label-sm"><?= yii::t('app','Aksi')?></label>
-  <div style="min-width: 220px; max-width: 280px;">
+<div class="batch-action-toolbar" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 18px; margin-bottom: 16px; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 8px rgba(0,43,85,0.04);">
+  <label for="inputType" class="control-label control-label-sm" style="margin-bottom: 0; font-weight: 700; font-size: 13px; color: #002b55; display: inline-flex; align-items: center; gap: 6px;"><i class="glyphicon glyphicon-flash" style="color: #ffcc00;"></i> <?= yii::t('app','Aksi')?></label>
+  <div style="min-width: 220px; max-width: 300px;">
       <?php 
   echo Select2::widget([
     'id' => 'cbActioncheckbox',
@@ -106,7 +106,6 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
                         $("#btnCheckprocess").show();
                         $("#actionDropdown").html(response);
                     }
-                    
                 }
             });
         }',
@@ -116,26 +115,27 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
   ?>
   </div>
    <div id="actionDropdown"></div>
-   <div class="action-buttons-group">
+   <div class="action-buttons-group" style="display: inline-flex; align-items: center; gap: 8px; margin-left: 4px;">
     <?php 
     echo Html::button('<i class="glyphicon glyphicon-check"></i> '.yii::t('app','Proses'), [
                         'id'=>'btnCheckprocess',
                         'class' => 'btn btn-primary btn-sm', 
                         'title' => 'Proses', 
+                        'style' => 'background: linear-gradient(135deg, #002b55, #004080) !important; border-color: #002b55 !important; border-radius: 6px !important; padding: 6px 16px !important; font-weight: 600 !important; box-shadow: 0 2px 6px rgba(0,43,85,0.2) !important;'
                     ]);
-    echo Html::button('<i class="glyphicon glyphicon-check"></i> Download', [
+    echo Html::button('<i class="glyphicon glyphicon-download-alt"></i> Download', [
                         'type'=>'submit',
                         'id'=>'btnDownload',
-                        'class' => 'btn btn-primary btn-sm', 
-                        'title' => 'Proses', 
-                        'style' => 'display : none'
+                        'class' => 'btn btn-success btn-sm hidden-action-btn', 
+                        'title' => 'Download', 
+                        'style' => 'display: none; background: #059669 !important; border-color: #059669 !important; border-radius: 6px !important; padding: 6px 16px !important; font-weight: 600 !important; margin-left: 6px !important;'
                     ]);
-    echo Html::button('<i class="glyphicon glyphicon-check"></i> Download', [
+    echo Html::button('<i class="glyphicon glyphicon-download-alt"></i> Download', [
                         'type'=>'submit',
                         'id'=>'btnDownloadall',
-                        'class' => 'btn btn-primary btn-sm', 
-                        'title' => 'Proses', 
-                        'style' => 'display : none'
+                        'class' => 'btn btn-success btn-sm hidden-action-btn', 
+                        'title' => 'Download', 
+                        'style' => 'display: none; background: #059669 !important; border-color: #059669 !important; border-radius: 6px !important; padding: 6px 16px !important; font-weight: 600 !important; margin-left: 6px !important;'
                     ]);
     ?>
     </div>
@@ -170,9 +170,9 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
 
 <?php
 }else if($for == 'karantina'){?> 
-<div class="batch-action-toolbar">
-  <label for="inputType" class="control-label control-label-sm"><?= yii::t('app','Aksi')?></label>
-  <div style="min-width: 220px; max-width: 280px;">
+<div class="batch-action-toolbar" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 18px; margin-bottom: 16px; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 8px rgba(0,43,85,0.04);">
+  <label for="inputType" class="control-label control-label-sm" style="margin-bottom: 0; font-weight: 700; font-size: 13px; color: #002b55; display: inline-flex; align-items: center; gap: 6px;"><i class="glyphicon glyphicon-flash" style="color: #ffcc00;"></i> <?= yii::t('app','Aksi')?></label>
+  <div style="min-width: 220px; max-width: 300px;">
       <?php 
 
   echo Select2::widget([
@@ -199,12 +199,13 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
   ?>
   </div>
    <div id="actionDropdown"></div>
-   <div class="action-buttons-group">
+   <div class="action-buttons-group" style="display: inline-flex; align-items: center; gap: 8px; margin-left: 4px;">
     <?php 
     echo Html::button('<i class="glyphicon glyphicon-check"></i> '.yii::t('app','Proses'), [
                         'id'=>'btnCheckprocess',
                         'class' => 'btn btn-primary btn-sm', 
                         'title' => 'Proses', 
+                        'style' => 'background: linear-gradient(135deg, #002b55, #004080) !important; border-color: #002b55 !important; border-radius: 6px !important; padding: 6px 16px !important; font-weight: 600 !important; box-shadow: 0 2px 6px rgba(0,43,85,0.2) !important;'
                     ]);
     ?>
     </div>
@@ -280,15 +281,18 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
             [
                 'attribute' => 'IsRDA',
                 'class' => '\kartik\grid\BooleanColumn',
-                'trueIcon' => '<span class="label label-success">RDA&nbsp;&nbsp;&nbsp;</span>',
-                'falseIcon' => '<span class="label label-primary">AACR</span>',
+                'trueIcon' => '<span class="label label-success" style="background-color: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; border-radius: 12px; padding: 3px 8px; font-size: 11px; font-weight: 700;">RDA</span>',
+                'falseIcon' => '<span class="label label-primary" style="background-color: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 12px; padding: 3px 8px; font-size: 11px; font-weight: 700;">AACR</span>',
                 'contentOptions' => ['style' => 'vertical-align: top; text-align: center; width: 60px;'],
                 'headerOptions' => ['style' => 'text-align: center; width: 60px;']
             ],
             [
                 'attribute' => 'BIBID',
                 'format' => 'raw',
-                'contentOptions' => ['style' => 'white-space: nowrap; font-family: monospace; font-weight: 600; vertical-align: top; color: #475569; width: 110px;']
+                'value' => function($data) {
+                    return '<span style="font-family: monospace; background: #f1f5f9; padding: 3px 7px; border-radius: 5px; color: #334155; font-size: 12px; font-weight: 600; border: 1px solid #e2e8f0; display: inline-block;">' . Html::encode($data->BIBID) . '</span>';
+                },
+                'contentOptions' => ['style' => 'white-space: nowrap; vertical-align: top; width: 110px;']
             ],
             [
                 'format' => 'raw',
@@ -406,8 +410,9 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
         'containerOptions'=>['style'=>'font-size:12px'],
         //'hover'=>true,
         'panel' => [
-            'heading'=>'<h3 class="panel-title"><i class="glyphicon glyphicon-th-list"></i> '.Html::encode($this->title).' </h3>',
+            'heading'=>'<h3 class="panel-title" style="font-weight: 700; display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14.5px;"><i class="glyphicon glyphicon-th-list" style="color: #ffcc00;"></i> '.Html::encode($this->title).' </h3>',
             'type'=>'info',
+            'headingOptions' => ['style' => 'background: linear-gradient(135deg, #002b55 0%, #004080 100%) !important; border-bottom: 2px solid #ffcc00 !important; color: #ffffff !important; padding: 12px 18px !important;'],
             /*'before'=>'<div style=width:70% class=row><div class=col-sm-1>Aksi</div><div class=col-sm-3>'
                         .Select2::widget([
                             'id' => 'cbActioncheckbox',

@@ -35,28 +35,17 @@ ActiveResponseAsset::register($this);
         <link rel="shortcut icon" type='image/x-icon' href="/..<?=Yii::$app->urlManager->createUrl('/uploaded_files/aplikasi/favicon.png');?>">
         <title><?= Html::encode($this->title) ?></title>
         <?php $this->head() ?>
-    </head>
-	
-	<style>
+        <link rel="stylesheet" href="<?= Yii::$app->urlManager->createUrl('/assets_b/css/modern-adminlte.css') ?>?v=<?= time() ?>">
+        <style>
 		.sidebar-menu .treeview-menu > li > a {
 		  font-size: 12px;
 		}
-
         body {  
-            font-size: 11px;
-        
-    
+            font-size: 13px;
         }
-
-
-        /**
-         * Adjust QueryBuilder Style
-         * 
-         */
         .query-builder .rules-group-container .rules-list .form-control{
-          font-size: 11px;
+          font-size: 12.5px;
         }
-
 	</style>
 	
     <?php $this->beginBody() ?>

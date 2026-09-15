@@ -53,8 +53,12 @@ Dokumentasi ini adalah Single Source of Truth untuk standar desain, warna, tipog
   - Lokasi Utama: `uploaded_files/aplikasi/favicon.png`
   - Lokasi Fallback: `opac/favicon.ico` dan `opac/favicon.png`
 - **Badges:** Pill badge halus dengan border transparan lembut.
-- **Backend Admin Tables & Action Toolbar:**
-  - Data Table Links: Seluruh tautan data konten (`.table td a:not(.btn)`, `.catalog-title-link`) wajib menggunakan warna kontras tinggi UT Deep Navy (`#002b55`), bobot tebal (`font-weight: 600`), latar transparan murni, dan garis bawah saat di-hover (`#004080`) memenuhi standar aksesibilitas WCAG AAA.
+- **Backend Admin Tables, QueryBuilder & Action Toolbar (Fase 18):**
+  - Static Asset Pipeline: Melayani `modern-adminlte.css` langsung dari direktori statis publik `backend/assets_b/css/` dan didaftarkan pada `backend/assets_b/AppAsset.php` serta tautan langsung ber-timestamp cache-busting `?v=...`, menjamin kebal 100% dari masalah hash caching Yii AssetManager.
+  - QueryBuilder Card: Menggantikan latar krem usang dengan Elevated White Card (`#ffffff`), border halus (`#e2e8f0`), shadow ambient lembut, garis cabang slate (`#cbd5e1`), dan tombol `[Dan] [Atau]` berupa Segmented Pill Switch modern (Active: UT Deep Navy `#002b55`, Inactive: Slate `#f1f5f9`). Tombol Cari dan Ulangi berjarak lega (`gap: 8px`).
+  - Batch Action Toolbar Card: Dibungkus ke dalam kartu putih elegan ber-radius `10px`, flex horizontal terpusat, penguncian penyembunyian tombol Download ekstra saat opsi reguler aktif, dan spasi antar tombol (`margin: 0 4px; gap: 8px`).
+  - Table Panel Header: Mengadopsi Navy Gradient (`#002b55` ke `#004080`) dengan aksen garis emas UT `2px`, header kolom slate abu-abu bersih (`#f8fafc`), dan hover state baris tabel (`#f0f7ff`).
+  - Micro-Pill Badges: Badge RDA/AACR berupa kapsul modern (`#ecfdf5` mint green / `#eff6ff` royal blue) dan BIBID berupa code pill badge monospace (`#f1f5f9`).
+  - Data Table Links: Seluruh tautan data konten (`.table td a:not(.btn)`, `.catalog-title-link`) wajib menggunakan warna kontras tinggi UT Deep Navy (`#002b55`), bobot tebal (`font-weight: 700`), latar transparan murni, dan garis bawah saat di-hover (`#1d4ed8`) memenuhi standar aksesibilitas WCAG AAA.
   - Table Action Buttons: Tombol aksi murni dispesifikasikan via `.table td a.btn` sehingga tidak merembet ke teks konten data.
-  - Batch Action Toolbar: Kontainer aksi cepat (`.batch-action-toolbar`) mengadopsi layout flex horizontal (`display: flex; align-items: center; gap: 8px`) dengan penyembunyian mutlak elemen bertanda `display: none` (`.btn[style*="display: none"] { display: none !important; }`), mencegah tombol bertumpuk secara vertikal.
   - Form Repeater Buttons: Tombol `.input-group-btn > .btn` dikunci pada tinggi presisi `36px` sejajar penuh dengan field input.

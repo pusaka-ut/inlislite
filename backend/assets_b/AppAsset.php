@@ -20,7 +20,8 @@ class AppAsset extends AssetBundle
     public $baseUrl = '@web/assets_b';
     public $css = [
         'css/site.css',
-	'css/sweetalertoverride.css',
+        'css/sweetalertoverride.css',
+        'css/modern-adminlte.css',
     ];
     public $js = [
         'js/app.js',
