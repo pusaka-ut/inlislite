@@ -42,6 +42,8 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *Perbaikan Tombol Aksi Bertumpuk:* Menghapus `!important` pada `display: inline-flex` tombol `.btn` serta menambahkan aturan pengaman mutlak `.btn[style*="display: none"] { display: none !important; }`, memungkinkan fungsi jQuery dan inline style menyembunyikan tombol secara normal.
   - [x] *Restrukturisasi Toolbar Aksi Batch:* Mengubah baris form-group aksi katalog dan karantina di `backend/modules/pengkatalogan/views/katalog/index.php` menjadi `.batch-action-toolbar` dan `.action-buttons-group` yang sejajar horizontal, responsif, dan bebas tumpang tindih.
   - [x] *Harmonisasi Form Repeater Buttons:* Mengunci tinggi `.input-group-btn > .btn` presisi 36px sejajar field input form subjek.
+  - [x] *Presisi Grid, Padding & Margin Tabel Katalog:* Mengunci perataan atas (`vertical-align: top !important`) di seluruh baris tabel, padding seragam `10px 12px !important`, penguncian lebar kolom presisi (Serial 40px, RDA 60px, BIBID 110px, Edition 75px nowrap, CallNumber 95px monospace, KontenDigital 90px, Eksemplar 85px, Kreator 85px), dan styling container QueryBuilder (`_searchAdvanced.php`).
+  - [x] *Proteksi Inline Judul Buku Anti-Cache:* Menyematkan atribut inline style `style="color: #002b55 !important; font-weight: 600 !important; text-decoration: none !important; display: inline-block; line-height: 1.45;"` langsung pada pemanggilan `Html::a()` kolom judul, menjamin teks selalu kontras dan terbaca mutlak tanpa terpengaruh cache browser.
 - [ ] **Fase 9: Deployment & Verifikasi Server:** Eksekusi sinkronisasi ke server intranet UT `172.30.14.94`.
 
 ## 3. Inisiatif Stabilitas Database & OPAC

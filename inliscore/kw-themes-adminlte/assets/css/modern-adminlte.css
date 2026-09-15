@@ -306,17 +306,19 @@ body {
   border-bottom: 2px solid var(--admin-slate-border) !important;
   border-left: none !important;
   border-right: none !important;
-  padding: 11px 14px !important;
+  padding: 10px 12px !important;
+  vertical-align: middle !important;
 }
 
 .table > tbody > tr > td {
-  padding: 11px 14px !important;
+  padding: 10px 12px !important;
   border-top: 1px solid var(--admin-slate-border-light) !important;
   border-bottom: none !important;
   border-left: none !important;
   border-right: none !important;
-  vertical-align: middle !important;
+  vertical-align: top !important;
   font-size: 13px !important;
+  color: var(--admin-text-primary) !important;
 }
 
 .table-striped > tbody > tr:nth-of-type(odd) {
@@ -504,16 +506,22 @@ textarea.form-control {
   border-color: #94a3b8 !important;
 }
 
-.table td a:not(.btn) {
+.table td a:not(.btn),
+.table td a.catalog-title-link,
+a.catalog-title-link {
   color: var(--admin-navy-deep) !important;
   font-weight: 600 !important;
   text-decoration: none !important;
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  display: inline-block !important;
+  line-height: 1.45 !important;
 }
 
-.table td a:not(.btn):hover {
+.table td a:not(.btn):hover,
+.table td a.catalog-title-link:hover,
+a.catalog-title-link:hover {
   color: var(--admin-blue-royal) !important;
   text-decoration: underline !important;
 }
@@ -675,4 +683,28 @@ textarea.form-control {
 .input-group-btn:not(:last-child) > .btn {
   border-radius: 0 !important;
   margin-right: -1px !important;
+}
+
+#query-builder {
+  margin-bottom: 12px !important;
+}
+
+.query-builder .rules-group-container {
+  padding: 14px 16px !important;
+  border: 1px solid var(--admin-slate-border) !important;
+  border-radius: var(--admin-radius-md) !important;
+  background-color: #ffffff !important;
+}
+
+.panel-info > .panel-heading {
+  background-color: #e0f2fe !important;
+  border-color: #bae6fd !important;
+  color: var(--admin-navy-deep) !important;
+  padding: 10px 15px !important;
+}
+
+.panel-info > .panel-heading .panel-title {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: var(--admin-navy-deep) !important;
 }

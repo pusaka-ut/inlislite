@@ -113,12 +113,11 @@ QueryBuilderForm::begin([
     ]
  ])?>
  <input type="hidden" name="for" value="<?=$for?>">
-  <div class="form-group pull-right">
+  <div class="form-group pull-right" style="margin-top: 10px; margin-bottom: 12px;">
       <?= Html::submitButton('<i class="glyphicon glyphicon-search"></i>'.Yii::t('app',' Cari') , ['class' => 'btn btn-primary btn-sm']); ?>
-      <?php //echo Html::resetButton('Ulangi',['class' => 'btn btn-default']); 
-        echo Html::a('<i class="glyphicon glyphicon-repeat"></i> '.Yii::t('app','Ulangi'), ['index'], ['class' => 'btn btn-info btn-sm']);
-      ?>
+      <?= Html::a('<i class="glyphicon glyphicon-repeat"></i> '.Yii::t('app','Ulangi'), ['index'], ['class' => 'btn btn-info btn-sm']); ?>
   </div>
+  <div class="clearfix"></div>
  <?php QueryBuilderForm::end() ?>
  </div>
 

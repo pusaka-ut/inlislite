@@ -272,107 +272,109 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
                 // 'hidden'=> ($for=='karantina') ? true : false
                 'hidden'=> false
             ],
-            ['class' => 'yii\grid\SerialColumn'],
             [
-                'attribute'=>'IsRDA',
+                'class' => 'yii\grid\SerialColumn',
+                'contentOptions' => ['style' => 'vertical-align: top; text-align: center; width: 40px;'],
+                'headerOptions' => ['style' => 'text-align: center; width: 40px;']
+            ],
+            [
+                'attribute' => 'IsRDA',
                 'class' => '\kartik\grid\BooleanColumn',
-                'trueIcon'=>'<span class="label label-success">RDA&nbsp;&nbsp;&nbsp;</span>',
-                'falseIcon'=>'<span class="label label-primary">AACR</span>',
+                'trueIcon' => '<span class="label label-success">RDA&nbsp;&nbsp;&nbsp;</span>',
+                'falseIcon' => '<span class="label label-primary">AACR</span>',
+                'contentOptions' => ['style' => 'vertical-align: top; text-align: center; width: 60px;'],
+                'headerOptions' => ['style' => 'text-align: center; width: 60px;']
             ],
-           /* [
-                'format'=>'raw',
-                'attribute'=>'Member_id',
-                'value' => function($data) {
-                    if($data->Member_id == NULL){
-                        return Html::a('-', $url); 
-                    }else{
-                        $url = Url::to(['../member/member/update','id'=>$data->Member_id]);
-                        return Html::a($data->Member_id, $url); 
+            [
+                'attribute' => 'BIBID',
+                'format' => 'raw',
+                'contentOptions' => ['style' => 'white-space: nowrap; font-family: monospace; font-weight: 600; vertical-align: top; color: #475569; width: 110px;']
+            ],
+            [
+                'format' => 'raw',
+                'attribute' => 'Title',
+                'value' => function($data) use ($for){
+                    if($for == 'karantina') {
+                        $url = Url::to(['viewkarantina', 'id' => $data->ID, 'edit' => 't']);
+                    } else {
+                        $url = Url::to(['update', 'for' => 'cat', 'rda' => (int)$data->IsRDA, 'id' => $data->ID, 'edit' => 't']);
                     }
-                }
-            ],*/
-            [
-                'attribute'=>'BIBID',
-                //'value'=>'source.Name',
-                'format' => 'raw',
+                    return Html::a($data->Title, $url, [
+                        'class' => 'catalog-title-link',
+                        'title' => Yii::t('app', 'Koreksi Data'),
+                        'style' => 'color: #002b55 !important; font-weight: 600 !important; text-decoration: none !important; display: inline-block; line-height: 1.45;'
+                    ]); 
+                },
+                'contentOptions' => ['style' => 'min-width: 220px; vertical-align: top;']
             ],
-            /*[
-                'attribute'=>'Title',
-                //'value'=>'source.Name',
-                'format' => 'raw',
-            ],*/
             [
-                         //'label'=>'Nama',
-                         'format'=>'raw',
-                         'attribute'=>'Title',
-                         'value' => function($data) use ($for){
-                             if($for=='karantina')
-                             {
-                                $url = Url::to(['viewkarantina','id'=>$data->ID,'edit'=>'t']);
-                             }else{
-                                $url = Url::to(['update','for' => 'cat','rda' => (int)$data->IsRDA,'id'=>$data->ID,'edit'=>'t']);
-                             }
-                             
-                             return Html::a($data->Title, $url, ['class' => 'catalog-title-link', 'title' => Yii::t('app', 'Koreksi Data')]); 
-                         }
+                'attribute' => 'Edition',
+                'contentOptions' => ['style' => 'white-space: nowrap; min-width: 75px; vertical-align: top; text-align: center;'],
+                'headerOptions' => ['style' => 'text-align: center; width: 75px;']
             ],
-            'Edition',
             [
-            'attribute'=>'Publikasi',
-            'label'=>yii::t('app','Publikasi'),
+                'attribute' => 'Publikasi',
+                'label' => yii::t('app', 'Publikasi'),
+                'contentOptions' => ['style' => 'min-width: 160px; vertical-align: top; line-height: 1.45;']
             ],
             [   
-                'attribute'=>'PhysicalDescription',
+                'attribute' => 'PhysicalDescription',
                 'value' => function($data){
                     $data = preg_replace('/(\$a)/', '',  preg_replace('/(?<=\d)(?=[a-z])/i', ' ', $data->PhysicalDescription));
                     return preg_replace('/(\$\w)/', ' ',  $data);
-                    // return $data->PhysicalDescription;
-                }
-                ,
+                },
                 'format' => 'raw',
+                'contentOptions' => ['style' => 'min-width: 140px; vertical-align: top; line-height: 1.45;']
             ],
-            'Subject',
-            'CallNumber',
             [
-                'attribute'=>'KontenDigital',
-                'label'=>yii::t('app','Konten Digital'),
-                'value'=>function($model) use ($for) {
-                    if($for=='karantina')
-                    {
+                'attribute' => 'Subject',
+                'contentOptions' => ['style' => 'min-width: 160px; vertical-align: top; line-height: 1.45;']
+            ],
+            [
+                'attribute' => 'CallNumber',
+                'contentOptions' => ['style' => 'white-space: nowrap; min-width: 95px; font-family: "JetBrains Mono", Consolas, monospace; font-weight: 600; vertical-align: top; color: #002b55;']
+            ],
+            [
+                'attribute' => 'KontenDigital',
+                'label' => yii::t('app', 'Konten Digital'),
+                'value' => function($model) use ($for) {
+                    if($for == 'karantina') {
                         return 0;
-                    }else{
+                    } else {
                         return $model->getCatalogfiles()->count();
                     }
-                    
                 },
-                'hidden'=> ($for=='karantina') ? true : false,
-                'contentOptions'=>['style'=>'width: 150px;text-align:right;'],
+                'hidden' => ($for == 'karantina') ? true : false,
+                'contentOptions' => ['style' => 'width: 90px; text-align: center; vertical-align: top; font-weight: 600;'],
+                'headerOptions' => ['style' => 'text-align: center; width: 90px;']
             ],
             [
-                'attribute'=>'Eksemplar',
-                'value'=>function($model) use ($for) {
-                    if($for=='karantina')
-                    {
+                'attribute' => 'Eksemplar',
+                'value' => function($model) use ($for) {
+                    if($for == 'karantina') {
                         return 0;
-                    }else{
+                    } else {
                         return $model->getCollections()->count();
                     }
                 },
-                'hidden'=> ($for=='karantina') ? true : false,
-                'contentOptions'=>['style'=>'width: 150px;text-align:right;'],
+                'hidden' => ($for == 'karantina') ? true : false,
+                'contentOptions' => ['style' => 'width: 85px; text-align: center; vertical-align: top; font-weight: 600;'],
+                'headerOptions' => ['style' => 'text-align: center; width: 85px;']
             ],
             [
-                'format'=>'raw',
-                'label'=>yii::t('app','Record Kreator'),
-                'attribute'=>'Member_id',
+                'format' => 'raw',
+                'label' => yii::t('app', 'Record Kreator'),
+                'attribute' => 'Member_id',
                 'value' => function($data) {
                     if($data->Member_id == NULL){
-                        return yii::t('app',$data->CreateBy);
-                    }else{
-                        $url = Url::to(['../member/member/update','id'=>$data->Member_id]);
-                        return Html::a($data->Member_id, $url); 
+                        return yii::t('app', $data->CreateBy);
+                    } else {
+                        $url = Url::to(['../member/member/update', 'id' => $data->Member_id]);
+                        return Html::a($data->Member_id, $url, ['style' => 'color: #002b55; font-weight: 600;']); 
                     }
-                }
+                },
+                'contentOptions' => ['style' => 'width: 85px; text-align: center; vertical-align: top;'],
+                'headerOptions' => ['style' => 'text-align: center; width: 85px;']
             ],
             [
                 'class' => 'yii\grid\ActionColumn',
