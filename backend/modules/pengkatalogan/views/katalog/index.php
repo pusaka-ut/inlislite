@@ -73,19 +73,15 @@ $jmlJudul = number_format($jumlahJudul);
 $jmlEks = number_format($jumlahEksemplar);
 $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'Title')." <b>".str_replace(",", ".", $jmlEks)."</b> ".Yii::t('app', 'Copies').")";
 ?>
-<div class="form-group" style="padding-bottom:30px">
-  <label for="inputType" class="col-md-1 control-label control-label-sm"><?= yii::t('app','Aksi')?></label>
-  <div class="col-md-3">
+<div class="batch-action-toolbar">
+  <label for="inputType" class="control-label control-label-sm"><?= yii::t('app','Aksi')?></label>
+  <div style="min-width: 220px; max-width: 280px;">
       <?php 
   echo Select2::widget([
     'id' => 'cbActioncheckbox',
     'name' => 'cbActioncheckbox',
     'data' => $datacheckbox,
     'size'=>'sm',
-    /*'pluginOptions' => [
-        'allowClear' => true
-    ],*/
-    //'theme' => Select2::THEME_BOOTSTRAP,
     'pluginEvents' => [
         "select2:select" => 'function() { 
             var id = $("#cbActioncheckbox").val();
@@ -120,13 +116,12 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
   ?>
   </div>
    <div id="actionDropdown"></div>
-   <div class="col-md-1">
+   <div class="action-buttons-group">
     <?php 
     echo Html::button('<i class="glyphicon glyphicon-check"></i> '.yii::t('app','Proses'), [
                         'id'=>'btnCheckprocess',
                         'class' => 'btn btn-primary btn-sm', 
                         'title' => 'Proses', 
-                        //'data-toggle' => 'tooltip'
                     ]);
     echo Html::button('<i class="glyphicon glyphicon-check"></i> Download', [
                         'type'=>'submit',
@@ -145,9 +140,9 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
     ?>
     </div>
 
-    <div class="col-md-1" style="padding-left: 5px;">
+    <?php if($for == 'keranjang'){ ?>
+    <div style="margin-left: 8px;">
     <?php 
-    if($for == 'keranjang'){
     echo Html::button('<i class="glyphicon glyphicon-trash"></i> '.yii::t('app','Kosongkan Keranjang'), [
                         'id'=>'btnKosongkanKeranjang',
                         'class' => 'btn btn-danger btn-sm', 
@@ -166,18 +161,18 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
                             });
                         '
                     ]);
-    }
     ?>
     </div>
+    <?php } ?>
 </div>
 
 <div id="checkError"></div>
 
 <?php
 }else if($for == 'karantina'){?> 
-<div class="row form-group">
-  <label for="inputType" class="col-md-1 control-label control-label-sm"><?= yii::t('app','Aksi')?></label>
-  <div class="col-md-3">
+<div class="batch-action-toolbar">
+  <label for="inputType" class="control-label control-label-sm"><?= yii::t('app','Aksi')?></label>
+  <div style="min-width: 220px; max-width: 280px;">
       <?php 
 
   echo Select2::widget([
@@ -185,10 +180,6 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
     'name' => 'cbActioncheckbox',
     'data' => $datacheckbox,
     'size'=>'sm',
-    /*'pluginOptions' => [
-        'allowClear' => true
-    ],*/
-    //'theme' => Select2::THEME_BOOTSTRAP,
     'pluginEvents' => [
         "select2:select" => 'function() { 
             var id = $("#cbActioncheckbox").val();
@@ -208,13 +199,12 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
   ?>
   </div>
    <div id="actionDropdown"></div>
-    <div class="col-md-1">
+   <div class="action-buttons-group">
     <?php 
     echo Html::button('<i class="glyphicon glyphicon-check"></i> '.yii::t('app','Proses'), [
                         'id'=>'btnCheckprocess',
                         'class' => 'btn btn-primary btn-sm', 
                         'title' => 'Proses', 
-                        //'data-toggle' => 'tooltip'
                     ]);
     ?>
     </div>
@@ -323,7 +313,7 @@ $summarydesc = " (<b>".str_replace(",", ".", $jmlJudul)."</b> ".Yii::t('app', 'T
                                 $url = Url::to(['update','for' => 'cat','rda' => (int)$data->IsRDA,'id'=>$data->ID,'edit'=>'t']);
                              }
                              
-                             return Html::a($data->Title, $url); 
+                             return Html::a($data->Title, $url, ['class' => 'catalog-title-link', 'title' => Yii::t('app', 'Koreksi Data')]); 
                          }
             ],
             'Edition',

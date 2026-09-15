@@ -38,12 +38,23 @@ Dokumentasi ini adalah Single Source of Truth untuk standar desain, warna, tipog
 
 ## 4. Komponen Kunci OPAC & Admin
 
-- **Header / Navbar:** Gradasi Navy dengan aksen emas UT di border bawah. Logo institusi dibungkus tautan aktif ke halaman beranda (`brand-link`).
-- **Header Components Alignment:** Jam digital berwujud subtle translucent glass pill badge, tombol Tampung, Login, dan Registrasi berwujud modern action pills (Registrasi berlatar emas UT).
+- **Header / Navbar:** Gradasi Navy dengan aksen emas UT di border bawah. Logo institusi dibungkus tautan aktif ke halaman beranda (`brand-link`) dengan kolom teks vertikal: Judul Putih Bold di atas dan Subtitle Emas UT di bawahnya.
+- **Header Components Alignment:** Jam digital berwujud subtle translucent glass pill badge, tombol Tampung, Login, dan Registrasi berwujud modern action pills (Registrasi berlatar emas UT). Keranjang kosong (`a.bookmarkShow:empty`) otomatis disembunyikan.
 - **Sticky Footer Flexbox Lock:** Kunci layout `min-height: 100vh` pada `body` & `.wrapper`, dengan `margin-top: auto` pada footer untuk mencegah footer melayang pada konten pendek.
-- **Search Hero:** Input field dengan border fisik (`1.5px solid #cbd5e1`), tombol Cari proporsional (`col-md-2`), dan sublinks teratur dengan divider halus.
+- **Ambient Canvas Background:** Kanvas latar belakang diberikan ambient lighting berlapis memadukan `#f8fafc` dengan radial gradient lembut (`radial-gradient(1200px 500px at 50% -50px, rgba(0, 43, 85, 0.06), rgba(0, 64, 128, 0.02), transparent)`).
+- **Search Hero & Advance Search Card:**
+  - Search Hero Sederhana: Input field dengan border fisik (`1.5px solid #cbd5e1`), tombol Cari proporsional (`col-md-2`), dan sublinks teratur dengan divider halus.
+  - Advance Search Card: Form dibungkus dalam elevated card putih `border-radius: 16px` dengan border atas biru royal UT, field input/dropdown setinggi `42px`, dan tombol Cari gradasi UT Navy Deep. Sembunyikan kontainer kosong (`.box-default:empty`).
 - **Book Cards & Carousel:**
-  - Kartu buku hasil pencarian: Elevated block cards dengan border-radius `12px`, soft shadow, hover lift, dan sampul ber-radius `8px`.
-  - Carousel koleksi (Unggulan & Terbaru): Kartu buku rapi dengan 2-line title clamp dan tombol navigasi bulat melayang (*floating circular controls*) berlatar putih dengan elevasi lembut.
+  - Kartu buku hasil pencarian: Elevated ambient cards dengan border-radius `14px`, soft ambient multi-layer shadow, hover lift, dan sampul ber-radius `8px`.
+  - Carousel koleksi (Unggulan & Terbaru): Kartu buku ambient ber-radius `14px` dengan 2-line title clamp, safe padding `42px` pada kontainer slider, dan tombol navigasi sirkular sempurna (`44px x 44px`, `border-radius: 50%`, `bottom: auto`) putih ber-backdrop blur (*anti-numpul*).
   - Section Header: Aksen bar emas vertikal UT (`border-left: 4px solid #ffcc00`) dengan tipografi tebal UT Deep Navy.
+- **Favicon Standar:**
+  - Lokasi Utama: `uploaded_files/aplikasi/favicon.png`
+  - Lokasi Fallback: `opac/favicon.ico` dan `opac/favicon.png`
 - **Badges:** Pill badge halus dengan border transparan lembut.
+- **Backend Admin Tables & Action Toolbar:**
+  - Data Table Links: Seluruh tautan data konten (`.table td a:not(.btn)`, `.catalog-title-link`) wajib menggunakan warna kontras tinggi UT Deep Navy (`#002b55`), bobot tebal (`font-weight: 600`), latar transparan murni, dan garis bawah saat di-hover (`#004080`) memenuhi standar aksesibilitas WCAG AAA.
+  - Table Action Buttons: Tombol aksi murni dispesifikasikan via `.table td a.btn` sehingga tidak merembet ke teks konten data.
+  - Batch Action Toolbar: Kontainer aksi cepat (`.batch-action-toolbar`) mengadopsi layout flex horizontal (`display: flex; align-items: center; gap: 8px`) dengan penyembunyian mutlak elemen bertanda `display: none` (`.btn[style*="display: none"] { display: none !important; }`), mencegah tombol bertumpuk secara vertikal.
+  - Form Repeater Buttons: Tombol `.input-group-btn > .btn` dikunci pada tinggi presisi `36px` sejajar penuh dengan field input.

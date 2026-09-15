@@ -363,10 +363,21 @@ textarea.form-control {
   transition: all 0.18s ease !important;
   box-shadow: var(--admin-shadow-sm) !important;
   border: 1px solid transparent !important;
-  display: inline-flex !important;
+  display: inline-flex;
   align-items: center !important;
   justify-content: center !important;
   gap: 5px !important;
+}
+
+.btn[style*="display: none"],
+.btn[style*="display:none"],
+.btn[style*="display : none"],
+[style*="display: none"],
+[style*="display:none"],
+[style*="display : none"],
+.hidden,
+[hidden] {
+  display: none !important;
 }
 
 .btn:hover {
@@ -493,49 +504,63 @@ textarea.form-control {
   border-color: #94a3b8 !important;
 }
 
-.table td a[href*="detail"],
-.table td a[title*="Detail"],
-.table td a:has(.glyphicon-list-alt),
-.table td a:has(.glyphicon-book),
-.table td a:has(.glyphicon-eye) {
+.table td a:not(.btn) {
+  color: var(--admin-navy-deep) !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.table td a:not(.btn):hover {
+  color: var(--admin-blue-royal) !important;
+  text-decoration: underline !important;
+}
+
+.table td a.btn[href*="detail"],
+.table td a.btn[title*="Detail"],
+.table td a.btn:has(.glyphicon-list-alt),
+.table td a.btn:has(.glyphicon-book),
+.table td a.btn:has(.glyphicon-eye) {
   background-color: #0891b2 !important;
   border-color: #0891b2 !important;
   color: #ffffff !important;
 }
 
-.table td a[href*="detail"]:hover,
-.table td a[title*="Detail"]:hover {
+.table td a.btn[href*="detail"]:hover,
+.table td a.btn[title*="Detail"]:hover {
   background-color: #0e7490 !important;
   border-color: #0e7490 !important;
 }
 
-.table td a[href*="update"],
-.table td a[title*="Edit"],
-.table td a[title*="Update"],
-.table td a[title*="Koreksi"],
-.table td a:has(.glyphicon-pencil) {
+.table td a.btn[href*="update"],
+.table td a.btn[title*="Edit"],
+.table td a.btn[title*="Update"],
+.table td a.btn[title*="Koreksi"],
+.table td a.btn:has(.glyphicon-pencil) {
   background-color: #2563eb !important;
   border-color: #2563eb !important;
   color: #ffffff !important;
 }
 
-.table td a[href*="update"]:hover,
-.table td a[title*="Edit"]:hover {
+.table td a.btn[href*="update"]:hover,
+.table td a.btn[title*="Edit"]:hover {
   background-color: #1d4ed8 !important;
   border-color: #1d4ed8 !important;
 }
 
-.table td a[href*="delete"],
-.table td a[title*="Delete"],
-.table td a[title*="Hapus"],
-.table td a:has(.glyphicon-trash) {
+.table td a.btn[href*="delete"],
+.table td a.btn[title*="Delete"],
+.table td a.btn[title*="Hapus"],
+.table td a.btn:has(.glyphicon-trash) {
   background-color: #e11d48 !important;
   border-color: #e11d48 !important;
   color: #ffffff !important;
 }
 
-.table td a[href*="delete"]:hover,
-.table td a[title*="Delete"]:hover {
+.table td a.btn[href*="delete"]:hover,
+.table td a.btn[title*="Delete"]:hover {
   background-color: #be123c !important;
   border-color: #be123c !important;
 }
@@ -612,4 +637,42 @@ textarea.form-control {
 .main-footer a {
   color: var(--admin-blue-royal) !important;
   font-weight: 600 !important;
+}
+
+.batch-action-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin-bottom: 15px !important;
+}
+
+.batch-action-toolbar .control-label {
+  margin-bottom: 0 !important;
+  font-weight: 700 !important;
+  color: var(--admin-navy-deep) !important;
+}
+
+.batch-action-toolbar .select2-container {
+  min-width: 200px !important;
+  max-width: 280px !important;
+}
+
+.batch-action-toolbar .action-buttons-group {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.input-group-btn > .btn {
+  height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 0 var(--admin-radius-sm) var(--admin-radius-sm) 0 !important;
+}
+
+.input-group-btn:not(:last-child) > .btn {
+  border-radius: 0 !important;
+  margin-right: -1px !important;
 }

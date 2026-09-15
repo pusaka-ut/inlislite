@@ -30,8 +30,19 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *Grid Form Pencarian Sederhana:* Menyeimbangkan grid kolom (`col-md-5`, `col-md-3`, `col-md-2`, `col-md-2`) agar tombol Cari leluasa, serta memperbaiki penutupan tag form yang benar.
   - [x] *Solusi Paten Sticky Footer Flexbox:* Mengunci layout dengan `min-height: 100vh` pada `body` & `.wrapper` serta `margin-top: auto` pada footer, mencegah footer melayang di tengah layar saat konten halaman pendek.
   - [x] *Header Component Alignment:* Transformasi jam digital menjadi translucent subtle pill badge, serta tombol Tampung, Login, dan Registrasi menjadi modern action pills berjarak rapi (Registrasi emas UT).
-  - [x] *Upgrade Kartu Buku (Search Results & Carousel):* Kartu buku hasil pencarian bertransformasi menjadi elevated card terisolasi (`border-radius: 12px`, soft shadow, hover lift), dan kartu carousel dilengkapi 2-line title clamp dan tombol navigasi bulat melayang (*floating circular controls*) putih ber-shadow elegan.
-- [ ] **Fase 7: Deployment & Verifikasi Server:** Eksekusi sinkronisasi ke server intranet UT `172.30.14.94`.
+- [x] **Fase 8: Peningkatan Menyeluruh UI/UX OPAC (Ambient Lighting & Presisi Komponen):**
+  - [x] *Header Brand & Subtitle Alignment:* Memperbaiki brand link di semua layout (`main-sederhana.php`, `main-advance.php`, `main.php`, `main-search.php`, `main-sederhana-search.php`) dengan kolom teks vertikal di samping logo (menghilangkan lonjakan teks kuning ke samping atas).
+  - [x] *Penyembunyian Keranjang Kosong:* Menyembunyikan kapsul biru kosong `a.bookmarkShow:empty` saat belum login atau keranjang kosong.
+  - [x] *Favicon Multi-Fallback:* Memperkaya link icon dengan multi-fallback (`uploaded_files/aplikasi/favicon.png`, `opac/favicon.ico`, `opac/favicon.png`).
+  - [x] *Tombol Carousel Lingkaran Sempurna (Anti-Numpul):* Mengunci tombol 44px x 44px bulat sempurna (`bottom: auto !important; border-radius: 50% !important;`), backdrop blur putih, dan safe padding 42px pada kontainer slider sehingga bebas menutupi sampul buku.
+  - [x] *Ambient Canvas Background & Cards:* Menghadirkan radial ambient lighting lembut pada kanvas latar belakang dan multi-layer shadow ambient glow pada kartu buku hasil pencarian dan carousel.
+  - [x] *Modernisasi Halaman Pencarian Lanjut:* Elevated card form 16px, field input/dropdown setinggi 42px, tombol Cari UT Navy Deep, dan penyembunyian kotak kosong di bawah pencarian.
+- [x] **Fase 17: Perbaikan Teks Judul Tabel & Tombol Aksi Backend INLISLite v3:**
+  - [x] *Proteksi Kontras Teks Judul Buku:* Mengoreksi selector CSS agresif `.table td a[href*="update"]` menjadi `.table td a.btn[...]`, serta melindungi seluruh tautan teks tabel dengan `.table td a:not(.btn)` dan `.catalog-title-link` (UT Deep Navy `#002b55`, font-weight 600, latar transparan, hover underline), menjamin teks judul buku terbaca 100% dengan kontras tinggi WCAG AAA.
+  - [x] *Perbaikan Tombol Aksi Bertumpuk:* Menghapus `!important` pada `display: inline-flex` tombol `.btn` serta menambahkan aturan pengaman mutlak `.btn[style*="display: none"] { display: none !important; }`, memungkinkan fungsi jQuery dan inline style menyembunyikan tombol secara normal.
+  - [x] *Restrukturisasi Toolbar Aksi Batch:* Mengubah baris form-group aksi katalog dan karantina di `backend/modules/pengkatalogan/views/katalog/index.php` menjadi `.batch-action-toolbar` dan `.action-buttons-group` yang sejajar horizontal, responsif, dan bebas tumpang tindih.
+  - [x] *Harmonisasi Form Repeater Buttons:* Mengunci tinggi `.input-group-btn > .btn` presisi 36px sejajar field input form subjek.
+- [ ] **Fase 9: Deployment & Verifikasi Server:** Eksekusi sinkronisasi ke server intranet UT `172.30.14.94`.
 
 ## 3. Inisiatif Stabilitas Database & OPAC
 - [x] **Solusi Paten Anti-Error 1637 InnoDB:** Mengeliminasi stored procedure `insertTempSederhanaOpac0` yang membebani rollback segment temporary tablespace (`ibtmp1`) saat paginasi (halaman 2, 3, 4, dst.).
