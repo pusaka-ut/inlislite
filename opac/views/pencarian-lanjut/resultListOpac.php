@@ -231,12 +231,14 @@ if ($action === 'pencarianLanjut') {
             <div class="row">
                 <div class="col-sm-12">
                     <?php
-                    $awal = ($page == 1) ? $page : (($page - 1) * $limit) + 1;
+                    $awal = ($totalCountResult == 0) ? 0 : (($page - 1) * $limit) + 1;
                     $akhir = $page * $limit;
                     if ($akhir > $totalCountResult) {
                         $akhir = $totalCountResult;
                     }
-                    echo yii::t('app','Menampilkan').' <b>' . $awal . " - " . $akhir . "</b>".yii::t('app','dari')."<b>" . $totalCountResult . "</b> ".yii::t('app','hasil')." (" . Yii::getLogger()->getElapsedTime() . " ".yii::t('app','detik').")<br> <br>";
+                    echo yii::t('app', 'Menampilkan') . ' <b>' . $awal . ' - ' . $akhir . '</b> ' . yii::t('app', 'dari') . ' <b>' . $totalCountResult . '</b> ' . yii::t('app', 'hasil') . '<br> <br>';
+                    $hasFacets = (!empty($dataFacedAuthor) || !empty($dataFacedPublisher) || !empty($dataFacedPublishLocation) || !empty($dataFacedPublishYear) || !empty($dataFacedSubject) || !empty($dataFacedBahasa) || !empty($fAuthor) || !empty($fPublisher) || !empty($fPublishLoc) || !empty($fPublishYear) || !empty($fSubject) || !empty($fBahasa));
+                    $mainColClass = $hasFacets ? 'col-sm-9' : 'col-sm-12';
                     ?>
 
                     <script language="JavaScript">
@@ -275,7 +277,7 @@ if ($action === 'pencarianLanjut') {
             </div>
 
             <div class="row">
-                <div class="col-sm-9">
+                <div class="<?= $mainColClass ?>">
                     <form id="theForm" method="POST" action="">
                         <input type="checkbox" onClick="toggle(this)"> <?= yii::t('app','Pilih semua')?> &nbsp; &nbsp; &nbsp;
                         <input type="submit" class="btn btn-default btn-xs navbar-btn" value="<?= yii::t('app','Tambah ke tampung')?>">
@@ -474,13 +476,11 @@ if ($action === 'pencarianLanjut') {
 
                                 echo "<li class=\"disable\"> </li>";
                             } else {
-                                echo "<li> <a href='?" . $urls . "&page=" . ($perpage - 10) . "&limit=" . $limit . "&fAuthor=" . $fAuthor . "&fPublisher=" . $fPublisher . "&fPublishLoc=" . $fPublishLoc . "&fPublishYear=" . $fPublishYear . "&fSubject=" . $fSubject . "    '> &laquo;</a></li>";
+                                echo "<li> <a href='?" . $urls . "&page=" . ($perpage - 10) . "&limit=" . $limit . "&fAuthor=" . $fAuthor . "&fPublisher=" . $fPublisher . "&fPublishLoc=" . $fPublishLoc . "&fPublishYear=" . $fPublishYear . "&fSubject=" . $fSubject . "&fBahasa=" . $fBahasa . "'> &laquo;</a></li>";
                             }
                             ?>
 
                             <?php
-                            //echo"start page"=;
-                            //$total_pages
                             for ($startpage; $startpage <= $perpage; $startpage++) {
 
                                 echo "<li ";
@@ -488,7 +488,7 @@ if ($action === 'pencarianLanjut') {
                                     echo 'class="active"';
                                 }
 
-                                echo "><a href='?" . $urls . "&page=" . $startpage . "&limit=" . $limit . "&fAuthor=" . $fAuthor . "&fPublisher=" . $fPublisher . "&fPublishLoc=" . $fPublishLoc . "&fPublishYear=" . $fPublishYear . "&fSubject=" . $fSubject . "    '>" . $startpage . "</a></li>";
+                                echo "><a href='?" . $urls . "&page=" . $startpage . "&limit=" . $limit . "&fAuthor=" . $fAuthor . "&fPublisher=" . $fPublisher . "&fPublishLoc=" . $fPublishLoc . "&fPublishYear=" . $fPublishYear . "&fSubject=" . $fSubject . "&fBahasa=" . $fBahasa . "'>" . $startpage . "</a></li>";
                             };
 
                             if ($perpage >= $total_pages) {
@@ -496,7 +496,7 @@ if ($action === 'pencarianLanjut') {
                                 echo "<li class=\"disable\"> </li>";
                             } else {
 
-                                echo "<li> <a href='?" . $urls . "&page=" . ($perpage + 1) . "&limit=" . $limit . "&fAuthor=" . $fAuthor . "&fPublisher=" . $fPublisher . "&fPublishLoc=" . $fPublishLoc . "&fPublishYear=" . $fPublishYear . "&fSubject=" . $fSubject . "    '> &raquo;</a></li>";
+                                echo "<li> <a href='?" . $urls . "&page=" . ($perpage + 1) . "&limit=" . $limit . "&fAuthor=" . $fAuthor . "&fPublisher=" . $fPublisher . "&fPublishLoc=" . $fPublishLoc . "&fPublishYear=" . $fPublishYear . "&fSubject=" . $fSubject . "&fBahasa=" . $fBahasa . "'> &raquo;</a></li>";
                             }
                             ?>
                         </ul>
@@ -508,11 +508,10 @@ if ($action === 'pencarianLanjut') {
                 $rawurl = substr($url, 33);
                 ?>
 
-                <?php if ($countResult > 1) {
-                    # code...
-                    ?>
+                <?php if ($hasFacets) { ?>
                     <div class="col-sm-3">
                         <span style="margin-bottom:13px"><strong><?= yii::t('app','Lebih Spesifik')?> :</strong></span>
+                        <?php if (!empty($dataFacedAuthor) || !empty($fAuthor)) { ?>
                         <div class="list-group facet" id="side-panel-authorStr">
                             <div class="list-group-item title">
                                 <a data-toggle="collapse" href="#side-collapse-authorStr"><?= yii::t('app','Pengarang')?> </a>
@@ -548,6 +547,8 @@ if ($action === 'pencarianLanjut') {
                                ?>
                             </div>
                         </div>
+                        <?php } ?>
+                        <?php if (!empty($dataFacedPublisher) || !empty($fPublisher)) { ?>
                         <div class="list-group facet" id="side-panel-publisherStr">
                             <div class="list-group-item title">
                                 <a data-toggle="collapse" href="#side-collapse-publisherStr"><?= yii::t('app','Penerbit')?> </a>
@@ -588,7 +589,9 @@ if ($action === 'pencarianLanjut') {
                             </div>
 
                         </div>
+                        <?php } ?>
 
+                        <?php if (!empty($dataFacedPublishLocation) || !empty($fPublishLoc)) { ?>
                         <div class="list-group facet" id="side-panel-publislocationStr">
                             <div class="list-group-item title">
                                 <a data-toggle="collapse" href="#side-collapse-publislocationStr"><?= yii::t('app','Lokasi Terbitan')?> </a>
@@ -629,6 +632,9 @@ if ($action === 'pencarianLanjut') {
                             </div>
 
                         </div>
+                        <?php } ?>
+
+                        <?php if (!empty($dataFacedPublishYear) || !empty($fPublishYear)) { ?>
                         <div class="list-group facet" id="side-panel-publisyearStr">
                             <div class="list-group-item title">
                                 <a data-toggle="collapse" href="#side-collapse-publisyearStr"><?= yii::t('app','Tahun Terbit')?> </a>
@@ -668,6 +674,9 @@ if ($action === 'pencarianLanjut') {
                             </div>
 
                         </div>
+                        <?php } ?>
+
+                        <?php if (!empty($dataFacedSubject) || !empty($fSubject)) { ?>
                         <div class="list-group facet" id="side-panel-subjectStr">
                             <div class="list-group-item title">
                                 <a data-toggle="collapse" href="#side-collapse-subjectStr"><?= yii::t('app','Subyek')?> </a>
@@ -694,7 +703,7 @@ if ($action === 'pencarianLanjut') {
                                     }
                                     echo "
 					
-                                        <a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item \" href='pencarian-lanjut?" . $urls . "&fAuthor=" . $fAuthor . "&fPublisher=" . $fPublisher . "&fPublishLoc=" . $fPublishLoc . "&fPublishYear=" . $fPublishYear . "&fSubject=" . $dataFacedSubject[$i]['SUBJECT'] . "     '>" . $dataFacedSubject[$i]['SUBJECT'] . "&fBahasa=" . $fBahasa . "<span class=\"badge\">" . $dataFacedSubject[$i]['jml'] . "</span></a>
+                                        <a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item \" href='pencarian-lanjut?" . $urls . "&fAuthor=" . $fAuthor . "&fPublisher=" . $fPublisher . "&fPublishLoc=" . $fPublishLoc . "&fPublishYear=" . $fPublishYear . "&fSubject=" . $dataFacedSubject[$i]['SUBJECT'] . "&fBahasa=" . $fBahasa . "     '>" . $dataFacedSubject[$i]['SUBJECT'] . "<span class=\"badge\">" . $dataFacedSubject[$i]['jml'] . "</span></a>
 					
                                         ";
                                 }
@@ -707,6 +716,9 @@ if ($action === 'pencarianLanjut') {
                             </div>
 
                         </div>
+                        <?php } ?>
+
+                        <?php if (!empty($dataFacedBahasa) || !empty($fBahasa)) { ?>
                         <div class="list-group facet" id="side-panel-BahasaStr">
                             <div class="list-group-item title">
                                 <a data-toggle="collapse" href="#side-collapse-BahasaStr"><?= yii::t('app','Bahasa')?> </a>
@@ -726,8 +738,8 @@ if ($action === 'pencarianLanjut') {
                                 $divHiddenBuka = '<div class="facedHidden" >';
                                 $divHiddenTutup = (sizeof($dataFacedBahasa) > $FacedBahasaMin ? '</div>' : '');
                                 for ($i = 0; $i < sizeof($dataFacedBahasa); $i++) {
-                                    if ($dataFacedBahasa[$i]['SUBJECT'] == NULL || $dataFacedBahasa[$i]['SUBJECT'] == '')
-                                        $dataFacedBahasa[$i]['SUBJECT'] = '-';
+                                    if ($dataFacedBahasa[$i]['bahasa'] == NULL || $dataFacedBahasa[$i]['bahasa'] == '')
+                                        $dataFacedBahasa[$i]['bahasa'] = '-';
                                     if ($i == $FacedBahasaMin) {
                                         echo $divHiddenBuka;
                                     }
@@ -746,6 +758,7 @@ if ($action === 'pencarianLanjut') {
                             </div>
 
                         </div>
+                        <?php } ?>
 
                         <?php
                         $this->registerJS('

@@ -60,3 +60,12 @@ inlislite3/
    - Hasil facet disimpan pada sesi pengguna (`$_SESSION['dataFaced*']`) sehingga perpindahan ke halaman 2, 3, dst. tidak perlu mengulang query agregasi facet.
 4. **Adaptive View Rendering:**
    - Kotak kategori facet pada `resultListOpac.php` hanya dirender jika memiliki data atau terdapat filter aktif, mencegah munculnya kotak kosong tak berfungsi. Jika seluruh facet kosong, kolom hasil pencarian otomatis meluas menjadi lebar penuh (`col-sm-12`).
+
+## 6. Arsitektur Pencarian Lanjut Read-Only & Penanganan Error 1637 InnoDB
+1. **Eliminasi Error 1637 InnoDB:**
+   - Stored procedure legacy `insertTempLanjutOpac` dan `insertTempLanjutOpac0` mengeksekusi DDL pembuatan temporary table yang memicu kehabisan rollback segment (`SQLSTATE[HY000]: General error: 1637 Too many active concurrent transactions`).
+   - Sistem kini mengimplementasikan arsitektur dual-mode: `try-catch` pada halaman 1 dengan auto-fallback direct query, dan direct read-only query murni (`getDirectSearchDataLanjut`, `getDirectSearchCountLanjut`, `getDirectSearchFacetsLanjut`) pada paginasi (halaman 2, 3, dst.).
+2. **Pembersihan String Waktu Eksekusi (Detik):**
+   - Menghapus string runtime benchmarking internal `(0.xxxx detik)` pada view hasil pencarian sederhana dan pencarian lanjut sehingga teks ringkasan tampil bersih dan profesional: `Menampilkan X - Y dari Z hasil`.
+3. **Koreksi Paginasi & Penomoran Awal:**
+   - Standarisasi formula nomor awal `$awal = ($totalCountResult == 0) ? 0 : (($page - 1) * $limit) + 1` pada seluruh view hasil pencarian.

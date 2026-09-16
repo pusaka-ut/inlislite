@@ -43,7 +43,7 @@ class PencarianLanjutController extends \yii\web\Controller {
                     $tag = "EXISTS (SELECT  1 FROM catalog_ruas R  WHERE R.CATALOGID=CAT.ID and R.TAG IN ('245','246','440','740','240','246','008') and R.Value";
                     break;
                 case 'Pengarang':
-                    $tag = "EXISTS (SELECT  1 FROM catalog_ruas R  WHERE R.CATALOGID=CAT.ID and R.TAG IN ('100','110','111','700','710','711',800','810','811','008') and R.Value";
+                    $tag = "EXISTS (SELECT  1 FROM catalog_ruas R  WHERE R.CATALOGID=CAT.ID and R.TAG IN ('100','110','111','700','710','711','800','810','811','008') and R.Value";
                     break;
                 case 'Penerbitan':
                     $tag = "EXISTS (SELECT  1 FROM catalog_ruas R  WHERE R.CATALOGID=CAT.ID and R.TAG IN ('260','264','008') and R.Value";
@@ -218,12 +218,42 @@ class PencarianLanjutController extends \yii\web\Controller {
             $bentukKarya = ( isset($_GET['bentukKarya']) ) ? addslashes(urldecode($_GET['bentukKarya'])) : "";
             $katakunci = ( isset($_GET['katakunci']) ) ? array_map( 'addslashes', $_GET['katakunci']) : "";
             $katakunci2  = $katakunci;
+
+            $hasValidKeyword = false;
+            if (is_array($katakunci)) {
+                foreach ($katakunci as $kw) {
+                    if (mb_strlen(trim($kw), 'UTF-8') >= 2) {
+                        $hasValidKeyword = true;
+                        break;
+                    }
+                }
+            }
+            if (!$hasValidKeyword) {
+                Yii::$app->getSession()->setFlash('error', [
+                    'type' => 'danger',
+                    'delay' => 3500,
+                    'icon' => 'glyphicon glyphicon-remove',
+                    'message' => Yii::t('app', 'Kata kunci minimal 2 karakter.'),
+                    'title' => 'Peringatan',
+                    'body' => '',
+                    'positonY' => 'top',
+                    'positonX' => 'right'
+                ]);
+                return $this->render('index');
+            }
+
             $jenis = ( isset($_GET['jenis']) ) ?  array_map( 'addslashes', $_GET['jenis']) : "";
             $tag = ( isset($_GET['tag']) ) ? array_map( 'addslashes', $_GET['tag']) : "";
             $danAtau = ( isset($_GET['danAtau']) ) ?  array_map( 'addslashes', $_GET['danAtau']) : "";
             $action = ( isset($_GET['action']) ) ? addslashes(urldecode($_GET['action'])) : "pencarianLanjut";
-            $page = ( isset($_GET['page']) ) ? addslashes(urldecode($_GET['page'])) : 1;
-            $limit = ( isset($_GET['limit']) ) ? addslashes(urldecode($_GET['limit'])) : 10;
+            $page = ( isset($_GET['page']) ) ? (int)$_GET['page'] : 1;
+            if ($page < 1) {
+                $page = 1;
+            }
+            $limit = ( isset($_GET['limit']) ) ? (int)$_GET['limit'] : 10;
+            if ($limit < 1) {
+                $limit = 10;
+            }
             $fAuthor = ( isset($_GET['fAuthor']) ) ? addslashes(urldecode($_GET['fAuthor'])) : '';
             $fPublisher = ( isset($_GET['fPublisher']) ) ? addslashes(urldecode($_GET['fPublisher'])) : '';
             $fPublishLoc = ( isset($_GET['fPublishLoc']) ) ? addslashes(urldecode($_GET['fPublishLoc'])) : '';
@@ -428,63 +458,13 @@ class PencarianLanjutController extends \yii\web\Controller {
                 'isLKD' => 0,
             ];
 
-            OpacHelpers::opacLogs($logs);
+            try {
+                OpacHelpers::opacLogs($logs);
+            } catch (\Exception $eLogs) {
+                Yii::warning($eLogs->getMessage(), 'opac.logs');
+            }
 
             $connection = Yii::$app->db;
-
-
-            if (!isset($_GET['page'])) {
-
-                if ($location)
-                {
-                    $command = $connection->createCommand("CALL insertTempLanjutOpac('" . $bahan . "','" . $bahasa . "','" . $targetPembaca . "','" . $bentukKarya . "',:temp,'" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','',".$location." ); ");
-                    $command->bindValue(':temp', $temp);
-                    $command->execute();
-                } else {
-                    $command = $connection->createCommand("CALL insertTempLanjutOpac('" . $bahan . "','" . $bahasa . "','" . $targetPembaca . "','" . $bentukKarya . "',:temp,'" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','','0'); ");
-                    $command->bindValue(':temp', $temp);
-                    $command->execute();
-                }
-
-            } else {
-
-                if ($location)
-                {
-                    $command = $connection->createCommand("CALL insertTempLanjutOpac0('" . $bahan . "','" . $bahasa . "','" . $targetPembaca . "','" . $bentukKarya . "',:temp," . $limitAwal . "," . $limit . ",'" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','',".$location." ); ");
-                    $command->bindValue(':temp', $temp);
-                    $command->execute();
-                } else {
-                    $command = $connection->createCommand("CALL insertTempLanjutOpac0('" . $bahan . "','" . $bahasa . "','" . $targetPembaca . "','" . $bentukKarya . "',:temp," . $limitAwal . "," . $limit . ",'" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','','0'); ");
-                    $command->bindValue(':temp', $temp);
-                    $command->execute();
-                }
-            }
-
-            /*$count = Yii::$app->db->createCommand("CALL countPencarianLanjutOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "');")->queryScalar();
-
-            $sqlSearch = "CALL pencarianLanjutLimitOpac('0','" . $limit . "','" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "');";
-
-            //$sqlSearch="CALL pencarianLanjutLimitOpac('".$limitAwal."','".$limit."','".$fAuthor."','".$fPublisher."','".$fPublishLoc."','".$fPublishYear."');";
-
-            $dataProviderSearch = new SqlDataProvider([
-                'sql' => $sqlSearch,
-                'pagination' => false,
-                    //'pagination' => [ 'pageSize' => 20,],
-            ]);
-
-            $modelSearch = $dataProviderSearch->getModels();
-            $countSearch = $dataProviderSearch->getCount();*/
-
-            $count = Yii::$app->db->createCommand("select count(1) from tempCariOpac")->queryScalar();
-            $hasilSearch = Yii::$app->db->createCommand("select * from tempCariOpac limit 0,$limit")->queryAll();
-
-            if (!isset($_GET['page'])) {
-                $_SESSION['countSearch'] = $count;
-            } else {
-
-                $count = $_SESSION['countSearch'];
-            }
-
 
             $FacedAuthorMax = Yii::$app->config->get('FacedAuthorMax');
             $FacedPublisherMax = Yii::$app->config->get('FacedPublisherMax');
@@ -500,56 +480,92 @@ class PencarianLanjutController extends \yii\web\Controller {
             $FacedSubjectMin = Yii::$app->config->get('FacedSubjectMin');
             $FacedBahasaMin = Yii::$app->config->get('FacedBahasaMin');
 
+            $hasilSearch = [];
+            $count = 0;
+            $dataFacedAuthor = [];
+            $dataFacedPublisher = [];
+            $dataFacedPublishLocation = [];
+            $dataFacedPublishYear = [];
+            $dataFacedSubject = [];
+            $dataFacedBahasa = [];
 
+            if ($page === 1) {
+                try {
+                    if ($location) {
+                        $command = $connection->createCommand("CALL insertTempLanjutOpac('" . $bahan . "','" . $bahasa . "','" . $targetPembaca . "','" . $bentukKarya . "',:temp,'" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "',''," . $location . " ); ");
+                        $command->bindValue(':temp', $temp);
+                        $command->execute();
+                    } else {
+                        $command = $connection->createCommand("CALL insertTempLanjutOpac('" . $bahan . "','" . $bahasa . "','" . $targetPembaca . "','" . $bentukKarya . "',:temp,'" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','','0'); ");
+                        $command->bindValue(':temp', $temp);
+                        $command->execute();
+                    }
 
-            //buat generate faced
+                    $count = (int)$connection->createCommand("select count(1) from tempCariOpac")->queryScalar();
+                    $hasilSearch = $connection->createCommand("select * from tempCariOpac limit 0,$limit")->queryAll();
 
-            /*$dataFacedAuthor = Yii::$app->db->createCommand("CALL facedAuthorOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','" . $FacedAuthorMax . "');")->queryAll();
-            $dataFacedPublisher = Yii::$app->db->createCommand("CALL facedPublisherOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','" . $FacedPublisherMax . "');")->queryAll();
-            $dataFacedPublishLocation = Yii::$app->db->createCommand("CALL facedPublishLocationOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','" . $FacedPublishLocationMax . "');")->queryAll();
-            $dataFacedPublishYear = Yii::$app->db->createCommand("CALL facedPublishYearOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','" . $FacedPublishYearMax . "');")->queryAll();
-            $dataFacedSubject = Yii::$app->db->createCommand("CALL facedSubjectOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','" . $FacedSubjectMax . "');")->queryAll();
-            $dataFacedBahasa = Yii::$app->db->createCommand("CALL facedBahasaOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','" . $FacedBahasaMax . "');")->queryAll();*/
+                    $req = [
+                        'fAuthor' => $fAuthor,
+                        'fPublisher' => $fPublisher,
+                        'fPublishLoc' => $fPublishLoc,
+                        'fPublishYear' => $fPublishYear,
+                        'fSubject' => $fSubject,
+                        'fBahasa' => $fBahasa
+                    ];
+                    $dataFacedAuthor = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('Author', $req), 'Author');
+                    $dataFacedPublisher = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('Publisher', $req), 'Publisher');
+                    $dataFacedPublishLocation = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('PublishLocation', $req), 'PublishLocation');
+                    $dataFacedPublishYear = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('PublishYear', $req), 'PublishYear');
+                    $dataFacedSubject = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('SUBJECT', $req), 'SUBJECT');
+                    $dataFacedBahasa = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('bahasa', $req), 'bahasa');
 
-            //$totalCountSearch=$dataProviderSearch->getTotalCount();
-
-            //buat generate faced
-            /*$dataFacedAuthor = OpacHelpers::facedGenerator($dataFacedAuthor,'Author');
-            $dataFacedPublisher = OpacHelpers::facedGenerator($dataFacedPublisher,'Publisher');
-            $dataFacedPublishLocation = OpacHelpers::facedGenerator($dataFacedPublishLocation,'PublishLocation');
-            $dataFacedPublishYear = OpacHelpers::facedGenerator($dataFacedPublishYear,'PublishYear');
-            $dataFacedSubject = OpacHelpers::facedGenerator($dataFacedSubject,'SUBJECT');
-            $dataFacedBahasa = OpacHelpers::facedGenerator($dataFacedBahasa,'bahasa');*/
-            //faced tidak menggunakan sp lagi
-            $req=array(
-                'fAuthor' => $fAuthor,
-                'fPublisher' => $fPublisher,
-                'fPublishLoc' =>$fPublishLoc,
-                'fPublishYear' => $fPublishYear,
-                'fSubject' => $fSubject,
-                'fBahasa' => $fBahasa);
-            $dataFacedAuthor = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('Author',$req),'Author');
-            $dataFacedPublisher = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('Publisher',$req),'Publisher');
-            $dataFacedPublishLocation = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('PublishLocation',$req),'PublishLocation');
-            $dataFacedPublishYear = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('PublishYear',$req),'PublishYear');
-            $dataFacedSubject = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('SUBJECT',$req),'SUBJECT');
-            $dataFacedBahasa = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('bahasa',$req),'bahasa');
-            
-            if (!isset($_GET['page'])) {
-                $_SESSION['dataFacedAuthor'] = $dataFacedAuthor;
-                $_SESSION['dataFacedPublisher'] = $dataFacedPublisher;
-                $_SESSION['dataFacedPublishLocation'] = $dataFacedPublishLocation;
-                $_SESSION['dataFacedPublishYear'] = $dataFacedPublishYear;
-                $_SESSION['dataFacedSubject'] = $dataFacedSubject;
-                $_SESSION['dataFacedBahasa'] = $dataFacedBahasa;
+                    $_SESSION['dataFacedAuthor'] = $dataFacedAuthor;
+                    $_SESSION['dataFacedPublisher'] = $dataFacedPublisher;
+                    $_SESSION['dataFacedPublishLocation'] = $dataFacedPublishLocation;
+                    $_SESSION['dataFacedPublishYear'] = $dataFacedPublishYear;
+                    $_SESSION['dataFacedSubject'] = $dataFacedSubject;
+                    $_SESSION['dataFacedBahasa'] = $dataFacedBahasa;
+                    $_SESSION['countSearch'] = $count;
+                } catch (\Exception $e) {
+                    Yii::warning($e->getMessage(), 'opac.search.lanjut');
+                    $hasilSearch = $this->getDirectSearchDataLanjut($temp, $bahan, $bahasa, $targetPembaca, $bentukKarya, $location, 0, $limit, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                    $count = $this->getDirectSearchCountLanjut($temp, $bahan, $bahasa, $targetPembaca, $bentukKarya, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                    $_SESSION['countSearch'] = $count;
+                    $facets = $this->getDirectSearchFacetsLanjut($temp, $bahan, $bahasa, $targetPembaca, $bentukKarya, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                    $dataFacedAuthor = $facets['author'];
+                    $dataFacedPublisher = $facets['publisher'];
+                    $dataFacedPublishLocation = $facets['publishLocation'];
+                    $dataFacedPublishYear = $facets['publishYear'];
+                    $dataFacedSubject = $facets['subject'];
+                    $dataFacedBahasa = $facets['bahasa'];
+                    $_SESSION['dataFacedAuthor'] = $dataFacedAuthor;
+                    $_SESSION['dataFacedPublisher'] = $dataFacedPublisher;
+                    $_SESSION['dataFacedPublishLocation'] = $dataFacedPublishLocation;
+                    $_SESSION['dataFacedPublishYear'] = $dataFacedPublishYear;
+                    $_SESSION['dataFacedSubject'] = $dataFacedSubject;
+                    $_SESSION['dataFacedBahasa'] = $dataFacedBahasa;
+                }
             } else {
-
-                $dataFacedAuthor = $_SESSION['dataFacedAuthor'];
-                $dataFacedPublisher = $_SESSION['dataFacedPublisher'];
-                $dataFacedPublishLocation = $_SESSION['dataFacedPublishLocation'];
-                $dataFacedPublishYear = $_SESSION['dataFacedPublishYear'];
-                $dataFacedSubject = $_SESSION['dataFacedSubject'];
-                $dataFacedBahasa = $_SESSION['dataFacedBahasa'];
+                $hasilSearch = $this->getDirectSearchDataLanjut($temp, $bahan, $bahasa, $targetPembaca, $bentukKarya, $location, $limitAwal, $limit, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                if (!isset($_SESSION['countSearch']) || empty($_SESSION['countSearch'])) {
+                    $_SESSION['countSearch'] = $this->getDirectSearchCountLanjut($temp, $bahan, $bahasa, $targetPembaca, $bentukKarya, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                }
+                $count = isset($_SESSION['countSearch']) ? (int)$_SESSION['countSearch'] : 0;
+                if (!isset($_SESSION['dataFacedAuthor'])) {
+                    $facets = $this->getDirectSearchFacetsLanjut($temp, $bahan, $bahasa, $targetPembaca, $bentukKarya, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                    $_SESSION['dataFacedAuthor'] = $facets['author'];
+                    $_SESSION['dataFacedPublisher'] = $facets['publisher'];
+                    $_SESSION['dataFacedPublishLocation'] = $facets['publishLocation'];
+                    $_SESSION['dataFacedPublishYear'] = $facets['publishYear'];
+                    $_SESSION['dataFacedSubject'] = $facets['subject'];
+                    $_SESSION['dataFacedBahasa'] = $facets['bahasa'];
+                }
+                $dataFacedAuthor = isset($_SESSION['dataFacedAuthor']) ? $_SESSION['dataFacedAuthor'] : [];
+                $dataFacedPublisher = isset($_SESSION['dataFacedPublisher']) ? $_SESSION['dataFacedPublisher'] : [];
+                $dataFacedPublishLocation = isset($_SESSION['dataFacedPublishLocation']) ? $_SESSION['dataFacedPublishLocation'] : [];
+                $dataFacedPublishYear = isset($_SESSION['dataFacedPublishYear']) ? $_SESSION['dataFacedPublishYear'] : [];
+                $dataFacedSubject = isset($_SESSION['dataFacedSubject']) ? $_SESSION['dataFacedSubject'] : [];
+                $dataFacedBahasa = isset($_SESSION['dataFacedBahasa']) ? $_SESSION['dataFacedBahasa'] : [];
             }
             /*$temp = 1;
             foreach ($modelSearch as $value) {
@@ -994,8 +1010,309 @@ class PencarianLanjutController extends \yii\web\Controller {
         ]);
         //echo Json::encode(['response'=>'success', 'growl' => $growl ]);
         return $this->renderAjax('_usulan', [
-                        //'dataResult' => $dataSearch,
         ]);
     }
 
+    private function getDirectSearchDataLanjut($temp, $bahan, $bahasa, $targetPembaca, $bentukKarya, $location, $limitOffset, $limitCount, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa) {
+        $bindParams = [];
+        $searchCondition = !empty(trim($temp)) ? "({$temp})" : "1 = 1";
+
+        $locationCondition = "";
+        if (!empty($location) && $location != 0) {
+            $bindParams[':location'] = $location;
+            $locationCondition = "AND EXISTS (SELECT 1 FROM collections col WHERE col.Catalog_id = CAT.ID AND col.Location_id = :location)";
+        }
+
+        $worksheetCondition = "1 = 1";
+        if (!empty($bahan) && strcasecmp($bahan, 'Semua Jenis Bahan') !== 0 && is_numeric($bahan)) {
+            $worksheetCondition = "CAT.Worksheet_id = :bahan";
+            $bindParams[':bahan'] = (int)$bahan;
+        }
+
+        $bahasaCondition = "";
+        if (!empty($bahasa)) {
+            $bahasaCondition = "AND EXISTS (SELECT 1 FROM catalog_ruas R_bhs WHERE R_bhs.CATALOGID = CAT.ID AND R_bhs.TAG = '008' AND SUBSTRING(R_bhs.Value, 36, 3) = :bahasaMarc)";
+            $bindParams[':bahasaMarc'] = $bahasa;
+        }
+
+        $karyaCondition = "";
+        if (!empty($bentukKarya)) {
+            $karyaCondition = "AND EXISTS (SELECT 1 FROM catalog_ruas R_kry WHERE R_kry.CATALOGID = CAT.ID AND R_kry.TAG = '008' AND SUBSTRING(R_kry.Value, 34, 1) = :karyaMarc)";
+            $bindParams[':karyaMarc'] = $bentukKarya;
+        }
+
+        $pembacaCondition = "";
+        if (!empty($targetPembaca)) {
+            $pembacaCondition = "AND EXISTS (SELECT 1 FROM catalog_ruas R_pmb WHERE R_pmb.CATALOGID = CAT.ID AND R_pmb.TAG = '008' AND SUBSTRING(R_pmb.Value, 23, 1) = :pembacaMarc)";
+            $bindParams[':pembacaMarc'] = $targetPembaca;
+        }
+
+        $facetCondition = "1 = 1";
+        if (!empty($fAuthor)) {
+            $facetCondition .= " AND CAT.Author LIKE :fAuthor";
+            $bindParams[':fAuthor'] = '%' . $fAuthor . '%';
+        }
+        if (!empty($fPublisher)) {
+            $facetCondition .= " AND CAT.Publisher LIKE :fPublisher";
+            $bindParams[':fPublisher'] = '%' . $fPublisher . '%';
+        }
+        if (!empty($fPublishLoc)) {
+            $facetCondition .= " AND CAT.PublishLocation LIKE :fPublishLoc";
+            $bindParams[':fPublishLoc'] = '%' . $fPublishLoc . '%';
+        }
+        if (!empty($fPublishYear)) {
+            $facetCondition .= " AND CAT.PublishYear LIKE :fPublishYear";
+            $bindParams[':fPublishYear'] = '%' . $fPublishYear . '%';
+        }
+        if (!empty($fSubject)) {
+            $facetCondition .= " AND CAT.Subject LIKE :fSubject";
+            $bindParams[':fSubject'] = '%' . $fSubject . '%';
+        }
+        if (!empty($fBahasa)) {
+            $facetCondition .= " AND CAT.Languages LIKE :fBahasa";
+            $bindParams[':fBahasa'] = '%' . $fBahasa . '%';
+        }
+
+        $offset = (int)$limitOffset;
+        $countLimit = (int)$limitCount;
+
+        $sql = "SELECT DISTINCT 
+            CAT.id AS CatalogId,
+            CAT.Title AS title,
+            CAT.Author AS author,
+            CAT.Publisher AS publisher,
+            CAT.PublishLocation AS PublishLocation,
+            CAT.PublishYear AS PublishYear,
+            CAT.Subject AS subject,
+            CAT.Languages AS bahasa,
+            CAT.CoverURL AS CoverURL,
+            CAT.Worksheet_id AS worksheet_id,
+            CAT.Worksheet_id AS Worksheet_id,
+            (SELECT NAME FROM worksheets WHERE id = CAT.Worksheet_id) AS worksheet,
+            (SELECT ISSERIAL FROM worksheets WHERE id = CAT.Worksheet_id) AS ISSERIAL,
+            (SELECT COUNT(1) FROM collections WHERE CATALOG_ID = CAT.ID AND STATUS_ID = 1 AND (BookingExpiredDate < NOW() OR BookingExpiredDate IS NULL)) AS JML_BUKU,
+            (SELECT COUNT(1) FROM collections WHERE CATALOG_ID = CAT.ID) AS ALL_BUKU,
+            (SELECT GROUP_CONCAT(DISTINCT SUBSTR(fileURL, INSTR(fileURL, '.') + 1) SEPARATOR ', ') FROM catalogfiles WHERE Catalog_id = CAT.ID) AS KONTEN_DIGITAL
+        FROM catalogs CAT
+        WHERE {$searchCondition}
+          {$locationCondition}
+          AND {$worksheetCondition}
+          {$bahasaCondition}
+          {$karyaCondition}
+          {$pembacaCondition}
+          AND {$facetCondition}
+          AND (CAT.isopac = 1 OR CAT.isopac IS NULL)
+        LIMIT {$offset}, {$countLimit}";
+
+        $command = Yii::$app->db->createCommand($sql);
+        if (!empty($bindParams)) {
+            $command->bindValues($bindParams);
+        }
+        return $command->queryAll();
+    }
+
+    private function getDirectSearchCountLanjut($temp, $bahan, $bahasa, $targetPembaca, $bentukKarya, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa) {
+        $bindParams = [];
+        $searchCondition = !empty(trim($temp)) ? "({$temp})" : "1 = 1";
+
+        $locationCondition = "";
+        if (!empty($location) && $location != 0) {
+            $bindParams[':location'] = $location;
+            $locationCondition = "AND EXISTS (SELECT 1 FROM collections col WHERE col.Catalog_id = CAT.ID AND col.Location_id = :location)";
+        }
+
+        $worksheetCondition = "1 = 1";
+        if (!empty($bahan) && strcasecmp($bahan, 'Semua Jenis Bahan') !== 0 && is_numeric($bahan)) {
+            $worksheetCondition = "CAT.Worksheet_id = :bahan";
+            $bindParams[':bahan'] = (int)$bahan;
+        }
+
+        $bahasaCondition = "";
+        if (!empty($bahasa)) {
+            $bahasaCondition = "AND EXISTS (SELECT 1 FROM catalog_ruas R_bhs WHERE R_bhs.CATALOGID = CAT.ID AND R_bhs.TAG = '008' AND SUBSTRING(R_bhs.Value, 36, 3) = :bahasaMarc)";
+            $bindParams[':bahasaMarc'] = $bahasa;
+        }
+
+        $karyaCondition = "";
+        if (!empty($bentukKarya)) {
+            $karyaCondition = "AND EXISTS (SELECT 1 FROM catalog_ruas R_kry WHERE R_kry.CATALOGID = CAT.ID AND R_kry.TAG = '008' AND SUBSTRING(R_kry.Value, 34, 1) = :karyaMarc)";
+            $bindParams[':karyaMarc'] = $bentukKarya;
+        }
+
+        $pembacaCondition = "";
+        if (!empty($targetPembaca)) {
+            $pembacaCondition = "AND EXISTS (SELECT 1 FROM catalog_ruas R_pmb WHERE R_pmb.CATALOGID = CAT.ID AND R_pmb.TAG = '008' AND SUBSTRING(R_pmb.Value, 23, 1) = :pembacaMarc)";
+            $bindParams[':pembacaMarc'] = $targetPembaca;
+        }
+
+        $facetCondition = "1 = 1";
+        if (!empty($fAuthor)) {
+            $facetCondition .= " AND CAT.Author LIKE :fAuthor";
+            $bindParams[':fAuthor'] = '%' . $fAuthor . '%';
+        }
+        if (!empty($fPublisher)) {
+            $facetCondition .= " AND CAT.Publisher LIKE :fPublisher";
+            $bindParams[':fPublisher'] = '%' . $fPublisher . '%';
+        }
+        if (!empty($fPublishLoc)) {
+            $facetCondition .= " AND CAT.PublishLocation LIKE :fPublishLoc";
+            $bindParams[':fPublishLoc'] = '%' . $fPublishLoc . '%';
+        }
+        if (!empty($fPublishYear)) {
+            $facetCondition .= " AND CAT.PublishYear LIKE :fPublishYear";
+            $bindParams[':fPublishYear'] = '%' . $fPublishYear . '%';
+        }
+        if (!empty($fSubject)) {
+            $facetCondition .= " AND CAT.Subject LIKE :fSubject";
+            $bindParams[':fSubject'] = '%' . $fSubject . '%';
+        }
+        if (!empty($fBahasa)) {
+            $facetCondition .= " AND CAT.Languages LIKE :fBahasa";
+            $bindParams[':fBahasa'] = '%' . $fBahasa . '%';
+        }
+
+        $sql = "SELECT COUNT(DISTINCT CAT.id)
+        FROM catalogs CAT
+        WHERE {$searchCondition}
+          {$locationCondition}
+          AND {$worksheetCondition}
+          {$bahasaCondition}
+          {$karyaCondition}
+          {$pembacaCondition}
+          AND {$facetCondition}
+          AND (CAT.isopac = 1 OR CAT.isopac IS NULL)";
+
+        $command = Yii::$app->db->createCommand($sql);
+        if (!empty($bindParams)) {
+            $command->bindValues($bindParams);
+        }
+        return (int)$command->queryScalar();
+    }
+
+    private function getDirectSearchFacetsLanjut($temp, $bahan, $bahasa, $targetPembaca, $bentukKarya, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa) {
+        $bindParams = [];
+        $searchCondition = !empty(trim($temp)) ? "({$temp})" : "1 = 1";
+
+        $locationCondition = "";
+        if (!empty($location) && $location != 0) {
+            $bindParams[':location'] = $location;
+            $locationCondition = "AND EXISTS (SELECT 1 FROM collections col WHERE col.Catalog_id = CAT.ID AND col.Location_id = :location)";
+        }
+
+        $worksheetCondition = "1 = 1";
+        if (!empty($bahan) && strcasecmp($bahan, 'Semua Jenis Bahan') !== 0 && is_numeric($bahan)) {
+            $worksheetCondition = "CAT.Worksheet_id = :bahan";
+            $bindParams[':bahan'] = (int)$bahan;
+        }
+
+        $bahasaCondition = "";
+        if (!empty($bahasa)) {
+            $bahasaCondition = "AND EXISTS (SELECT 1 FROM catalog_ruas R_bhs WHERE R_bhs.CATALOGID = CAT.ID AND R_bhs.TAG = '008' AND SUBSTRING(R_bhs.Value, 36, 3) = :bahasaMarc)";
+            $bindParams[':bahasaMarc'] = $bahasa;
+        }
+
+        $karyaCondition = "";
+        if (!empty($bentukKarya)) {
+            $karyaCondition = "AND EXISTS (SELECT 1 FROM catalog_ruas R_kry WHERE R_kry.CATALOGID = CAT.ID AND R_kry.TAG = '008' AND SUBSTRING(R_kry.Value, 34, 1) = :karyaMarc)";
+            $bindParams[':karyaMarc'] = $bentukKarya;
+        }
+
+        $pembacaCondition = "";
+        if (!empty($targetPembaca)) {
+            $pembacaCondition = "AND EXISTS (SELECT 1 FROM catalog_ruas R_pmb WHERE R_pmb.CATALOGID = CAT.ID AND R_pmb.TAG = '008' AND SUBSTRING(R_pmb.Value, 23, 1) = :pembacaMarc)";
+            $bindParams[':pembacaMarc'] = $targetPembaca;
+        }
+
+        $facetCondition = "1 = 1";
+        if (!empty($fAuthor)) {
+            $facetCondition .= " AND CAT.Author LIKE :fAuthor";
+            $bindParams[':fAuthor'] = '%' . $fAuthor . '%';
+        }
+        if (!empty($fPublisher)) {
+            $facetCondition .= " AND CAT.Publisher LIKE :fPublisher";
+            $bindParams[':fPublisher'] = '%' . $fPublisher . '%';
+        }
+        if (!empty($fPublishLoc)) {
+            $facetCondition .= " AND CAT.PublishLocation LIKE :fPublishLoc";
+            $bindParams[':fPublishLoc'] = '%' . $fPublishLoc . '%';
+        }
+        if (!empty($fPublishYear)) {
+            $facetCondition .= " AND CAT.PublishYear LIKE :fPublishYear";
+            $bindParams[':fPublishYear'] = '%' . $fPublishYear . '%';
+        }
+        if (!empty($fSubject)) {
+            $facetCondition .= " AND CAT.Subject LIKE :fSubject";
+            $bindParams[':fSubject'] = '%' . $fSubject . '%';
+        }
+        if (!empty($fBahasa)) {
+            $facetCondition .= " AND CAT.Languages LIKE :fBahasa";
+            $bindParams[':fBahasa'] = '%' . $fBahasa . '%';
+        }
+
+        $baseWhere = "{$searchCondition} {$locationCondition} AND {$worksheetCondition} {$bahasaCondition} {$karyaCondition} {$pembacaCondition} AND {$facetCondition} AND (CAT.isopac = 1 OR CAT.isopac IS NULL)";
+
+        $maxAuthor = (int)Yii::$app->config->get('FacedAuthorMax') ?: 10;
+        $maxPub = (int)Yii::$app->config->get('FacedPublisherMax') ?: 10;
+        $maxLoc = (int)Yii::$app->config->get('FacedPublishLocationMax') ?: 10;
+        $maxYear = (int)Yii::$app->config->get('FacedPublishYearMax') ?: 10;
+        $maxSub = (int)Yii::$app->config->get('FacedSubjectMax') ?: 10;
+        $maxLang = (int)Yii::$app->config->get('FacedBahasaMax') ?: 10;
+
+        $facets = [
+            'author' => [],
+            'publisher' => [],
+            'publishLocation' => [],
+            'publishYear' => [],
+            'subject' => [],
+            'bahasa' => []
+        ];
+
+        try {
+            $sqlAuthor = "SELECT CAT.Author AS Author, COUNT(1) AS jml FROM catalogs CAT WHERE {$baseWhere} AND CAT.Author IS NOT NULL AND CAT.Author != '' AND CAT.Author != '-' GROUP BY CAT.Author ORDER BY jml DESC LIMIT {$maxAuthor}";
+            $cmdAuthor = Yii::$app->db->createCommand($sqlAuthor);
+            if (!empty($bindParams)) {
+                $cmdAuthor->bindValues($bindParams);
+            }
+            $facets['author'] = OpacHelpers::facedGenerator($cmdAuthor->queryAll(), 'Author');
+
+            $sqlPub = "SELECT CAT.Publisher AS Publisher, COUNT(1) AS jml FROM catalogs CAT WHERE {$baseWhere} AND CAT.Publisher IS NOT NULL AND CAT.Publisher != '' AND CAT.Publisher != '-' GROUP BY CAT.Publisher ORDER BY jml DESC LIMIT {$maxPub}";
+            $cmdPub = Yii::$app->db->createCommand($sqlPub);
+            if (!empty($bindParams)) {
+                $cmdPub->bindValues($bindParams);
+            }
+            $facets['publisher'] = OpacHelpers::facedGenerator($cmdPub->queryAll(), 'Publisher');
+
+            $sqlLoc = "SELECT CAT.PublishLocation AS PublishLocation, COUNT(1) AS jml FROM catalogs CAT WHERE {$baseWhere} AND CAT.PublishLocation IS NOT NULL AND CAT.PublishLocation != '' AND CAT.PublishLocation != '-' GROUP BY CAT.PublishLocation ORDER BY jml DESC LIMIT {$maxLoc}";
+            $cmdLoc = Yii::$app->db->createCommand($sqlLoc);
+            if (!empty($bindParams)) {
+                $cmdLoc->bindValues($bindParams);
+            }
+            $facets['publishLocation'] = OpacHelpers::facedGenerator($cmdLoc->queryAll(), 'PublishLocation');
+
+            $sqlYear = "SELECT CAT.PublishYear AS PublishYear, COUNT(1) AS jml FROM catalogs CAT WHERE {$baseWhere} AND CAT.PublishYear IS NOT NULL AND CAT.PublishYear != '' AND CAT.PublishYear != '-' GROUP BY CAT.PublishYear ORDER BY jml DESC LIMIT {$maxYear}";
+            $cmdYear = Yii::$app->db->createCommand($sqlYear);
+            if (!empty($bindParams)) {
+                $cmdYear->bindValues($bindParams);
+            }
+            $facets['publishYear'] = OpacHelpers::facedGenerator($cmdYear->queryAll(), 'PublishYear');
+
+            $sqlSub = "SELECT CAT.Subject AS SUBJECT, COUNT(1) AS jml FROM catalogs CAT WHERE {$baseWhere} AND CAT.Subject IS NOT NULL AND CAT.Subject != '' AND CAT.Subject != '-' GROUP BY CAT.Subject ORDER BY jml DESC LIMIT {$maxSub}";
+            $cmdSub = Yii::$app->db->createCommand($sqlSub);
+            if (!empty($bindParams)) {
+                $cmdSub->bindValues($bindParams);
+            }
+            $facets['subject'] = OpacHelpers::facedGenerator($cmdSub->queryAll(), 'SUBJECT');
+
+            $sqlLang = "SELECT CAT.Languages AS bahasa, COUNT(1) AS jml FROM catalogs CAT WHERE {$baseWhere} AND CAT.Languages IS NOT NULL AND CAT.Languages != '' AND CAT.Languages != '-' GROUP BY CAT.Languages ORDER BY jml DESC LIMIT {$maxLang}";
+            $cmdLang = Yii::$app->db->createCommand($sqlLang);
+            if (!empty($bindParams)) {
+                $cmdLang->bindValues($bindParams);
+            }
+            $facets['bahasa'] = OpacHelpers::facedGenerator($cmdLang->queryAll(), 'bahasa');
+        } catch (\Exception $eFacet) {
+            Yii::warning($eFacet->getMessage(), 'opac.facet.lanjut');
+        }
+
+        return $facets;
+    }
 }

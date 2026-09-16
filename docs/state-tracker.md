@@ -82,7 +82,13 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *Integrasi facedGenerator:* Menyelaraskan hasil raw dengan parser `OpacHelpers::facedGenerator` untuk sanitasi delimiter dan duplikasi.
   - [x] *Session Caching:* Menyimpan data facet ke `$_SESSION['dataFaced*']` sehingga navigasi paginasi (page 2, 3, dst.) tidak perlu query ulang facet.
   - [x] *Proteksi View Anti-Kotak Kosong:* Menambahkan kondisi `if (!empty($dataFaced*) || !empty($f*))` pada setiap panel facet di `resultListOpac.php`, serta memperluas lebar kolom tabel menjadi `col-sm-12` jika seluruh facet kosong.
-- [x] **Zero-Comments & Linter:** Kode 100% bersih dari komentar dan lolos uji sintaks `php -l`.
+- [x] **Fase 24: Solusi Tuntas Error 1637 Pencarian Lanjut & Pembersihan Detik Hasil Pencarian:**
+  - [x] *Pembersihan Detik Hasil Pencarian:* Menghapus teks waktu eksekusi `(0.xxxx detik)` pada `opac/views/pencarian-sederhana/resultListOpac.php` dan `opac/views/pencarian-lanjut/resultListOpac.php`.
+  - [x] *Koreksi Nomor Awal Paginasi:* Standarisasi `$awal = ($totalCountResult == 0) ? 0 : (($page - 1) * $limit) + 1` agar halaman berikutnya tidak menampilkan angka 2 lagi melainkan nomor urut buku yang akurat.
+  - [x] *Proteksi Facet Pencarian Lanjut:* Menambahkan wrapper conditional dan pelebaran dinamis `col-sm-12` / `col-sm-9` serta parameter `&fBahasa` pada tautan paginasi `pencarian-lanjut/resultListOpac.php`.
+  - [x] *Solusi Anti-Error 1637 Pencarian Lanjut:* Mengoreksi penutupan tag pada `convertTag()` (`'711','800'`), membungkus `opacLogs` dalam `try-catch`, menerapkan `try-catch` auto-fallback pada halaman 1, dan direct read-only query engine (`getDirectSearchDataLanjut`, `getDirectSearchCountLanjut`, `getDirectSearchFacetsLanjut`) pada paginasi (halaman 2, 3, dst.).
+- [x] **Zero-Comments & Linter:** Seluruh kode 100% bebas dari komentar (`//`, `/* */`, `#`) dan lolos validasi `php -l` dengan exit code 0.
+
 
 ## 4. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).

@@ -209,10 +209,12 @@ if($alert==TRUE){
             <div class="row">
                 <div class="col-sm-12">
                     <?php
-                    $awal= (int)$page;
-                    $akhir=$page*$limit;
-                    if($akhir>$totalCountResult){$akhir=$totalCountResult;}
-                    echo yii::t('app','Menampilkan').' <b>'.$awal." - ".$akhir."</b> ".yii::t('app','dari')." <b>".$totalCountResult."</b> ".yii::t('app','hasil')." (".Yii::getLogger()->getElapsedTime()." ".yii::t('app','detik').")<br> <br>";
+                    $awal = ($totalCountResult == 0) ? 0 : (($page - 1) * $limit) + 1;
+                    $akhir = $page * $limit;
+                    if ($akhir > $totalCountResult) {
+                        $akhir = $totalCountResult;
+                    }
+                    echo yii::t('app', 'Menampilkan') . ' <b>' . $awal . ' - ' . $akhir . '</b> ' . yii::t('app', 'dari') . ' <b>' . $totalCountResult . '</b> ' . yii::t('app', 'hasil') . '<br> <br>';
                     ?>
 
 
