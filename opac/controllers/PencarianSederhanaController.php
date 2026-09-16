@@ -291,12 +291,19 @@ class PencarianSederhanaController extends \yii\web\Controller {
                     $hasilSearch = $this->getDirectSearchData($KeywordParam, $ruas, $bahan1, $location, 0, $limit, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
                     $count = $this->getDirectSearchCount($KeywordParam, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
                     $_SESSION['countSearch'] = $count;
-                    $_SESSION['dataFacedAuthor'] = [];
-                    $_SESSION['dataFacedPublisher'] = [];
-                    $_SESSION['dataFacedPublishLocation'] = [];
-                    $_SESSION['dataFacedPublishYear'] = [];
-                    $_SESSION['dataFacedSubject'] = [];
-                    $_SESSION['dataFacedBahasa'] = [];
+                    $facets = $this->getDirectSearchFacets($KeywordParam, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                    $dataFacedAuthor = $facets['author'];
+                    $dataFacedPublisher = $facets['publisher'];
+                    $dataFacedPublishLocation = $facets['publishLocation'];
+                    $dataFacedPublishYear = $facets['publishYear'];
+                    $dataFacedSubject = $facets['subject'];
+                    $dataFacedBahasa = $facets['bahasa'];
+                    $_SESSION['dataFacedAuthor'] = $dataFacedAuthor;
+                    $_SESSION['dataFacedPublisher'] = $dataFacedPublisher;
+                    $_SESSION['dataFacedPublishLocation'] = $dataFacedPublishLocation;
+                    $_SESSION['dataFacedPublishYear'] = $dataFacedPublishYear;
+                    $_SESSION['dataFacedSubject'] = $dataFacedSubject;
+                    $_SESSION['dataFacedBahasa'] = $dataFacedBahasa;
                 }
             } else {
                 $hasilSearch = $this->getDirectSearchData($KeywordParam, $ruas, $bahan1, $location, $limitAwal, $limit, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
@@ -304,6 +311,15 @@ class PencarianSederhanaController extends \yii\web\Controller {
                     $_SESSION['countSearch'] = $this->getDirectSearchCount($KeywordParam, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
                 }
                 $count = isset($_SESSION['countSearch']) ? (int)$_SESSION['countSearch'] : 0;
+                if (!isset($_SESSION['dataFacedAuthor'])) {
+                    $facets = $this->getDirectSearchFacets($KeywordParam, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                    $_SESSION['dataFacedAuthor'] = $facets['author'];
+                    $_SESSION['dataFacedPublisher'] = $facets['publisher'];
+                    $_SESSION['dataFacedPublishLocation'] = $facets['publishLocation'];
+                    $_SESSION['dataFacedPublishYear'] = $facets['publishYear'];
+                    $_SESSION['dataFacedSubject'] = $facets['subject'];
+                    $_SESSION['dataFacedBahasa'] = $facets['bahasa'];
+                }
                 $dataFacedAuthor = isset($_SESSION['dataFacedAuthor']) ? $_SESSION['dataFacedAuthor'] : [];
                 $dataFacedPublisher = isset($_SESSION['dataFacedPublisher']) ? $_SESSION['dataFacedPublisher'] : [];
                 $dataFacedPublishLocation = isset($_SESSION['dataFacedPublishLocation']) ? $_SESSION['dataFacedPublishLocation'] : [];
@@ -922,6 +938,126 @@ class PencarianSederhanaController extends \yii\web\Controller {
         $command = Yii::$app->db->createCommand($sql);
         $command->bindValues($bindParams);
         return (int)$command->queryScalar();
+    }
+
+    private function getDirectSearchFacets($keyword, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa) {
+        $bindParams = [':keyword' => $keyword];
+
+        switch ($ruas) {
+            case 'Judul':
+                $searchCondition = "(CAT.Title LIKE :keyword OR EXISTS (SELECT 1 FROM catalog_ruas R WHERE R.TAG IN ('240','245','246','440','740') AND R.Value LIKE :keyword AND R.CATALOGID = CAT.ID))";
+                break;
+            case 'Pengarang':
+                $searchCondition = "(CAT.Author LIKE :keyword OR EXISTS (SELECT 1 FROM catalog_ruas R WHERE R.TAG IN ('100','110','111','700','710','711','800','810','811') AND R.Value LIKE :keyword AND R.CATALOGID = CAT.ID))";
+                break;
+            case 'Penerbit':
+                $searchCondition = "(CAT.Publisher LIKE :keyword OR EXISTS (SELECT 1 FROM catalog_ruas R WHERE R.TAG IN ('260','264') AND R.Value LIKE :keyword AND R.CATALOGID = CAT.ID))";
+                break;
+            case 'Subyek':
+                $searchCondition = "(CAT.Subject LIKE :keyword OR EXISTS (SELECT 1 FROM catalog_ruas R WHERE R.TAG IN ('600','610','611','650','651') AND R.Value LIKE :keyword AND R.CATALOGID = CAT.ID))";
+                break;
+            case 'Nomor Panggil':
+                $searchCondition = "(CAT.CallNumber LIKE :keyword OR EXISTS (SELECT 1 FROM catalog_ruas R WHERE R.TAG IN ('090','084') AND R.Value LIKE :keyword AND R.CATALOGID = CAT.ID))";
+                break;
+            case 'ISBN':
+                $searchCondition = "(CAT.ISBN LIKE :keyword OR EXISTS (SELECT 1 FROM catalog_ruas R WHERE R.TAG IN ('020') AND R.Value LIKE :keyword AND R.CATALOGID = CAT.ID))";
+                break;
+            case 'ISSN':
+                $searchCondition = "(EXISTS (SELECT 1 FROM catalog_ruas R WHERE R.TAG IN ('022') AND R.Value LIKE :keyword AND R.CATALOGID = CAT.ID))";
+                break;
+            case 'ISMN':
+                $searchCondition = "(EXISTS (SELECT 1 FROM catalog_ruas R WHERE R.TAG IN ('024') AND R.Value LIKE :keyword AND R.CATALOGID = CAT.ID))";
+                break;
+            default:
+                $searchCondition = "(CAT.Title LIKE :keyword OR CAT.Author LIKE :keyword OR CAT.Publisher LIKE :keyword OR CAT.Subject LIKE :keyword OR CAT.CallNumber LIKE :keyword OR CAT.ISBN LIKE :keyword OR EXISTS (SELECT 1 FROM catalog_ruas R WHERE R.Value LIKE :keyword AND R.CATALOGID = CAT.ID))";
+                break;
+        }
+
+        $locationCondition = "";
+        if (!empty($location) && $location != 0) {
+            $bindParams[':location'] = $location;
+            $locationCondition = "AND EXISTS (SELECT 1 FROM collections col WHERE col.Catalog_id = CAT.ID AND col.Location_id = :location)";
+        }
+
+        $worksheetCondition = "1 = 1";
+        if (!empty($bahan1) && strcasecmp($bahan1, 'Semua Jenis Bahan') !== 0 && is_numeric($bahan1)) {
+            $worksheetCondition = "CAT.Worksheet_id = :bahan1";
+            $bindParams[':bahan1'] = (int)$bahan1;
+        }
+
+        $facetCondition = "1 = 1";
+        if (!empty($fAuthor)) {
+            $facetCondition .= " AND CAT.Author LIKE :fAuthor";
+            $bindParams[':fAuthor'] = '%' . $fAuthor . '%';
+        }
+        if (!empty($fPublisher)) {
+            $facetCondition .= " AND CAT.Publisher LIKE :fPublisher";
+            $bindParams[':fPublisher'] = '%' . $fPublisher . '%';
+        }
+        if (!empty($fPublishLoc)) {
+            $facetCondition .= " AND CAT.PublishLocation LIKE :fPublishLoc";
+            $bindParams[':fPublishLoc'] = '%' . $fPublishLoc . '%';
+        }
+        if (!empty($fPublishYear)) {
+            $facetCondition .= " AND CAT.PublishYear LIKE :fPublishYear";
+            $bindParams[':fPublishYear'] = '%' . $fPublishYear . '%';
+        }
+        if (!empty($fSubject)) {
+            $facetCondition .= " AND CAT.Subject LIKE :fSubject";
+            $bindParams[':fSubject'] = '%' . $fSubject . '%';
+        }
+        if (!empty($fBahasa)) {
+            $facetCondition .= " AND CAT.Languages LIKE :fBahasa";
+            $bindParams[':fBahasa'] = '%' . $fBahasa . '%';
+        }
+
+        $baseWhere = "{$searchCondition} {$locationCondition} AND {$worksheetCondition} AND {$facetCondition} AND (CAT.isopac = 1 OR CAT.isopac IS NULL)";
+
+        $maxAuthor = (int)Yii::$app->config->get('FacedAuthorMax') ?: 10;
+        $maxPub = (int)Yii::$app->config->get('FacedPublisherMax') ?: 10;
+        $maxLoc = (int)Yii::$app->config->get('FacedPublishLocationMax') ?: 10;
+        $maxYear = (int)Yii::$app->config->get('FacedPublishYearMax') ?: 10;
+        $maxSub = (int)Yii::$app->config->get('FacedSubjectMax') ?: 10;
+        $maxLang = (int)Yii::$app->config->get('FacedBahasaMax') ?: 10;
+
+        $facets = [
+            'author' => [],
+            'publisher' => [],
+            'publishLocation' => [],
+            'publishYear' => [],
+            'subject' => [],
+            'bahasa' => []
+        ];
+
+        try {
+            $sqlAuthor = "SELECT CAT.Author AS Author, COUNT(1) AS jml FROM catalogs CAT WHERE {$baseWhere} AND CAT.Author IS NOT NULL AND CAT.Author != '' AND CAT.Author != '-' GROUP BY CAT.Author ORDER BY jml DESC LIMIT {$maxAuthor}";
+            $rawAuthor = Yii::$app->db->createCommand($sqlAuthor)->bindValues($bindParams)->queryAll();
+            $facets['author'] = OpacHelpers::facedGenerator($rawAuthor, 'Author');
+
+            $sqlPub = "SELECT CAT.Publisher AS Publisher, COUNT(1) AS jml FROM catalogs CAT WHERE {$baseWhere} AND CAT.Publisher IS NOT NULL AND CAT.Publisher != '' AND CAT.Publisher != '-' GROUP BY CAT.Publisher ORDER BY jml DESC LIMIT {$maxPub}";
+            $rawPub = Yii::$app->db->createCommand($sqlPub)->bindValues($bindParams)->queryAll();
+            $facets['publisher'] = OpacHelpers::facedGenerator($rawPub, 'Publisher');
+
+            $sqlLoc = "SELECT CAT.PublishLocation AS PublishLocation, COUNT(1) AS jml FROM catalogs CAT WHERE {$baseWhere} AND CAT.PublishLocation IS NOT NULL AND CAT.PublishLocation != '' AND CAT.PublishLocation != '-' GROUP BY CAT.PublishLocation ORDER BY jml DESC LIMIT {$maxLoc}";
+            $rawLoc = Yii::$app->db->createCommand($sqlLoc)->bindValues($bindParams)->queryAll();
+            $facets['publishLocation'] = OpacHelpers::facedGenerator($rawLoc, 'PublishLocation');
+
+            $sqlYear = "SELECT CAT.PublishYear AS PublishYear, COUNT(1) AS jml FROM catalogs CAT WHERE {$baseWhere} AND CAT.PublishYear IS NOT NULL AND CAT.PublishYear != '' AND CAT.PublishYear != '-' GROUP BY CAT.PublishYear ORDER BY jml DESC LIMIT {$maxYear}";
+            $rawYear = Yii::$app->db->createCommand($sqlYear)->bindValues($bindParams)->queryAll();
+            $facets['publishYear'] = OpacHelpers::facedGenerator($rawYear, 'PublishYear');
+
+            $sqlSub = "SELECT CAT.Subject AS SUBJECT, COUNT(1) AS jml FROM catalogs CAT WHERE {$baseWhere} AND CAT.Subject IS NOT NULL AND CAT.Subject != '' AND CAT.Subject != '-' GROUP BY CAT.Subject ORDER BY jml DESC LIMIT {$maxSub}";
+            $rawSub = Yii::$app->db->createCommand($sqlSub)->bindValues($bindParams)->queryAll();
+            $facets['subject'] = OpacHelpers::facedGenerator($rawSub, 'SUBJECT');
+
+            $sqlLang = "SELECT CAT.Languages AS bahasa, COUNT(1) AS jml FROM catalogs CAT WHERE {$baseWhere} AND CAT.Languages IS NOT NULL AND CAT.Languages != '' AND CAT.Languages != '-' GROUP BY CAT.Languages ORDER BY jml DESC LIMIT {$maxLang}";
+            $rawLang = Yii::$app->db->createCommand($sqlLang)->bindValues($bindParams)->queryAll();
+            $facets['bahasa'] = OpacHelpers::facedGenerator($rawLang, 'bahasa');
+        } catch (\Exception $eFacet) {
+            Yii::warning($eFacet->getMessage(), 'opac.facet');
+        }
+
+        return $facets;
     }
 
 }

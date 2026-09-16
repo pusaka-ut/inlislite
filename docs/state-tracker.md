@@ -77,6 +77,11 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *Dual-Engine Search Query:* Pencarian serentak pada kolom tabel `catalogs` (`Title`, `Author`, `Publisher`, `Subject`, `CallNumber`, `ISBN`) dan MARC tags `catalog_ruas`, menjamin 100% buku ditemukan.
   - [x] *Penyempurnaan Kolom Return:* Alias lengkap `worksheet_id`, `Worksheet_id`, dan `title` agar sampul buku dan worksheet termuat sempurna.
   - [x] *Eliminasi Flash Alert Merah:* Membersihkan popup error palsu saat data buku berhasil dimuat secara direct streaming.
+- [x] **Fase 23: Solusi Tuntas Sidebar Facet Filter 'Lebih Spesifik' (Direct Aggregation Read-Only):**
+  - [x] *Direct Aggregation Query:* Mengganti sumber facet dari `tempCariOpac` menjadi query agregasi `GROUP BY` langsung pada tabel `catalogs` (`Author`, `Publisher`, `PublishLocation`, `PublishYear`, `Subject`, `Languages`) dengan limit konfigurasi `Faced*Max`.
+  - [x] *Integrasi facedGenerator:* Menyelaraskan hasil raw dengan parser `OpacHelpers::facedGenerator` untuk sanitasi delimiter dan duplikasi.
+  - [x] *Session Caching:* Menyimpan data facet ke `$_SESSION['dataFaced*']` sehingga navigasi paginasi (page 2, 3, dst.) tidak perlu query ulang facet.
+  - [x] *Proteksi View Anti-Kotak Kosong:* Menambahkan kondisi `if (!empty($dataFaced*) || !empty($f*))` pada setiap panel facet di `resultListOpac.php`, serta memperluas lebar kolom tabel menjadi `col-sm-12` jika seluruh facet kosong.
 - [x] **Zero-Comments & Linter:** Kode 100% bersih dari komentar dan lolos uji sintaks `php -l`.
 
 ## 4. Current Sprint / Fokus Pengujian Saat Ini

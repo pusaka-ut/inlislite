@@ -49,3 +49,14 @@ inlislite3/
 3. **Stateless Paginasi Read-Only:**
    - Menghilangkan ketergantungan pada stored procedure `insertTempSederhanaOpac` dan `insertTempSederhanaOpac0` yang memicu error 1637 InnoDB (`HA_ERR_TOO_MANY_CONCURRENT_TRXS` pada `ibtmp1`).
    - Menggunakan kalkulasi limit-offset matematis `LIMIT :offset, :limit` murni read-only yang menjamin halaman 2, 3, dst. selalu menyajikan data buku secara konsisten dan cepat.
+
+## 5. Arsitektur Agregasi Facet Read-Only (Sidebar 'Lebih Spesifik')
+1. **Direct Aggregation Query:**
+   - Menghilangkan ketergantungan pada tabel temporary `tempCariOpac` yang menyebabkan Error 1637 InnoDB.
+   - Mengambil agregasi Top N (`Faced*Max`) untuk 6 kategori bibliografis (`Author`, `Publisher`, `PublishLocation`, `PublishYear`, `Subject`, `Languages`) secara langsung dari tabel `catalogs` menggunakan query `GROUP BY ... ORDER BY jml DESC LIMIT N` yang cepat (~25ms per kategori).
+2. **Sanitasi & Delimiter Parsing:**
+   - Hasil raw SQL diproses via `OpacHelpers::facedGenerator` untuk membersihkan delimiter titik koma (`;`), tanda hubung, dan duplikasi.
+3. **Session Caching & Paginasi Seamless:**
+   - Hasil facet disimpan pada sesi pengguna (`$_SESSION['dataFaced*']`) sehingga perpindahan ke halaman 2, 3, dst. tidak perlu mengulang query agregasi facet.
+4. **Adaptive View Rendering:**
+   - Kotak kategori facet pada `resultListOpac.php` hanya dirender jika memiliki data atau terdapat filter aktif, mencegah munculnya kotak kosong tak berfungsi. Jika seluruh facet kosong, kolom hasil pencarian otomatis meluas menjadi lebar penuh (`col-sm-12`).

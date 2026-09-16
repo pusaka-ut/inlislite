@@ -237,8 +237,11 @@ if($alert==TRUE){
 
             </div>
 
+            <?php
+            $hasAnyFacet = (!empty($dataFacedAuthor) || !empty($dataFacedPublisher) || !empty($dataFacedPublishLocation) || !empty($dataFacedPublishYear) || !empty($dataFacedSubject) || !empty($dataFacedBahasa) || !empty($fAuthor) || !empty($fPublisher) || !empty($fPublishLoc) || !empty($fPublishYear) || !empty($fSubject) || !empty($fBahasa));
+            ?>
             <div class="row">
-                <div class="col-sm-9">
+                <div class="<?= ($countResult > 1 && $hasAnyFacet) ? 'col-sm-9' : 'col-sm-12' ?>">
                     <form id="theForm" method="POST" action="">
                         <input type="checkbox" onClick="toggle(this)"> <?= yii::t('app','Pilih semua')?> &nbsp; &nbsp; &nbsp;
                         <input type="submit" class="btn btn-default btn-xs navbar-btn" value="<?= yii::t('app','Tambah ke tampung')?>">
@@ -480,10 +483,11 @@ if($alert==TRUE){
                     </div> <!--end paging -->
                 </div>
 
-                <?php if ($countResult > 1) {
+                <?php if ($countResult > 1 && $hasAnyFacet) {
                 ?>
                 <div class="col-sm-3">
                     <span style="margin-bottom:13px"><strong><?= yii::t('app','Lebih Spesifik')?> :</strong></span>
+                    <?php if (!empty($dataFacedAuthor) || !empty($fAuthor)) { ?>
                     <div class="list-group facet" id="side-panel-authorStr">
                         <div class="list-group-item title" >
                             <a data-toggle="collapse"  href="#side-collapse-authorStr"><?= yii::t('app','Pengarang')?> </a>
@@ -524,6 +528,8 @@ if($alert==TRUE){
                         </div>
 
                     </div>
+                    <?php } ?>
+                    <?php if (!empty($dataFacedPublisher) || !empty($fPublisher)) { ?>
                     <div class="list-group facet" id="side-panel-publisherStr">
                         <div class="list-group-item title" >
                             <a data-toggle="collapse"  href="#side-collapse-publisherStr"><?= yii::t('app','Penerbit')?> </a>
@@ -563,7 +569,9 @@ if($alert==TRUE){
                         </div>
 
                     </div>
+                    <?php } ?>
 
+                    <?php if (!empty($dataFacedPublishLocation) || !empty($fPublishLoc)) { ?>
                     <div class="list-group facet" id="side-panel-publislocationStr">
                         <div class="list-group-item title" >
                             <a data-toggle="collapse"  href="#side-collapse-publislocationStr"><?= yii::t('app','Lokasi Terbitan')?> </a>
@@ -604,6 +612,9 @@ if($alert==TRUE){
                         </div>
 
                     </div>
+                    <?php } ?>
+
+                    <?php if (!empty($dataFacedPublishYear) || !empty($fPublishYear)) { ?>
                     <div class="list-group facet" id="side-panel-publisyearStr">
                         <div class="list-group-item title" >
                             <a data-toggle="collapse"  href="#side-collapse-publisyearStr"><?= yii::t('app','Tahun Terbit')?> </a>
@@ -643,6 +654,9 @@ if($alert==TRUE){
                         </div>
 
                     </div>
+                    <?php } ?>
+
+                    <?php if (!empty($dataFacedSubject) || !empty($fSubject)) { ?>
                     <div class="list-group facet" id="side-panel-subjectStr">
                         <div class="list-group-item title" >
                             <a data-toggle="collapse"  href="#side-collapse-subjectStr"><?= yii::t('app','Subyek')?> </a>
@@ -683,7 +697,9 @@ if($alert==TRUE){
                         </div>
 
                     </div>
+                    <?php } ?>
 
+                    <?php if (!empty($dataFacedBahasa) || !empty($fBahasa)) { ?>
                     <div class="list-group facet" id="side-panel-BahasaStr">
                         <div class="list-group-item title" >
                             <a data-toggle="collapse"  href="#side-collapse-BahasaStr"><?= yii::t('app','Bahasa')?> </a>
@@ -724,6 +740,7 @@ if($alert==TRUE){
                         </div>
 
                     </div>
+                    <?php } ?>
 
 
                     </p>
