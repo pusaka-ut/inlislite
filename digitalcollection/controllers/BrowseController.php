@@ -143,8 +143,11 @@ class BrowseController extends \yii\web\Controller {
                     'query' => $query,
                     'query2' => $query2,
                 ];
-                OpacHelpers::opacLogs($logs);
-
+                try {
+                    OpacHelpers::opacLogs($logs);
+                } catch (\Exception $eLogs) {
+                    Yii::warning($eLogs->getMessage(), 'digitalcollection.logs');
+                }
 
                 $page = ( isset($_GET['page']) ) ? addslashes($_GET['page']) : 1;
                 $limit = ( isset($_GET['limit']) ) ? addslashes($_GET['limit']) : 10;
@@ -157,19 +160,26 @@ class BrowseController extends \yii\web\Controller {
 
                 $limitAwal = ($page - 1) * $limit;
 
+                $count = 0;
+                $modelSearch = [];
+                $countSearch = 0;
 
-                $command = Yii::$app->db->createCommand("CALL insertTempTelusurOpac('" . $tag . "','" . $findBy . "','" . $query . "','" . $query2 . "','" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','1');");
-                $command->execute();
-                $count = Yii::$app->db->createCommand("CALL countPencarianSederhanaOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "');")->queryScalar();
+                try {
+                    $command = Yii::$app->db->createCommand("CALL insertTempTelusurOpac('" . $tag . "','" . $findBy . "','" . $query . "','" . $query2 . "','" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','1');");
+                    $command->execute();
+                    $count = Yii::$app->db->createCommand("CALL countPencarianSederhanaOpac1('" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "');")->queryScalar();
 
-                $sqlSearch = "CALL pencarianSederhanaOpacLimit1('0','" . $limit . "','" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "');";
-                $dataProviderSearch = new SqlDataProvider([
-                    'sql' => $sqlSearch,
-                    'pagination' => false,
-                ]);
+                    $sqlSearch = "CALL pencarianSederhanaOpacLimit1('0','" . $limit . "','" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "');";
+                    $dataProviderSearch = new SqlDataProvider([
+                        'sql' => $sqlSearch,
+                        'pagination' => false,
+                    ]);
 
-                $modelSearch = $dataProviderSearch->getModels();
-                $countSearch = $dataProviderSearch->getCount();
+                    $modelSearch = $dataProviderSearch->getModels();
+                    $countSearch = $dataProviderSearch->getCount();
+                } catch (\Exception $eBrowse) {
+                    Yii::warning($eBrowse->getMessage(), 'digitalcollection.browse');
+                }
 
                 //buat generate faced
                 $FacedAuthorMax = Yii::$app->config->get('FacedAuthorMaxLKD');

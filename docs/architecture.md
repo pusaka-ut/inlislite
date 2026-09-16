@@ -69,3 +69,17 @@ inlislite3/
    - Menghapus string runtime benchmarking internal `(0.xxxx detik)` pada view hasil pencarian sederhana dan pencarian lanjut sehingga teks ringkasan tampil bersih dan profesional: `Menampilkan X - Y dari Z hasil`.
 3. **Koreksi Paginasi & Penomoran Awal:**
    - Standarisasi formula nomor awal `$awal = ($totalCountResult == 0) ? 0 : (($page - 1) * $limit) + 1` pada seluruh view hasil pencarian.
+
+## 7. Eliminasi Total Error 1637 & Unifikasi Direct Read-Only Engine (Fase 25)
+1. **Penyebab Sistemik MySQL Error 1637:**
+   - Terjadi akibat `CALL insertTemp*` yang mengeksekusi `CREATE TEMPORARY TABLE tempCariOpac` secara transaksional di InnoDB engine. Alokasi slot rollback segment pada tablespace temporary shared (`ibtmp1`) terkuras saat banyak pengguna mengeksekusi pencarian secara bersamaan, memicu `SQLSTATE[HY000]: General error: 1637 Too many active concurrent transactions`.
+2. **Unifikasi 100% Direct Read-Only Query Engine:**
+   - **OPAC Telusur (`BrowseController.php`):** Sepenuhnya decoupled dari `insertTempTelusurOpac`. Menggunakan direct read-only query helper `getDirectBrowseData()`, `getDirectBrowseCount()`, dan `getDirectBrowseFacets()`.
+   - **OPAC Pencarian Sederhana (`PencarianSederhanaController.php`):** Eliminasi pemanggilan `insertTempSederhanaOpac` pada halaman 1. Seluruh halaman sekarang 100% dialirkan via `getDirectSearchData()`.
+   - **OPAC Pencarian Lanjut (`PencarianLanjutController.php`):** Eliminasi pemanggilan `insertTempLanjutOpac` pada halaman 1. Seluruh halaman 100% direct via `getDirectSearchDataLanjut()`.
+   - **Multi-Portal Defensiveness (`digitalcollection` & `article`):** Isolasi logger dan stored procedure dalam blok `try-catch` defensif untuk mencegah crash 500 error.
+3. **Perbaikan View Telusur (`browse/resultListOpac.php`):**
+   - Eliminasi teks detik `(0.xxxx detik)`.
+   - Penomoran `$awal` yang akurat.
+   - Koreksi URL facet link yang sebelumnya memakai parameter keliru `katakunci` menjadi parameter telusur valid (`tag`, `findBy`, `query`, `query2`).
+   - Adaptive layout grid (`col-sm-9` vs `col-sm-12`) dan proteksi anti-kotak kosong.

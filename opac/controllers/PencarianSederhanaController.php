@@ -250,61 +250,22 @@ class PencarianSederhanaController extends \yii\web\Controller {
             $dataFacedBahasa = [];
 
             if ($page === 1) {
-                try {
-                    if ($location) {
-                        $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac(:keyword,:ruas,:bahan1,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',".$location." );");
-                        $command->bindValues($params);
-                        $command->execute();
-                    } else {
-                        $command = Yii::$app->db->createCommand("CALL insertTempSederhanaOpac(:keyword,:ruas,:bahan1,:fAuthor,:fPublisher,:fPublishLoc,:fPublishYear,:fSubject,:fBahasa,:dariTGL,:sampaiTGL,'',0 );");
-                        $command->bindValues($params);
-                        $command->execute();
-                    }
-
-                    $count = (int)Yii::$app->db->createCommand("select count(1) from tempCariOpac")->queryScalar();
-                    $hasilSearch = Yii::$app->db->createCommand("select * from tempCariOpac limit 0,$limit")->queryAll();
-
-                    $req = [
-                        'fAuthor' => $fAuthor,
-                        'fPublisher' => $fPublisher,
-                        'fPublishLoc' => $fPublishLoc,
-                        'fPublishYear' => $fPublishYear,
-                        'fSubject' => $fSubject,
-                        'fBahasa' => $fBahasa
-                    ];
-                    $dataFacedAuthor = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('Author', $req), 'Author');
-                    $dataFacedPublisher = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('Publisher', $req), 'Publisher');
-                    $dataFacedPublishLocation = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('PublishLocation', $req), 'PublishLocation');
-                    $dataFacedPublishYear = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('PublishYear', $req), 'PublishYear');
-                    $dataFacedSubject = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('SUBJECT', $req), 'SUBJECT');
-                    $dataFacedBahasa = OpacHelpers::facedGenerator(OpacHelpers::facedOpac('bahasa', $req), 'bahasa');
-
-                    $_SESSION['dataFacedAuthor'] = $dataFacedAuthor;
-                    $_SESSION['dataFacedPublisher'] = $dataFacedPublisher;
-                    $_SESSION['dataFacedPublishLocation'] = $dataFacedPublishLocation;
-                    $_SESSION['dataFacedPublishYear'] = $dataFacedPublishYear;
-                    $_SESSION['dataFacedSubject'] = $dataFacedSubject;
-                    $_SESSION['dataFacedBahasa'] = $dataFacedBahasa;
-                    $_SESSION['countSearch'] = $count;
-                } catch (\Exception $e) {
-                    Yii::warning($e->getMessage(), 'opac.search');
-                    $hasilSearch = $this->getDirectSearchData($KeywordParam, $ruas, $bahan1, $location, 0, $limit, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
-                    $count = $this->getDirectSearchCount($KeywordParam, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
-                    $_SESSION['countSearch'] = $count;
-                    $facets = $this->getDirectSearchFacets($KeywordParam, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
-                    $dataFacedAuthor = $facets['author'];
-                    $dataFacedPublisher = $facets['publisher'];
-                    $dataFacedPublishLocation = $facets['publishLocation'];
-                    $dataFacedPublishYear = $facets['publishYear'];
-                    $dataFacedSubject = $facets['subject'];
-                    $dataFacedBahasa = $facets['bahasa'];
-                    $_SESSION['dataFacedAuthor'] = $dataFacedAuthor;
-                    $_SESSION['dataFacedPublisher'] = $dataFacedPublisher;
-                    $_SESSION['dataFacedPublishLocation'] = $dataFacedPublishLocation;
-                    $_SESSION['dataFacedPublishYear'] = $dataFacedPublishYear;
-                    $_SESSION['dataFacedSubject'] = $dataFacedSubject;
-                    $_SESSION['dataFacedBahasa'] = $dataFacedBahasa;
-                }
+                $hasilSearch = $this->getDirectSearchData($KeywordParam, $ruas, $bahan1, $location, 0, $limit, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                $count = $this->getDirectSearchCount($KeywordParam, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                $_SESSION['countSearch'] = $count;
+                $facets = $this->getDirectSearchFacets($KeywordParam, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                $dataFacedAuthor = $facets['author'];
+                $dataFacedPublisher = $facets['publisher'];
+                $dataFacedPublishLocation = $facets['publishLocation'];
+                $dataFacedPublishYear = $facets['publishYear'];
+                $dataFacedSubject = $facets['subject'];
+                $dataFacedBahasa = $facets['bahasa'];
+                $_SESSION['dataFacedAuthor'] = $dataFacedAuthor;
+                $_SESSION['dataFacedPublisher'] = $dataFacedPublisher;
+                $_SESSION['dataFacedPublishLocation'] = $dataFacedPublishLocation;
+                $_SESSION['dataFacedPublishYear'] = $dataFacedPublishYear;
+                $_SESSION['dataFacedSubject'] = $dataFacedSubject;
+                $_SESSION['dataFacedBahasa'] = $dataFacedBahasa;
             } else {
                 $hasilSearch = $this->getDirectSearchData($KeywordParam, $ruas, $bahan1, $location, $limitAwal, $limit, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
                 if (!isset($_SESSION['countSearch']) || empty($_SESSION['countSearch'])) {

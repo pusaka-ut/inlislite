@@ -39,10 +39,6 @@ $tag=$_GET['tag'];
 $findBy=$_GET['findBy'];
 $query=$_GET['query'];
 $query2=$_GET['query2'];
-$_GET['katakunci']='';
-$ruas='judul';
-$bahan='monograf';
-$katakunci=urldecode($_GET['katakunci']);
 if($alert==TRUE){
   foreach (Yii::$app->session->getAllFlashes() as $message):; 
 
@@ -52,9 +48,9 @@ if($alert==TRUE){
         'icon' => (!empty($message['icon'])) ? $message['icon'] : 'fa fa-info',
         'body' => (!empty($message['message'])) ? Html::encode($message['message']) : 'Message Not Set!',
         'showSeparator' => true,
-        'delay' => 1, //This delay is how long before the message shows
+        'delay' => 1,
         'pluginOptions' => [
-            'delay' => (!empty($message['duration'])) ? $message['duration'] : 3000, //This delay is how long the message shows for
+            'delay' => (!empty($message['duration'])) ? $message['duration'] : 3000,
             'placement' => [
                 'from' => (!empty($message['positonY'])) ? $message['positonY'] : 'top',
                 'align' => (!empty($message['positonX'])) ? $message['positonX'] : 'right',
@@ -196,12 +192,14 @@ $("#theForm").ajaxForm({url: '', type: 'post'})
 			<div class="row">
 			<div class="col-sm-12">
 			<?php
-	$awal=($page==1) ? $page : (($page-1)*$limit)+1;
-	$akhir=$page*$limit;
-	if($akhir>$totalCountResult){$akhir=$totalCountResult;}
-	//echo"Menampilkan <b>".$awal." - ".$akhir."</b> dari <b>".$totalCountResult."</b> hasil <br> <br>";
-	echo"Menampilkan <b>".$awal." - ".$akhir."</b> dari <b>".$totalCountResult."</b> hasil (".Yii::getLogger()->getElapsedTime()." detik)<br> <br>";
-
+	$awal = ($totalCountResult == 0) ? 0 : (($page - 1) * $limit) + 1;
+	$akhir = $page * $limit;
+	if ($akhir > $totalCountResult) {
+		$akhir = $totalCountResult;
+	}
+	echo yii::t('app', 'Menampilkan') . ' <b>' . $awal . ' - ' . $akhir . '</b> ' . yii::t('app', 'dari') . ' <b>' . $totalCountResult . '</b> ' . yii::t('app', 'hasil') . '<br> <br>';
+	$hasFacets = (!empty($dataFacedAuthor) || !empty($dataFacedPublisher) || !empty($dataFacedPublishLocation) || !empty($dataFacedPublishYear) || !empty($dataFacedSubject) || !empty($dataFacedBahasa) || !empty($fAuthor) || !empty($fPublisher) || !empty($fPublishLoc) || !empty($fPublishYear) || !empty($fSubject) || !empty($fBahasa));
+	$mainColClass = $hasFacets ? 'col-sm-9' : 'col-sm-12';
 	?>
 	
 		
@@ -245,7 +243,7 @@ $("#theForm").ajaxForm({url: '', type: 'post'})
 			</div>
 		
 			<div class="row">
-				<div class="col-sm-9">
+				<div class="<?= $mainColClass ?>">
 					<form id="theForm" method="POST" action="">
 					<input type="checkbox" onClick="toggle(this)"> <?= yii::t('app','Pilih semua')?> &nbsp; &nbsp; &nbsp;
 					<input type="submit" class="btn btn-default btn-xs navbar-btn" value="<?= yii::t('app','Tambah ke tampung')?>">
@@ -416,390 +414,284 @@ $("#theForm").ajaxForm({url: '', type: 'post'})
 
 
 
-						$perpage=10*$offset;
-						//if($perpage>$total_pages) {$perpage=$total_pages;}
-						$perpage=($perpage>$total_pages) ?  $total_pages : 10*$offset ;
-						$startpage=$perpage-9;
-						$startpage=($startpage<=0) ? 1 : $startpage=$perpage-9;
-						//echo"isi perpage=".$perpage;
+						$perpage = 10 * $offset;
+						$perpage = ($perpage > $total_pages) ? $total_pages : 10 * $offset;
+						$startpage = $perpage - 9;
+						$startpage = ($startpage <= 0) ? 1 : $startpage = $perpage - 9;
+						$browseBaseUrl = "?action=" . urlencode($action) . "&tag=" . urlencode($tag) . "&findBy=" . urlencode($findBy) . "&query=" . urlencode($query) . "&query2=" . urlencode($query2);
+						$browseFacetParams = "&fAuthor=" . urlencode($fAuthor) . "&fPublisher=" . urlencode($fPublisher) . "&fPublishLoc=" . urlencode($fPublishLoc) . "&fPublishYear=" . urlencode($fPublishYear) . "&fSubject=" . urlencode($fSubject) . "&fBahasa=" . urlencode($fBahasa);
 						?>
-						<ul class="pagination pagination-lg" >
+						<ul class="pagination pagination-lg">
 							<?php 
-							if($startpage<=10) {
-
-								echo"<li class=\"disable\"> </li>";
-
-							} else 
-							{
-								echo"<li> <a href='?action=".$_GET['action']."&tag=".$_GET['tag']."&findBy=".$_GET['findBy']."&query=".$_GET['query']."&query2=".$_GET['query2']."&fAuthor=".$fAuthor."&fPublisher=".$fPublisher."&fPublishLoc=".$fPublishLoc."&fPublishYear=".$fPublishYear."&page=".($perpage-10)."&limit=".$limit."    '> &laquo;</a></li>" ;
-
-
+							if ($startpage <= 10) {
+								echo "<li class=\"disable\"> </li>";
+							} else {
+								echo "<li> <a href='" . $browseBaseUrl . $browseFacetParams . "&page=" . ($perpage - 10) . "&limit=" . $limit . "'> &laquo;</a></li>";
 							}
-							?>
 
-							<?php
-							//echo"start page"=;
-							//$total_pages
-							for ($startpage; $startpage<=$perpage; $startpage++) { 
-
-								echo"<li ";
-								if ($page==$startpage){
-									echo'class="active"';
+							for ($startpage; $startpage <= $perpage; $startpage++) {
+								echo "<li ";
+								if ($page == $startpage) {
+									echo 'class="active"';
 								}
-
-								echo"><a href='?action=".$action."&tag=".$_GET['tag']."&findBy=".$_GET['findBy']."&query=".$_GET['query']."&query2=".$_GET['query2']."&fAuthor=".$fAuthor."&fPublisher=".$fPublisher."&fPublishLoc=".$fPublishLoc."&fPublishYear=".$fPublishYear."&page=".$startpage."&limit=".$limit."    '>".$startpage."</a></li>"; 
-
-
-							}; 
-
-							if($perpage>= $total_pages){
-
-								echo"<li class=\"disable\"> </li>";
-							} 
-							else {
-
-							 echo"<li> <a href='?action=".$_GET['action']."&tag=".$_GET['tag']."&findBy=".$_GET['findBy']."&query=".$_GET['query']."&query2=".$_GET['query2']."&fAuthor=".$fAuthor."&fPublisher=".$fPublisher."&fPublishLoc=".$fPublishLoc."&fPublishYear=".$fPublishYear."&page=".($perpage+1)."&limit=".$limit."    '> &raquo;</a></li>" ;
-
-								
-
+								echo "><a href='" . $browseBaseUrl . $browseFacetParams . "&page=" . $startpage . "&limit=" . $limit . "'>" . $startpage . "</a></li>";
 							}
 
-
+							if ($perpage >= $total_pages) {
+								echo "<li class=\"disable\"> </li>";
+							} else {
+								echo "<li> <a href='" . $browseBaseUrl . $browseFacetParams . "&page=" . ($perpage + 1) . "&limit=" . $limit . "'> &raquo;</a></li>";
+							}
 							?>
-
-
 						</ul><br>
-					</div> <!--end paging -->
+					</div>
 				</div>
 
-				<?php if ($countResult >1) {
-				 ?>
+				<?php if ($hasFacets) { ?>
                     <div class="col-sm-3">
                         <span style="margin-bottom:13px"><strong><?= yii::t('app','Lebih Spesifik')?> :</strong></span>
+                        <?php if (!empty($dataFacedAuthor) || !empty($fAuthor)) { ?>
                         <div class="list-group facet" id="side-panel-authorStr">
-                            <div class="list-group-item title" >
-                                <a data-toggle="collapse"  href="#side-collapse-authorStr"><?= yii::t('app','Pengarang')?> </a>
+                            <div class="list-group-item title">
+                                <a data-toggle="collapse" href="#side-collapse-authorStr"><?= yii::t('app','Pengarang')?> </a>
                                 <?php
-
-                                if(urlencode($fAuthor)!='')
-                                    echo"
-						<span style=\"background-color:#c5d4ff;\" class=\"badge\">
-							 <a  href='?action=".$action."&katakunci=".urlencode($katakunci)."&ruas=".urlencode($ruas)."&bahan=".urlencode($bahan)."&fAuthor=&fPublisher=".urlencode($fPublisher)."&fPublishLoc=".urlencode($fPublishLoc)."&fPublishYear=".urlencode($fPublishYear)."&fSubject=".urlencode($fSubject)."&fBahasa=".urlencode($fBahasa)."     '>Clear </a>
-						</span>					
-							 ";
-
+                                if (!empty($fAuthor)) {
+                                    echo "<span style=\"background-color:#c5d4ff;\" class=\"badge\"><a href='" . $browseBaseUrl . "&fAuthor=&fPublisher=" . urlencode($fPublisher) . "&fPublishLoc=" . urlencode($fPublishLoc) . "&fPublishYear=" . urlencode($fPublishYear) . "&fSubject=" . urlencode($fSubject) . "&fBahasa=" . urlencode($fBahasa) . "'>Clear </a></span>";
+                                }
                                 ?>
-
                             </div>
                             <div id="side-collapse-authorStr" class="collapse in">
-
                                 <?php
-                                $divHiddenBuka='<div class="facedHidden" >';
-                                $divHiddenTutup=(sizeof($dataFacedAuthor)>$FacedAuthorMin ? '</div>' : '');
-
-                                for($i=0;$i<sizeof($dataFacedAuthor);$i++){
-                                    if($dataFacedAuthor[$i]['Author']==NULL || $dataFacedAuthor[$i]['Author']=='') $dataFacedAuthor[$i]['Author']='-';
-                                    if($i==$FacedAuthorMin){echo$divHiddenBuka;}
-                                    echo"
-					
-							<a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item \" href='?action=".$action."&katakunci=".urlencode($katakunci)."&ruas=".urlencode($ruas)."&bahan=".urlencode($bahan)."&fAuthor=".urlencode($dataFacedAuthor[$i]['Author'])."&fPublisher=".urlencode($fPublisher)."&fPublishLoc=".urlencode($fPublishLoc)."&fPublishYear=".urlencode($fPublishYear)."&fSubject=".urlencode($fSubject)."&fBahasa=".urlencode($fBahasa)."     '>".$dataFacedAuthor[$i]['Author']."<span class=\"badge\">".$dataFacedAuthor[$i]['jml']."</span></a>
-					
-						  ";
+                                $divHiddenBuka = '<div class="facedHidden">';
+                                $divHiddenTutup = (sizeof($dataFacedAuthor) > $FacedAuthorMin ? '</div>' : '');
+                                for ($i = 0; $i < sizeof($dataFacedAuthor); $i++) {
+                                    if ($dataFacedAuthor[$i]['Author'] == null || $dataFacedAuthor[$i]['Author'] == '') {
+                                        $dataFacedAuthor[$i]['Author'] = '-';
+                                    }
+                                    if ($i == $FacedAuthorMin) {
+                                        echo $divHiddenBuka;
+                                    }
+                                    echo "<a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item\" href='" . $browseBaseUrl . "&fAuthor=" . urlencode($dataFacedAuthor[$i]['Author']) . "&fPublisher=" . urlencode($fPublisher) . "&fPublishLoc=" . urlencode($fPublishLoc) . "&fPublishYear=" . urlencode($fPublishYear) . "&fSubject=" . urlencode($fSubject) . "&fBahasa=" . urlencode($fBahasa) . "'>" . $dataFacedAuthor[$i]['Author'] . "<span class=\"badge\">" . $dataFacedAuthor[$i]['jml'] . "</span></a>";
                                 }
-
-                                echo$divHiddenTutup;
-                                if(sizeof($dataFacedAuthor)>$FacedAuthorMin){
-                                    echo"<a  href=\"#\" style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item faced\"  >Show More</a>";
+                                echo $divHiddenTutup;
+                                if (sizeof($dataFacedAuthor) > $FacedAuthorMin) {
+                                    echo "<a href=\"#\" style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item faced\">Show More</a>";
                                 }
                                 ?>
-
                             </div>
-
                         </div>
+                        <?php } ?>
+
+                        <?php if (!empty($dataFacedPublisher) || !empty($fPublisher)) { ?>
                         <div class="list-group facet" id="side-panel-publisherStr">
-                            <div class="list-group-item title" >
-                                <a data-toggle="collapse"  href="#side-collapse-publisherStr"><?= yii::t('app','Penerbit')?> </a>
+                            <div class="list-group-item title">
+                                <a data-toggle="collapse" href="#side-collapse-publisherStr"><?= yii::t('app','Penerbit')?> </a>
                                 <?php
-
-                                if(urlencode($fPublisher)!='')
-                                    echo"
-						<span style=\"background-color:#c5d4ff;\" class=\"badge\">
-							 <a href='?action=".$action."&katakunci=".urlencode($katakunci)."&ruas=".urlencode($ruas)."&bahan=".urlencode($bahan)."&fAuthor=".urlencode($fAuthor)."&fPublisher=&fPublishLoc=".urlencode($fPublishLoc)."&fPublishYear=".urlencode($fPublishYear)."&fSubject=".urlencode($fSubject)."&fBahasa=".urlencode($fBahasa)."     '> Clear </a>
-						</span>					
-							 ";
-
+                                if (!empty($fPublisher)) {
+                                    echo "<span style=\"background-color:#c5d4ff;\" class=\"badge\"><a href='" . $browseBaseUrl . "&fAuthor=" . urlencode($fAuthor) . "&fPublisher=&fPublishLoc=" . urlencode($fPublishLoc) . "&fPublishYear=" . urlencode($fPublishYear) . "&fSubject=" . urlencode($fSubject) . "&fBahasa=" . urlencode($fBahasa) . "'>Clear </a></span>";
+                                }
                                 ?>
-
                             </div>
                             <div id="side-collapse-publisherStr" class="collapse in">
-
                                 <?php
-                                $divHiddenBuka='<div class="facedHidden" >';
-                                $divHiddenTutup=(sizeof($dataFacedPublisher)>$FacedPublisherMin ? '</div>' : '');
-
-                                for($i=0;$i<sizeof($dataFacedPublisher);$i++){
-                                    if($dataFacedPublisher[$i]['Publisher']==NULL || $dataFacedPublisher[$i]['Publisher']=='') $dataFacedPublisher[$i]['Publisher']='-';
-                                    if($i==$FacedPublisherMin){echo$divHiddenBuka;}
-                                    echo"
-							<a style=\"padding: 8px 40px 8px 8px;\"class=\"list-group-item \"href='?action=".$action."&katakunci=".urlencode($katakunci)."&ruas=".urlencode($ruas)."&bahan=".urlencode($bahan)."&fAuthor=".urlencode($fAuthor)."&fPublisher=".urlencode($dataFacedPublisher[$i]['Publisher'])."&fPublishLoc=".urlencode($fPublishLoc)."&fPublishYear=".urlencode($fPublishYear)."&fSubject=".urlencode($fSubject)."&fBahasa=".urlencode($fBahasa)."     '>".$dataFacedPublisher[$i]['Publisher']."<span class=\"badge\">".$dataFacedPublisher[$i]['jml']."</span></a>
-						
-						  ";
+                                $divHiddenBuka = '<div class="facedHidden">';
+                                $divHiddenTutup = (sizeof($dataFacedPublisher) > $FacedPublisherMin ? '</div>' : '');
+                                for ($i = 0; $i < sizeof($dataFacedPublisher); $i++) {
+                                    if ($dataFacedPublisher[$i]['Publisher'] == null || $dataFacedPublisher[$i]['Publisher'] == '') {
+                                        $dataFacedPublisher[$i]['Publisher'] = '-';
+                                    }
+                                    if ($i == $FacedPublisherMin) {
+                                        echo $divHiddenBuka;
+                                    }
+                                    echo "<a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item\" href='" . $browseBaseUrl . "&fAuthor=" . urlencode($fAuthor) . "&fPublisher=" . urlencode($dataFacedPublisher[$i]['Publisher']) . "&fPublishLoc=" . urlencode($fPublishLoc) . "&fPublishYear=" . urlencode($fPublishYear) . "&fSubject=" . urlencode($fSubject) . "&fBahasa=" . urlencode($fBahasa) . "'>" . $dataFacedPublisher[$i]['Publisher'] . "<span class=\"badge\">" . $dataFacedPublisher[$i]['jml'] . "</span></a>";
                                 }
-
-                                echo$divHiddenTutup;
-                                if(sizeof($dataFacedPublisher)>$FacedPublisherMin){
-                                    echo"<a  href=\"#\" style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item faced\"  >Show More</a>";
+                                echo $divHiddenTutup;
+                                if (sizeof($dataFacedPublisher) > $FacedPublisherMin) {
+                                    echo "<a href=\"#\" style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item faced\">Show More</a>";
                                 }
                                 ?>
-
                             </div>
-
                         </div>
+                        <?php } ?>
 
+                        <?php if (!empty($dataFacedPublishLocation) || !empty($fPublishLoc)) { ?>
                         <div class="list-group facet" id="side-panel-publislocationStr">
-                            <div class="list-group-item title" >
-                                <a data-toggle="collapse"  href="#side-collapse-publislocationStr"><?= yii::t('app','Lokasi Terbitan')?> </a>
+                            <div class="list-group-item title">
+                                <a data-toggle="collapse" href="#side-collapse-publislocationStr"><?= yii::t('app','Lokasi Terbitan')?> </a>
                                 <?php
-
-                                if(urlencode($fPublishLoc)!='')
-                                    echo"
-						<span style=\"background-color:#c5d4ff;\" class=\"badge\">
-							 <a href='?action=".$action."&katakunci=".urlencode($katakunci)."&ruas=".urlencode($ruas)."&bahan=".urlencode($bahan)."&fAuthor=".urlencode($fAuthor)."&fPublisher=".urlencode($fPublisher)."&fPublishLoc=&fPublishYear=".urlencode($fPublishYear)."&fSubject=".urlencode($fSubject)."&fBahasa=".urlencode($fBahasa)."     '> Clear </a>
-						</span>					
-							 ";
-
-
+                                if (!empty($fPublishLoc)) {
+                                    echo "<span style=\"background-color:#c5d4ff;\" class=\"badge\"><a href='" . $browseBaseUrl . "&fAuthor=" . urlencode($fAuthor) . "&fPublisher=" . urlencode($fPublisher) . "&fPublishLoc=&fPublishYear=" . urlencode($fPublishYear) . "&fSubject=" . urlencode($fSubject) . "&fBahasa=" . urlencode($fBahasa) . "'>Clear </a></span>";
+                                }
                                 ?>
-
                             </div>
                             <div id="side-collapse-publislocationStr" class="collapse in">
-
                                 <?php
-                                $divHiddenBuka='<div class="facedHidden" >';
-                                $divHiddenTutup=(sizeof($dataFacedPublishLocation)>$FacedPublishLocationMin ? '</div>' : '');
-                                for($i=0;$i<sizeof($dataFacedPublishLocation);$i++){
-                                    if($dataFacedPublishLocation[$i]['PublishLocation']==NULL || $dataFacedPublishLocation[$i]['PublishLocation']=='') $dataFacedPublishLocation[$i]['PublishLocation']='-';
-                                    if($i==$FacedPublishLocationMin){echo$divHiddenBuka;}
-                                    echo"
-					
-							<a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item \" href='?action=".$action."&katakunci=".urlencode($katakunci)."&ruas=".urlencode($ruas)."&bahan=".urlencode($bahan)."&fAuthor=".urlencode($fAuthor)."&fPublisher=".urlencode($fPublisher)."&fPublishLoc=".urlencode($dataFacedPublishLocation[$i]['PublishLocation'])."&fPublishYear=".urlencode($fPublishYear)."&fSubject=".urlencode($fSubject)."&fBahasa=".urlencode($fBahasa)."     '>".$dataFacedPublishLocation[$i]['PublishLocation']."<span class=\"badge\">".$dataFacedPublishLocation[$i]['jml']."</span></a>
-					
-						  ";
+                                $divHiddenBuka = '<div class="facedHidden">';
+                                $divHiddenTutup = (sizeof($dataFacedPublishLocation) > $FacedPublishLocationMin ? '</div>' : '');
+                                for ($i = 0; $i < sizeof($dataFacedPublishLocation); $i++) {
+                                    if ($dataFacedPublishLocation[$i]['PublishLocation'] == null || $dataFacedPublishLocation[$i]['PublishLocation'] == '') {
+                                        $dataFacedPublishLocation[$i]['PublishLocation'] = '-';
+                                    }
+                                    if ($i == $FacedPublishLocationMin) {
+                                        echo $divHiddenBuka;
+                                    }
+                                    echo "<a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item\" href='" . $browseBaseUrl . "&fAuthor=" . urlencode($fAuthor) . "&fPublisher=" . urlencode($fPublisher) . "&fPublishLoc=" . urlencode($dataFacedPublishLocation[$i]['PublishLocation']) . "&fPublishYear=" . urlencode($fPublishYear) . "&fSubject=" . urlencode($fSubject) . "&fBahasa=" . urlencode($fBahasa) . "'>" . $dataFacedPublishLocation[$i]['PublishLocation'] . "<span class=\"badge\">" . $dataFacedPublishLocation[$i]['jml'] . "</span></a>";
                                 }
-
-                                echo$divHiddenTutup;
-                                if(sizeof($dataFacedPublishLocation)>$FacedPublishLocationMin){
-                                    echo"<a  href=\"#\" style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item faced\"  >Show More</a>";
+                                echo $divHiddenTutup;
+                                if (sizeof($dataFacedPublishLocation) > $FacedPublishLocationMin) {
+                                    echo "<a href=\"#\" style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item faced\">Show More</a>";
                                 }
                                 ?>
-
                             </div>
-
                         </div>
+                        <?php } ?>
+
+                        <?php if (!empty($dataFacedPublishYear) || !empty($fPublishYear)) { ?>
                         <div class="list-group facet" id="side-panel-publisyearStr">
-                            <div class="list-group-item title" >
-                                <a data-toggle="collapse"  href="#side-collapse-publisyearStr"><?= yii::t('app','Tahun Terbit')?> </a>
+                            <div class="list-group-item title">
+                                <a data-toggle="collapse" href="#side-collapse-publisyearStr"><?= yii::t('app','Tahun Terbit')?> </a>
                                 <?php
-
-                                if(urlencode($fPublishYear)!='')
-                                    echo"
-						<span style=\"background-color:#c5d4ff;\" class=\"badge\">
-							 <a href='?action=".$action."&katakunci=".urlencode($katakunci)."&ruas=".urlencode($ruas)."&bahan=".urlencode($bahan)."&fAuthor=".urlencode($fAuthor)."&fPublisher=".urlencode($fPublisher)."&fPublishLoc=".urlencode($fPublishLoc)."&fPublishYear=&fSubject=".urlencode($fSubject)."&fBahasa=".urlencode($fBahasa)."     '> Clear</a>
-						</span>					
-							 ";
-
+                                if (!empty($fPublishYear)) {
+                                    echo "<span style=\"background-color:#c5d4ff;\" class=\"badge\"><a href='" . $browseBaseUrl . "&fAuthor=" . urlencode($fAuthor) . "&fPublisher=" . urlencode($fPublisher) . "&fPublishLoc=" . urlencode($fPublishLoc) . "&fPublishYear=&fSubject=" . urlencode($fSubject) . "&fBahasa=" . urlencode($fBahasa) . "'>Clear </a></span>";
+                                }
                                 ?>
-
                             </div>
                             <div id="side-collapse-publisyearStr" class="collapse in">
-
                                 <?php
-                                $divHiddenBuka='<div class="facedHidden" >';
-                                $divHiddenTutup=(sizeof($dataFacedPublishYear)>$FacedPublishYearMin ? '</div>' : '');
-                                for($i=0;$i<sizeof($dataFacedPublishYear);$i++){
-                                    if($dataFacedPublishYear[$i]['PublishYear']==NULL || $dataFacedPublishYear[$i]['PublishYear']=='') $dataFacedPublishYear[$i]['PublishYear']='-';
-                                    if($i==$FacedPublishYearMin){echo$divHiddenBuka;}
-                                    echo"
-					
-							<a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item \" href='?action=".$action."&katakunci=".urlencode($katakunci)."&ruas=".urlencode($ruas)."&bahan=".urlencode($bahan)."&fAuthor=".urlencode($fAuthor)."&fPublisher=".urlencode($fPublisher)."&fPublishLoc=".urlencode($fPublishLoc)."&fPublishYear=".urlencode($dataFacedPublishYear[$i]['PublishYear'])."&fSubject=".urlencode($fSubject)."&fBahasa=".urlencode($fBahasa)."     '>".$dataFacedPublishYear[$i]['PublishYear']."<span class=\"badge\">".$dataFacedPublishYear[$i]['jml']."</span></a>
-					
-						  ";
+                                $divHiddenBuka = '<div class="facedHidden">';
+                                $divHiddenTutup = (sizeof($dataFacedPublishYear) > $FacedPublishYearMin ? '</div>' : '');
+                                for ($i = 0; $i < sizeof($dataFacedPublishYear); $i++) {
+                                    if ($dataFacedPublishYear[$i]['PublishYear'] == null || $dataFacedPublishYear[$i]['PublishYear'] == '') {
+                                        $dataFacedPublishYear[$i]['PublishYear'] = '-';
+                                    }
+                                    if ($i == $FacedPublishYearMin) {
+                                        echo $divHiddenBuka;
+                                    }
+                                    echo "<a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item\" href='" . $browseBaseUrl . "&fAuthor=" . urlencode($fAuthor) . "&fPublisher=" . urlencode($fPublisher) . "&fPublishLoc=" . urlencode($fPublishLoc) . "&fPublishYear=" . urlencode($dataFacedPublishYear[$i]['PublishYear']) . "&fSubject=" . urlencode($fSubject) . "&fBahasa=" . urlencode($fBahasa) . "'>" . $dataFacedPublishYear[$i]['PublishYear'] . "<span class=\"badge\">" . $dataFacedPublishYear[$i]['jml'] . "</span></a>";
                                 }
-
-                                echo$divHiddenTutup;
-                                if(sizeof($dataFacedPublishYear)>$FacedPublishYearMin){
-                                    echo"<a  href=\"#\" style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item faced\"  >Show More</a>";
+                                echo $divHiddenTutup;
+                                if (sizeof($dataFacedPublishYear) > $FacedPublishYearMin) {
+                                    echo "<a href=\"#\" style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item faced\">Show More</a>";
                                 }
                                 ?>
-
                             </div>
-
                         </div>
+                        <?php } ?>
+                        <?php if (!empty($dataFacedSubject) || !empty($fSubject)) { ?>
                         <div class="list-group facet" id="side-panel-subjectStr">
-                            <div class="list-group-item title" >
-                                <a data-toggle="collapse"  href="#side-collapse-subjectStr"><?= yii::t('app','Subyek')?> </a>
+                            <div class="list-group-item title">
+                                <a data-toggle="collapse" href="#side-collapse-subjectStr"><?= yii::t('app','Subyek')?> </a>
                                 <?php
-
-                                if(urlencode($fSubject)!='')
-                                    echo"
-						<span style=\"background-color:#c5d4ff;\" class=\"badge\">
-							 <a href='?action=".$action."&katakunci=".urlencode($katakunci)."&ruas=".urlencode($ruas)."&bahan=".urlencode($bahan)."&fAuthor=".urlencode($fAuthor)."&fPublisher=".urlencode($fPublisher)."&fPublishLoc=".urlencode($fPublishLoc)."&fPublishYear=".urlencode($fPublishYear)."&fSubject=&fBahasa=" . $fBahasa . "     '> Clear</a>
-						</span>					
-							 ";
-
+                                if (!empty($fSubject)) {
+                                    echo "<span style=\"background-color:#c5d4ff;\" class=\"badge\"><a href='" . $browseBaseUrl . "&fAuthor=" . urlencode($fAuthor) . "&fPublisher=" . urlencode($fPublisher) . "&fPublishLoc=" . urlencode($fPublishLoc) . "&fPublishYear=" . urlencode($fPublishYear) . "&fSubject=&fBahasa=" . urlencode($fBahasa) . "'>Clear </a></span>";
+                                }
                                 ?>
-
                             </div>
                             <div id="side-collapse-subjectStr" class="collapse in">
-
                                 <?php
-                                $divHiddenBuka='<div class="facedHidden" >';
-                                $divHiddenTutup=(sizeof($dataFacedSubject)>$FacedSubjectMin ? '</div>' : '');
-
-                                for($i=0;$i<sizeof($dataFacedSubject);$i++){
-                                    if($dataFacedSubject[$i]['SUBJECT']==NULL || $dataFacedSubject[$i]['SUBJECT']=='') $dataFacedSubject[$i]['SUBJECT']='-';
-                                    if($i==$FacedSubjectMin){echo$divHiddenBuka;}
-                                    echo"
-					
-							<a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item \" href='?action=".$action."&katakunci=".urlencode($katakunci)."&ruas=".urlencode($ruas)."&bahan=".urlencode($bahan)."&fAuthor=".urlencode($fAuthor)."&fPublisher=".urlencode($fPublisher)."&fPublishLoc=".urlencode($fPublishLoc)."&fPublishYear=".urlencode($fPublishYear)."&fSubject=".urlencode($dataFacedSubject[$i]['SUBJECT'])."&fBahasa=" . urlencode($fBahasa) . "     '>".$dataFacedSubject[$i]['SUBJECT']."<span class=\"badge\">".$dataFacedSubject[$i]['jml']."</span></a>
-					
-						  ";
+                                $divHiddenBuka = '<div class="facedHidden">';
+                                $divHiddenTutup = (sizeof($dataFacedSubject) > $FacedSubjectMin ? '</div>' : '');
+                                for ($i = 0; $i < sizeof($dataFacedSubject); $i++) {
+                                    if ($dataFacedSubject[$i]['SUBJECT'] == null || $dataFacedSubject[$i]['SUBJECT'] == '') {
+                                        $dataFacedSubject[$i]['SUBJECT'] = '-';
+                                    }
+                                    if ($i == $FacedSubjectMin) {
+                                        echo $divHiddenBuka;
+                                    }
+                                    echo "<a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item\" href='" . $browseBaseUrl . "&fAuthor=" . urlencode($fAuthor) . "&fPublisher=" . urlencode($fPublisher) . "&fPublishLoc=" . urlencode($fPublishLoc) . "&fPublishYear=" . urlencode($fPublishYear) . "&fSubject=" . urlencode($dataFacedSubject[$i]['SUBJECT']) . "&fBahasa=" . urlencode($fBahasa) . "'>" . $dataFacedSubject[$i]['SUBJECT'] . "<span class=\"badge\">" . $dataFacedSubject[$i]['jml'] . "</span></a>";
                                 }
-                                echo$divHiddenTutup;
-                                if(sizeof($dataFacedSubject)>$FacedSubjectMin){
-                                    echo"<a  href=\"#\" style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item faced\"  >Show More</a>";
+                                echo $divHiddenTutup;
+                                if (sizeof($dataFacedSubject) > $FacedSubjectMin) {
+                                    echo "<a href=\"#\" style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item faced\">Show More</a>";
                                 }
                                 ?>
-
-
                             </div>
-
                         </div>
+                        <?php } ?>
 
+                        <?php if (!empty($dataFacedBahasa) || !empty($fBahasa)) { ?>
                         <div class="list-group facet" id="side-panel-BahasaStr">
-                            <div class="list-group-item title" >
-                                <a data-toggle="collapse"  href="#side-collapse-BahasaStr"><?= yii::t('app','Bahasa')?> </a>
+                            <div class="list-group-item title">
+                                <a data-toggle="collapse" href="#side-collapse-BahasaStr"><?= yii::t('app','Bahasa')?> </a>
                                 <?php
-
-                                if(urlencode($fBahasa)!='')
-                                    echo"
-                    <span style=\"background-color:#c5d4ff;\" class=\"badge\">
-                         <a href='?action=".$action."&katakunci=".urlencode($katakunci)."&ruas=".urlencode($ruas)."&bahan=".urlencode($bahan)."&fAuthor=".urlencode($fAuthor)."&fPublisher=".urlencode($fPublisher)."&fPublishLoc=".urlencode($fPublishLoc)."&fPublishYear="."&fSubject=".urlencode($fSubject)."&fBahasa=     '> Clear</a>
-                    </span>					
-                         ";
-
+                                if (!empty($fBahasa)) {
+                                    echo "<span style=\"background-color:#c5d4ff;\" class=\"badge\"><a href='" . $browseBaseUrl . "&fAuthor=" . urlencode($fAuthor) . "&fPublisher=" . urlencode($fPublisher) . "&fPublishLoc=" . urlencode($fPublishLoc) . "&fPublishYear=" . urlencode($fPublishYear) . "&fSubject=" . urlencode($fSubject) . "&fBahasa='>Clear </a></span>";
+                                }
                                 ?>
-
                             </div>
                             <div id="side-collapse-BahasaStr" class="collapse in">
-
                                 <?php
-                                $divHiddenBuka='<div class="facedHidden" >';
-                                $divHiddenTutup=(sizeof($dataFacedBahasa)>$FacedBahasaMin ? '</div>' : '');
-
-                                for($i=0;$i<sizeof($dataFacedBahasa);$i++){
-                                    if($dataFacedBahasa[$i]['bahasa']==NULL || $dataFacedBahasa[$i]['bahasa']=='') $dataFacedBahasa[$i]['bahasa']='-';
-                                    if($i==$FacedBahasaMin){echo$divHiddenBuka;}
-                                    echo"
-                
-                        <a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item \" href='?action=".$action."&katakunci=".urlencode($katakunci)."&ruas=".urlencode($ruas)."&bahan=".urlencode($bahan)."&fAuthor=".urlencode($fAuthor)."&fPublisher=".urlencode($fPublisher)."&fPublishLoc=".urlencode($fPublishLoc)."&fPublishYear=".urlencode($fPublishYear)."&fSubject=".urlencode($fSubject)."&fBahasa=".urlencode($dataFacedBahasa[$i]['bahasa'])."     '>".$dataFacedBahasa[$i]['bahasa']."<span class=\"badge\">".$dataFacedBahasa[$i]['jml']."</span></a>
-                
-                      ";
+                                $divHiddenBuka = '<div class="facedHidden">';
+                                $divHiddenTutup = (sizeof($dataFacedBahasa) > $FacedBahasaMin ? '</div>' : '');
+                                for ($i = 0; $i < sizeof($dataFacedBahasa); $i++) {
+                                    if ($dataFacedBahasa[$i]['bahasa'] == null || $dataFacedBahasa[$i]['bahasa'] == '') {
+                                        $dataFacedBahasa[$i]['bahasa'] = '-';
+                                    }
+                                    if ($i == $FacedBahasaMin) {
+                                        echo $divHiddenBuka;
+                                    }
+                                    echo "<a style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item\" href='" . $browseBaseUrl . "&fAuthor=" . urlencode($fAuthor) . "&fPublisher=" . urlencode($fPublisher) . "&fPublishLoc=" . urlencode($fPublishLoc) . "&fPublishYear=" . urlencode($fPublishYear) . "&fSubject=" . urlencode($fSubject) . "&fBahasa=" . urlencode($dataFacedBahasa[$i]['bahasa']) . "'>" . $dataFacedBahasa[$i]['bahasa'] . "<span class=\"badge\">" . $dataFacedBahasa[$i]['jml'] . "</span></a>";
                                 }
-                                echo$divHiddenTutup;
-                                if(sizeof($dataFacedBahasa)>$FacedBahasaMin){
-                                    echo"<a  href=\"#\" style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item faced\"  >Show More</a>";
+                                echo $divHiddenTutup;
+                                if (sizeof($dataFacedBahasa) > $FacedBahasaMin) {
+                                    echo "<a href=\"#\" style=\"padding: 8px 40px 8px 8px;\" class=\"list-group-item faced\">Show More</a>";
                                 }
                                 ?>
-
-
                             </div>
-
                         </div>
+                        <?php } ?>
+                    </div>
+                    <?php } ?>
 
-
-                        </p>
-                        <?php
-                        if(sizeof($booking)==0){
-                            $this->registerJS('
-						$(document).ready(
-						    function() {
-						        $(\'a.bookmarkShow\').hide();
-						    }
-						);
-						');
-
-
-
-                        }else{
-                            $this->registerJS('
-
-						$(document).ready(
-						    function() {
-						        $(\'a.bookmarkShow\').text(\'Keranjang('.sizeof($booking).')\');
-						    }
-						);
-						');
-
-                        }
-
+                    <?php
+                    if (sizeof($booking) == 0) {
                         $this->registerJS('
+                            $(document).ready(function() {
+                                $(\'a.bookmarkShow\').hide();
+                            });
+                        ');
+                    } else {
+                        $this->registerJS('
+                            $(document).ready(function() {
+                                $(\'a.bookmarkShow\').text(\'Keranjang(' . sizeof($booking) . ')\');
+                            });
+                        ');
+                    }
 
-						$(\'.facedHidden\').hide();
+                    $this->registerJS('
+                        $(\'.facedHidden\').hide();
+                        $(\'.faced\').each(function() {
+                            $(this).show(0).on(\'click\', function(e) {
+                                e.preventDefault();
+                                $(this).prev(\'.facedHidden\').slideToggle(\'fast\');
+                                if ($(this).text() == "Show More") {
+                                    $(this).text("Show Less");
+                                } else {
+                                    $(this).text("Show More");
+                                }
+                            });
+                        });
 
-						// Make sure all the elements with a class of "clickme" are visible and bound
-						// with a click event to toggle the "box" state
-						$(\'.faced\').each(function() {
-						    $(this).show(0).on(\'click\', function(e) {
-						        // This is only needed if your using an anchor to target the "box" elements
-						        e.preventDefault();
-						        
-						        // Find the next "box" element in the DOM
-						        $(this).prev(\'.facedHidden\').slideToggle(\'fast\');
-						        if ( $(this).text() == "Show More") {
-								$(this).text("Show Less")
-
-								} else
-								{
-								$(this).text("Show More");
-								}		
-
-
-						    });
-						});
-  		
-						
-
-						$(document).ready(function(){
-
-
-
-							$(".toggler1").click(function(e){
-								e.preventDefault();
-								$(\'.auth\'+$(this).attr(\'facedAuthor\')).toggle();
-							});
-							$(".toggler2").click(function(e){
-								e.preventDefault();
-								$(\'.pub\'+$(this).attr(\'facedPublisher\')).toggle();
-							});
-							$(".toggler3").click(function(e){
-								e.preventDefault();
-								$(\'.publoc\'+$(this).attr(\'facedPublishLocation\')).toggle();
-							});
-							$(".toggler4").click(function(e){
-								e.preventDefault();
-								$(\'.pubyear\'+$(this).attr(\'facedPublishYear\')).toggle();
-							});
-
-
-						});
-
-
-
-					');
-
-                        ?>
-                    </div> <?php } ?>
+                        $(document).ready(function() {
+                            $(".toggler1").click(function(e) {
+                                e.preventDefault();
+                                $(\'.auth\' + $(this).attr(\'facedAuthor\')).toggle();
+                            });
+                            $(".toggler2").click(function(e) {
+                                e.preventDefault();
+                                $(\'.pub\' + $(this).attr(\'facedPublisher\')).toggle();
+                            });
+                            $(".toggler3").click(function(e) {
+                                e.preventDefault();
+                                $(\'.publoc\' + $(this).attr(\'facedPublishLocation\')).toggle();
+                            });
+                            $(".toggler4").click(function(e) {
+                                e.preventDefault();
+                                $(\'.pubyear\' + $(this).attr(\'facedPublishYear\')).toggle();
+                            });
+                        });
+                    ');
+                    ?>
 			</div>
 			<?php }?>
 		</div>

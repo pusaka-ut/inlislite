@@ -141,8 +141,11 @@ class BrowseController extends \yii\web\Controller {
                     'query' => $query,
                     'query2' => $query2,
                 ];
-                OpacHelpers::opacLogs($logs);
-
+                try {
+                    OpacHelpers::opacLogs($logs);
+                } catch (\Exception $eLogs) {
+                    Yii::warning($eLogs->getMessage(), 'article.logs');
+                }
 
                 $page = ( isset($_GET['page']) ) ? addslashes($_GET['page']) : 1;
                 $limit = ( isset($_GET['limit']) ) ? addslashes($_GET['limit']) : 10;
@@ -154,18 +157,22 @@ class BrowseController extends \yii\web\Controller {
 
                 $limitAwal = ($page - 1) * $limit;
 
+                $count = 0;
+                $hasilSearch = [];
 
-                $command = Yii::$app->db->createCommand("CALL insertTempTelusurArticle('" . $tag . "','" . $findBy . "','" . $query . "','" . $query2 . "','" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','');");
-                $command->execute();
+                try {
+                    $command = Yii::$app->db->createCommand("CALL insertTempTelusurArticle('" . $tag . "','" . $findBy . "','" . $query . "','" . $query2 . "','" . $fAuthor . "','" . $fPublisher . "','" . $fPublishLoc . "','" . $fPublishYear . "','" . $fSubject . "','" . $fBahasa . "','');");
+                    $command->execute();
 
-
-
-                if ($CID){
-                    $count = Yii::$app->db->createCommand("select count(1) from tempCariArticle where CatalogId=".$CID." ")->queryScalar();
-                    $hasilSearch = Yii::$app->db->createCommand("select * from tempCariArticle where CatalogId=".$CID." limit 0,$limit")->queryAll();
-                } else {
-                    $count = Yii::$app->db->createCommand("select count(1) from tempCariArticle")->queryScalar();
-                    $hasilSearch = Yii::$app->db->createCommand("select * from tempCariArticle limit 0,$limit")->queryAll();
+                    if ($CID){
+                        $count = Yii::$app->db->createCommand("select count(1) from tempCariArticle where CatalogId=".$CID." ")->queryScalar();
+                        $hasilSearch = Yii::$app->db->createCommand("select * from tempCariArticle where CatalogId=".$CID." limit 0,$limit")->queryAll();
+                    } else {
+                        $count = Yii::$app->db->createCommand("select count(1) from tempCariArticle")->queryScalar();
+                        $hasilSearch = Yii::$app->db->createCommand("select * from tempCariArticle limit 0,$limit")->queryAll();
+                    }
+                } catch (\Exception $eArticle) {
+                    Yii::warning($eArticle->getMessage(), 'article.browse');
                 }
 
                 $FacedAuthorMax = Yii::$app->config->get('FacedAuthorMax');
