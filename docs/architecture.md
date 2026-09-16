@@ -38,3 +38,14 @@ inlislite3/
    - Memindai QR code fisik di rak menggunakan kamera ponsel pintar.
    - Browser ponsel langsung membuka `/opac/rak?id=<id>` tanpa perlu autentikasi.
    - Menyajikan kartu buku dengan penonjolan nomor panggil (*call number*), status ketersediaan (*tersedia di tempat / dipinjam*), pencarian teks instan di dalam rak, dan link ke detail katalog OPAC lengkap.
+
+## 4. Arsitektur Mesin Pencarian OPAC (Dual-Engine Read-Only & Guardrail 2 Karakter)
+1. **Guardrail Input:**
+   - Pembatasan panjang kata kunci minimal 2 karakter (`minlength="2"` di frontend dan `mb_strlen(trim($Keyword)) < 2` di controller).
+   - Mencegah *denial-of-service* akibat full table scan wildcard satu huruf pada database koleksi ratusan ribu buku, namun tetap mengizinkan singkatan penting ("AI", "UT", "IT", "UU").
+2. **Dual-Engine Search Query:**
+   - Mencari secara paralel pada kolom teks utama tabel `catalogs` (`Title`, `Author`, `Publisher`, `Subject`, `CallNumber`, `ISBN`) dan subquery MARC tags pada `catalog_ruas`.
+   - Menjamin seluruh buku katalog ditemukan 100% tanpa kehilangan metadata bibliografis.
+3. **Stateless Paginasi Read-Only:**
+   - Menghilangkan ketergantungan pada stored procedure `insertTempSederhanaOpac` dan `insertTempSederhanaOpac0` yang memicu error 1637 InnoDB (`HA_ERR_TOO_MANY_CONCURRENT_TRXS` pada `ibtmp1`).
+   - Menggunakan kalkulasi limit-offset matematis `LIMIT :offset, :limit` murni read-only yang menjamin halaman 2, 3, dst. selalu menyajikan data buku secara konsisten dan cepat.

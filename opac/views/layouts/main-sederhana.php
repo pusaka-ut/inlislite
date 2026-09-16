@@ -172,7 +172,7 @@ else {
                             <div class="tab-pane active" id="tab_1">
                                 <div class="col-md-5 col-sm-4">
                                     <div class="form-group">
-                                        <input type="text" class="form-control" name="katakunci" id="KataKunci" placeholder='<?= Yii::t('app', 'Kata Kunci')?>' size="25">
+                                        <input type="text" class="form-control" name="katakunci" id="KataKunci" placeholder='<?= Yii::t('app', 'Kata Kunci (minimal 2 karakter)')?>' minlength="2" required size="25">
                                     </div>
                                 </div>
                                 <div class="col-md-3 col-sm-3">

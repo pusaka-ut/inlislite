@@ -71,6 +71,12 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
 - [x] **Direct Read-Only Streaming:** Mengganti alur paginasi dengan method `getDirectSearchData()` yang mengeksekusi query `SELECT DISTINCT ... LIMIT :offset, :limit` murni read-only yang 100% kebal dari Error 1637.
 - [x] **Autonomous Fallback Pencarian Awal:** Menambahkan method `getDirectSearchCount()` dan fallback otomatis pada halaman 1 jika database server kehabisan slot temporary table, sehingga pengguna tetap menerima hasil katalog tanpa crash.
 - [x] **Optimasi Query Facet:** Menghilangkan 6 query facet redundan saat paginasi dan mengandalkan session cache yang sudah terbentuk.
+- [x] **Fase 22: Solusi Tuntas Pencarian & Paginasi OPAC Anti-Kosong & Guardrail 2 Karakter:**
+  - [x] *Guardrail Input Minimal 2 Karakter:* Proteksi frontend (`minlength="2"` & placeholder) dan backend (`mb_strlen < 2`) untuk mencegah full table scan liar tanpa memblokir singkatan penting ("AI", "UT", "IT", "UU").
+  - [x] *Paginasi Mulus Anti-Kosong (Page 2+):* Mengeliminasi bug case-sensitivity `'Semua Jenis Bahan'` yang menyebabkan hasil halaman berikutnya kosong total, serta menstandarkan offset limit `$limitAwal = ($page - 1) * $limit`.
+  - [x] *Dual-Engine Search Query:* Pencarian serentak pada kolom tabel `catalogs` (`Title`, `Author`, `Publisher`, `Subject`, `CallNumber`, `ISBN`) dan MARC tags `catalog_ruas`, menjamin 100% buku ditemukan.
+  - [x] *Penyempurnaan Kolom Return:* Alias lengkap `worksheet_id`, `Worksheet_id`, dan `title` agar sampul buku dan worksheet termuat sempurna.
+  - [x] *Eliminasi Flash Alert Merah:* Membersihkan popup error palsu saat data buku berhasil dimuat secara direct streaming.
 - [x] **Zero-Comments & Linter:** Kode 100% bersih dari komentar dan lolos uji sintaks `php -l`.
 
 ## 4. Current Sprint / Fokus Pengujian Saat Ini
