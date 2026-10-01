@@ -133,3 +133,16 @@ inlislite3/
    - Menetralkan aturan tahun 2016 di `site.css` yang memberikan `position: absolute; top: 5px; right: 10px; width: 200px;` pada `.clockZ`.
    - Mengunci `.clockZ` dengan `position: static !important; width: auto !important;` dan `.inlis-header-right` dengan `flex-direction: row;` serta membersihkan class Bootstrap `collapse navbar-collapse` dari wrapper jam di `NavBar.php`.
    - Menjamin 100% Jam Digital dan Kapsul User duduk berdampingan secara horizontal tanpa tumpang-tindih (*zero-overlapping*).
+
+## 12. Arsitektur Pelaporan Defensif & Dual-Aliasing Subquery SQL (Fase 31)
+1. **Dual-Aliasing Subquery SQL (Eliminasi SQLSTATE[42S22] Column 1054):**
+   - Subquery UNION 3 cabang (`member`, `non_member`, `group_guess`) pada modul Laporan Kunjungan Periodik (`backend/modules/laporan/controllers/BukuTamuController.php`) sebelumnya meng-alias kolom perpustakaan sebagai `lokasi` dan ruang sebagai `lok_ruang`. Namun klausa filter luar mencari kolom `lokasi_perpus` dan `lokasi_ruang`.
+   - Solusi arsitektural: Menerapkan dual-aliasing pada SELECT turunan dan SELECT luar:
+     `lokasi`, `lokasi AS lokasi_perpus`, `lok_ruang`, `lok_ruang AS lokasi_ruang`.
+   - Menjamin integritas filter luar di seluruh dialek SQL tanpa memicu pengecualian database column not found.
+2. **Defensive Array Guardrails & Inisialisasi `$VALUE` (Eliminasi PHP Warning Foreach):**
+   - Variabel kriteria `$VALUE` diinisialisasi secara eksplisit di awal action (`$VALUE = array();`) sebelum evaluasi `$_POST`.
+   - Pengulangan kriteria dibungkus dengan guardrail defensif `if (!empty($VALUE) && is_array($VALUE))` dan nilai sub-kriteria divalidasi dengan aman sebelum fungsi string `implode()`.
+   - Penambahan pengelompokan kurung boolean `AND (...)` pada klausa WHERE gabungan filter lokasi dan ruang perpustakaan untuk menjamin presisi logika SQL.
+3. **Hardening View Defensif `pdf-view-kunjungan-periodik-data.php`:**
+   - Loop data kunjungan diamankan dengan `if (!empty($TableLaporan) && is_array($TableLaporan))` dan verifikasi `isset($TableLaporan['count'])` guna mencegah warning notice `Undefined index: count` ketika laporan dicetak dalam kondisi tanpa data.

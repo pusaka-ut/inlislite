@@ -1,10 +1,5 @@
 <?php 
 
-// echo $sql;
-// echo "<pre>";
-// var_dump($TableLaporan);
-// echo "</pre>";
-
 ?>
 
 <div class="panel panel-default panel-body" style="font-family: times new roman; border:0px; margin:40px; margin-top:0px;" >
@@ -12,9 +7,6 @@
 	<center style="text-align: center; font-weight: bold;">
 		<p style="text-align: center; font-size: 14px">
 			<?= yii::t('app','Laporan Detail Data')?> <?= $LaporanPeriode ?><br><?= yii::t('app','Kunjungan Periodik')?> <?= $LaporanPeriode2 ?><br /> <?= yii::t('app','Berdasarkan')?> <?= $Berdasarkan ?><br>			
-		<!-- <?php print_r($TableLaporan); ?>-->
-
-			
 		</p>
 	</center>
 
@@ -59,6 +51,7 @@
 					<?php $i = 1; ?>
 					<?php $totalJumlahJudul = 0; ?>
 					<?php $totalJumlahExemplar = 0; ?>
+					<?php if (!empty($TableLaporan) && is_array($TableLaporan)): ?>
 					<?php foreach ($TableLaporan as $TableLaporan): ?>
 						<tr>
 							<td>
@@ -97,15 +90,14 @@
 						</tr>
 						<?php $i++ ?>
 					<?php endforeach ?>
+					<?php endif; ?>
 
 		</table>
 		<center style="text-align: left; font-weight: bold;">
-		<?php if ($TableLaporan['count'] < 1000) {
-		}else{?>
+		<?php if (!empty($TableLaporan) && isset($TableLaporan['count']) && $TableLaporan['count'] >= 1000) { ?>
 		<br/>
 		<p style="text-align: left; font-size: 24px; font-family: arial">
 			Jumlah data <?= $TableLaporan['count'] ?> Export untuk melihat seluruh data
-			
 		</p>
 		<?php }?>
 	</center>

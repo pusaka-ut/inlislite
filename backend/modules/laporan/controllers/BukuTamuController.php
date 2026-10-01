@@ -491,6 +491,7 @@ class BukuTamuController extends \yii\web\Controller
 public function actionRenderKunjunganPeriodikData() 
     {
         $_POST =  $_SESSION['Array_POST_Filter'];
+        $VALUE = array();
         $andValue = '';
         $tujuan = '';
         $sqlPeriode = '';
@@ -526,37 +527,35 @@ public function actionRenderKunjunganPeriodikData()
 
         $inValue = array();
         if (isset($_POST['anggota']) == true) {
-                
-                    $inValue[] =  '"anggota"';
-                
-            }    
+            $inValue[] =  '"anggota"';
+        }    
         if (isset($_POST['non_anggota']) == true) {
-                
-                    $inValue[]=  '"non anggota"';
-                
-            }        
+            $inValue[]=  '"non anggota"';
+        }        
         if (isset($_POST['rombongan']) == true) {
-                
-                    $inValue[] =  '"rombongan"';
-                
-            }
+            $inValue[] =  '"rombongan"';
+        }
         
         if (isset($_POST['ruang_perpus'])) {
+            $groupValue = array();
+            $nilaiRuang = array();
             foreach ($_POST['ruang_perpus'] as $key => $value) {
-                $Value[] .= "'".$value."'";
-                if (!in_array('0',$_POST['ruang_perpus'])) {
-                    $test = Locations::find()->where(['in', 'ID', $_POST['ruang_perpus']])->asArray()->All();
-                    $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['ruang_perpus'] = $groupValue;
-                }else{$VALUE['ruang_perpus'] = array('Semua');}
-            }
-                if ($value != "0" ) {
+                if ($value != "0") {
                     $ruang = Locations::findOne(['ID' => $value]);
-                    $andValue .= ' AND lokasi_ruang LIKE "'.$ruang->Name.'" ';
+                    if ($ruang) {
+                        $nilaiRuang[] = ' (lok_ruang LIKE "%' . addslashes($ruang->Name) . '%" OR lokasi_ruang LIKE "%' . addslashes($ruang->Name) . '%") ';
+                        $groupValue[] = $ruang->Name;
+                    }
                 }
+            }
+            if (!empty($groupValue)) {
+                $VALUE['ruang_perpus'] = $groupValue;
+            } else {
+                $VALUE['ruang_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiRuang)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiRuang) . ') ';
+            }
         }
 
         if (isset($_POST['tujuan'])) {
@@ -569,18 +568,26 @@ public function actionRenderKunjunganPeriodikData()
         }
 
         if (isset($_POST['lokasi_perpus'])) {
+            $groupValue = array();
+            $nilaiAndValue = array();
             foreach ($_POST['lokasi_perpus'] as $key => $value) {
-                $lokasi = LocationLibrary::findOne(['ID' => $value]);
-                $nilaiAndValue[] = " lokasi_perpus LIKE '%".$lokasi->Name."%'";
-                $Value2[] .= $lokasi->Name;
-                if (!in_array('0',$_POST['lokasi_perpus'])) {
-                    $test = LocationLibrary::find()->where(['LIKE', 'Name', $lokasi->Name])->limit(1)->asArray()->All();
-                     $groupValue = array();
-                     $groupValue[$t] = implode("','",$Value2);
-                    $VALUE['lokasi_perpus'] = $groupValue;
-                    }else{$VALUE['lokasi_perpus'] = array('Semua');}
-                }if ($value != "0" ) {$andValue .= ' AND '.implode('OR ',$nilaiAndValue);}
+                if ($value != "0") {
+                    $lokasi = LocationLibrary::findOne(['ID' => $value]);
+                    if ($lokasi) {
+                        $nilaiAndValue[] = ' (lokasi LIKE "%' . addslashes($lokasi->Name) . '%" OR lokasi_perpus LIKE "%' . addslashes($lokasi->Name) . '%") ';
+                        $groupValue[] = $lokasi->Name;
+                    }
+                }
             }
+            if (!empty($groupValue)) {
+                $VALUE['lokasi_perpus'] = $groupValue;
+            } else {
+                $VALUE['lokasi_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiAndValue)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiAndValue) . ') ';
+            }
+        }
             
 
         $genderValue = '0';
@@ -605,17 +612,19 @@ public function actionRenderKunjunganPeriodikData()
                 }
         }
 
-        $sql = "SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info,
+        $sql = "SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info,
                 (SELECT (COUNT(*) + (SELECT COUNT(*) FROM groupguesses WHERE groupguesses.`CreateDate` ".$sqlPeriode.")) AS red FROM memberguesses
                 WHERE memberguesses.`CreateDate` ".$sqlPeriode.") AS count
                 FROM(
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'anggota' AS ket,
                 DATE_FORMAT(memberguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 memberguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 memberguesses.NoAnggota AS no_pengunjung,
                 memberguesses.Nama AS nama,
                 jenis_kelamin.Name AS gender,
@@ -635,13 +644,15 @@ public function actionRenderKunjunganPeriodikData()
                 WHERE memberguesses.NoAnggota IS NOT NULL AND members.MemberNo IS NOT NULL ".$tujuan.$andGenderValue2."
                 ) member
                 UNION ALL
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'non anggota' AS ket,
                 DATE_FORMAT(memberguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 memberguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 memberguesses.NoPengunjung AS no_pengunjung,
                 memberguesses.Nama AS nama,
                 jenis_kelamin.Name AS gender,
@@ -660,13 +671,15 @@ public function actionRenderKunjunganPeriodikData()
                 WHERE memberguesses.NoAnggota IS NULL ".$tujuan.$andGenderValue."
                 ) non_member
                 UNION ALL
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'rombongan' AS ket,
                 DATE_FORMAT(groupguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 groupguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 groupguesses.NoPengunjung AS no_pengunjung,
                 groupguesses.NamaKetua AS nama,
                 CONCAT(IFNULL(CONCAT(groupguesses.CountLaki, ' Laki-laki'),''),'<br>', IFNULL(CONCAT(groupguesses.CountPerempuan, ' Perempuan'),'')) AS gender,
@@ -697,14 +710,16 @@ public function actionRenderKunjunganPeriodikData()
         $sql .= ' ORDER BY tgl_kunjungan ASC LIMIT 1000';
 
         $data = Yii::$app->db->createCommand($sql)->queryAll(); 
-// print_r($sql);
-// die;
 
         $Berdasarkan = array();
-        foreach ($VALUE as $key => $value) {
-            $Berdasarkan[] .= $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+        if (!empty($VALUE) && is_array($VALUE)) {
+            foreach ($VALUE as $key => $value) {
+                if (is_array($value) && !empty($value)) {
+                    $Berdasarkan[] = $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+                }
+            }
         }
-        $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
+        $Berdasarkan = !empty($Berdasarkan) ? implode(yii::t('app',' dan '), $Berdasarkan) : yii::t('app','Semua');
 
         $content['LaporanKriteria'] = ""; 
         $content['LaporanSubJudulKriteriaVal'] = '$kriteriaVal'; 
@@ -749,6 +764,7 @@ public function actionExportExcelKunjunganPeriodikData()
     // $model = Opaclogs::find()->All();
 
         $_POST =  $_SESSION['Array_POST_Filter'];
+        $VALUE = array();
         $andValue = '';
         $tujuan = '';
         $sqlPeriode = '';
@@ -784,37 +800,35 @@ public function actionExportExcelKunjunganPeriodikData()
 
         $inValue = array();
         if (isset($_POST['anggota']) == true) {
-                
-                    $inValue[] =  '"anggota"';
-                
-            }    
+            $inValue[] =  '"anggota"';
+        }    
         if (isset($_POST['non_anggota']) == true) {
-                
-                    $inValue[]=  '"non anggota"';
-                
-            }        
+            $inValue[]=  '"non anggota"';
+        }        
         if (isset($_POST['rombongan']) == true) {
-                
-                    $inValue[] =  '"rombongan"';
-                
-            }
+            $inValue[] =  '"rombongan"';
+        }
         
         if (isset($_POST['ruang_perpus'])) {
+            $groupValue = array();
+            $nilaiRuang = array();
             foreach ($_POST['ruang_perpus'] as $key => $value) {
-                $Value[] .= "'".$value."'";
-                if (!in_array('0',$_POST['ruang_perpus'])) {
-                    $test = Locations::find()->where(['in', 'ID', $_POST['ruang_perpus']])->asArray()->All();
-                    $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['ruang_perpus'] = $groupValue;
-                }else{$VALUE['ruang_perpus'] = array('Semua');}
-            }
-                if ($value != "0" ) {
+                if ($value != "0") {
                     $ruang = Locations::findOne(['ID' => $value]);
-                    $andValue .= ' AND lokasi_ruang LIKE "'.$ruang->Name.'" ';
+                    if ($ruang) {
+                        $nilaiRuang[] = ' (lok_ruang LIKE "%' . addslashes($ruang->Name) . '%" OR lokasi_ruang LIKE "%' . addslashes($ruang->Name) . '%") ';
+                        $groupValue[] = $ruang->Name;
+                    }
                 }
+            }
+            if (!empty($groupValue)) {
+                $VALUE['ruang_perpus'] = $groupValue;
+            } else {
+                $VALUE['ruang_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiRuang)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiRuang) . ') ';
+            }
         }
 
         if (isset($_POST['tujuan'])) {
@@ -827,18 +841,26 @@ public function actionExportExcelKunjunganPeriodikData()
         }
 
         if (isset($_POST['lokasi_perpus'])) {
+            $groupValue = array();
+            $nilaiAndValue = array();
             foreach ($_POST['lokasi_perpus'] as $key => $value) {
-                $lokasi = LocationLibrary::findOne(['ID' => $value]);
-                $nilaiAndValue[] = " lokasi_perpus LIKE '%".$lokasi->Name."%'";
-                $Value2[] .= $lokasi->Name;
-                if (!in_array('0',$_POST['lokasi_perpus'])) {
-                    $test = LocationLibrary::find()->where(['LIKE', 'Name', $lokasi->Name])->limit(1)->asArray()->All();
-                     $groupValue = array();
-                     $groupValue[$t] = implode("','",$Value2);
-                    $VALUE['lokasi_perpus'] = $groupValue;
-                    }else{$VALUE['lokasi_perpus'] = array('Semua');}
-                }if ($value != "0" ) {$andValue .= ' AND '.implode('OR ',$nilaiAndValue);}
+                if ($value != "0") {
+                    $lokasi = LocationLibrary::findOne(['ID' => $value]);
+                    if ($lokasi) {
+                        $nilaiAndValue[] = ' (lokasi LIKE "%' . addslashes($lokasi->Name) . '%" OR lokasi_perpus LIKE "%' . addslashes($lokasi->Name) . '%") ';
+                        $groupValue[] = $lokasi->Name;
+                    }
+                }
             }
+            if (!empty($groupValue)) {
+                $VALUE['lokasi_perpus'] = $groupValue;
+            } else {
+                $VALUE['lokasi_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiAndValue)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiAndValue) . ') ';
+            }
+        }
             
 
         $genderValue = '0';
@@ -863,15 +885,17 @@ public function actionExportExcelKunjunganPeriodikData()
                 }
         }
 
-        $sql = "SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+        $sql = "SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'anggota' AS ket,
                 DATE_FORMAT(memberguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 memberguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 memberguesses.NoAnggota AS no_pengunjung,
                 memberguesses.Nama AS nama,
                 jenis_kelamin.Name AS gender,
@@ -891,13 +915,15 @@ public function actionExportExcelKunjunganPeriodikData()
                 WHERE memberguesses.NoAnggota IS NOT NULL AND members.MemberNo IS NOT NULL ".$tujuan.$andGenderValue2."
                 ) member
                 UNION ALL
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'non anggota' AS ket,
                 DATE_FORMAT(memberguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 memberguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 memberguesses.NoPengunjung AS no_pengunjung,
                 memberguesses.Nama AS nama,
                 jenis_kelamin.Name AS gender,
@@ -916,13 +942,15 @@ public function actionExportExcelKunjunganPeriodikData()
                 WHERE memberguesses.NoAnggota IS NULL ".$tujuan.$andGenderValue."
                 ) non_member
                 UNION ALL
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'rombongan' AS ket,
                 DATE_FORMAT(groupguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 groupguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 groupguesses.NoPengunjung AS no_pengunjung,
                 groupguesses.NamaKetua AS nama,
                 CONCAT(IFNULL(CONCAT(groupguesses.CountLaki, ' Laki-laki'),''),'<br>', IFNULL(CONCAT(groupguesses.CountPerempuan, ' Perempuan'),'')) AS gender,
@@ -958,10 +986,14 @@ public function actionExportExcelKunjunganPeriodikData()
     $format_hari = $format_hari;
 
     $Berdasarkan = array();
+    if (!empty($VALUE) && is_array($VALUE)) {
         foreach ($VALUE as $key => $value) {
-            $Berdasarkan[] .= $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+            if (is_array($value) && !empty($value)) {
+                $Berdasarkan[] = $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+            }
         }
-        $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
+    }
+    $Berdasarkan = !empty($Berdasarkan) ? implode(yii::t('app',' dan '), $Berdasarkan) : yii::t('app','Semua');
 
     $filename = 'Laporan_Periodik_Data.xls';
     header("Content-type: application/vnd-ms-excel");
@@ -1025,6 +1057,7 @@ public function actionExportExcelOdtKunjunganPeriodikData()
     // $model = Opaclogs::find()->All();
 
         $_POST =  $_SESSION['Array_POST_Filter'];
+        $VALUE = array();
         $andValue = '';
         $tujuan = '';
         $sqlPeriode = '';
@@ -1060,37 +1093,35 @@ public function actionExportExcelOdtKunjunganPeriodikData()
 
         $inValue = array();
         if (isset($_POST['anggota']) == true) {
-                
-                    $inValue[] =  '"anggota"';
-                
-            }    
+            $inValue[] =  '"anggota"';
+        }    
         if (isset($_POST['non_anggota']) == true) {
-                
-                    $inValue[]=  '"non anggota"';
-                
-            }        
+            $inValue[]=  '"non anggota"';
+        }        
         if (isset($_POST['rombongan']) == true) {
-                
-                    $inValue[] =  '"rombongan"';
-                
-            }
+            $inValue[] =  '"rombongan"';
+        }
         
         if (isset($_POST['ruang_perpus'])) {
+            $groupValue = array();
+            $nilaiRuang = array();
             foreach ($_POST['ruang_perpus'] as $key => $value) {
-                $Value[] .= "'".$value."'";
-                if (!in_array('0',$_POST['ruang_perpus'])) {
-                    $test = Locations::find()->where(['in', 'ID', $_POST['ruang_perpus']])->asArray()->All();
-                    $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['ruang_perpus'] = $groupValue;
-                }else{$VALUE['ruang_perpus'] = array('Semua');}
-            }
-                if ($value != "0" ) {
+                if ($value != "0") {
                     $ruang = Locations::findOne(['ID' => $value]);
-                    $andValue .= ' AND lokasi_ruang LIKE "'.$ruang->Name.'" ';
+                    if ($ruang) {
+                        $nilaiRuang[] = ' (lok_ruang LIKE "%' . addslashes($ruang->Name) . '%" OR lokasi_ruang LIKE "%' . addslashes($ruang->Name) . '%") ';
+                        $groupValue[] = $ruang->Name;
+                    }
                 }
+            }
+            if (!empty($groupValue)) {
+                $VALUE['ruang_perpus'] = $groupValue;
+            } else {
+                $VALUE['ruang_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiRuang)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiRuang) . ') ';
+            }
         }
 
         if (isset($_POST['tujuan'])) {
@@ -1103,18 +1134,26 @@ public function actionExportExcelOdtKunjunganPeriodikData()
         }
 
         if (isset($_POST['lokasi_perpus'])) {
+            $groupValue = array();
+            $nilaiAndValue = array();
             foreach ($_POST['lokasi_perpus'] as $key => $value) {
-                $lokasi = LocationLibrary::findOne(['ID' => $value]);
-                $nilaiAndValue[] = " lokasi_perpus LIKE '%".$lokasi->Name."%'";
-                $Value2[] .= $lokasi->Name;
-                if (!in_array('0',$_POST['lokasi_perpus'])) {
-                    $test = LocationLibrary::find()->where(['LIKE', 'Name', $lokasi->Name])->limit(1)->asArray()->All();
-                     $groupValue = array();
-                     $groupValue[$t] = implode("','",$Value2);
-                    $VALUE['lokasi_perpus'] = $groupValue;
-                    }else{$VALUE['lokasi_perpus'] = array('Semua');}
-                }if ($value != "0" ) {$andValue .= ' AND '.implode('OR ',$nilaiAndValue);}
+                if ($value != "0") {
+                    $lokasi = LocationLibrary::findOne(['ID' => $value]);
+                    if ($lokasi) {
+                        $nilaiAndValue[] = ' (lokasi LIKE "%' . addslashes($lokasi->Name) . '%" OR lokasi_perpus LIKE "%' . addslashes($lokasi->Name) . '%") ';
+                        $groupValue[] = $lokasi->Name;
+                    }
+                }
             }
+            if (!empty($groupValue)) {
+                $VALUE['lokasi_perpus'] = $groupValue;
+            } else {
+                $VALUE['lokasi_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiAndValue)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiAndValue) . ') ';
+            }
+        }
             
 
         $genderValue = '0';
@@ -1139,15 +1178,17 @@ public function actionExportExcelOdtKunjunganPeriodikData()
                 }
         }
 
-        $sql = "SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, gender2, pekerjaan, pendidikan, tujuan, info
+        $sql = "SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, gender2, pekerjaan, pendidikan, tujuan, info
                 FROM(
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, gender2, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, gender2, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'anggota' AS ket,
                 DATE_FORMAT(memberguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 memberguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 memberguesses.NoAnggota AS no_pengunjung,
                 memberguesses.Nama AS nama,
                 jenis_kelamin.Name AS gender,
@@ -1168,13 +1209,15 @@ public function actionExportExcelOdtKunjunganPeriodikData()
                 WHERE memberguesses.NoAnggota IS NOT NULL AND members.MemberNo IS NOT NULL ".$tujuan.$andGenderValue2."
                 ) member
                 UNION ALL
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, gender2, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, gender2, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'non anggota' AS ket,
                 DATE_FORMAT(memberguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 memberguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 memberguesses.NoPengunjung AS no_pengunjung,
                 memberguesses.Nama AS nama,
                 jenis_kelamin.Name AS gender,
@@ -1194,13 +1237,15 @@ public function actionExportExcelOdtKunjunganPeriodikData()
                 WHERE memberguesses.NoAnggota IS NULL ".$tujuan.$andGenderValue."
                 ) non_member
                 UNION ALL
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, gender2, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, gender2, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'rombongan' AS ket,
                 DATE_FORMAT(groupguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 groupguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 groupguesses.NoPengunjung AS no_pengunjung,
                 groupguesses.NamaKetua AS nama,
                 CONCAT(groupguesses.CountLaki, ' Laki-laki') AS gender,
@@ -1237,10 +1282,14 @@ public function actionExportExcelOdtKunjunganPeriodikData()
     $format_hari = $periode;
 
     $Berdasarkan = array();
+    if (!empty($VALUE) && is_array($VALUE)) {
         foreach ($VALUE as $key => $value) {
-            $Berdasarkan[] .= $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+            if (is_array($value) && !empty($value)) {
+                $Berdasarkan[] = $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+            }
         }
-        $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
+    }
+    $Berdasarkan = !empty($Berdasarkan) ? implode(yii::t('app',' dan '), $Berdasarkan) : yii::t('app','Semua');
 
     $headers = Yii::getAlias('@webroot','/teeeesst');
 
@@ -1301,6 +1350,7 @@ public function actionExportWordKunjunganPeriodikData()
     // $model = Opaclogs::find()->All();
 
         $_POST =  $_SESSION['Array_POST_Filter'];
+        $VALUE = array();
         $andValue = '';
         $tujuan = '';
         $sqlPeriode = '';
@@ -1336,37 +1386,35 @@ public function actionExportWordKunjunganPeriodikData()
 
         $inValue = array();
         if (isset($_POST['anggota']) == true) {
-                
-                    $inValue[] =  '"anggota"';
-                
-            }    
+            $inValue[] =  '"anggota"';
+        }    
         if (isset($_POST['non_anggota']) == true) {
-                
-                    $inValue[]=  '"non anggota"';
-                
-            }        
+            $inValue[]=  '"non anggota"';
+        }        
         if (isset($_POST['rombongan']) == true) {
-                
-                    $inValue[] =  '"rombongan"';
-                
-            }
+            $inValue[] =  '"rombongan"';
+        }
         
         if (isset($_POST['ruang_perpus'])) {
+            $groupValue = array();
+            $nilaiRuang = array();
             foreach ($_POST['ruang_perpus'] as $key => $value) {
-                $Value[] .= "'".$value."'";
-                if (!in_array('0',$_POST['ruang_perpus'])) {
-                    $test = Locations::find()->where(['in', 'ID', $_POST['ruang_perpus']])->asArray()->All();
-                    $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['ruang_perpus'] = $groupValue;
-                }else{$VALUE['ruang_perpus'] = array('Semua');}
-            }
-                if ($value != "0" ) {
+                if ($value != "0") {
                     $ruang = Locations::findOne(['ID' => $value]);
-                    $andValue .= ' AND lokasi_ruang LIKE "'.$ruang->Name.'" ';
+                    if ($ruang) {
+                        $nilaiRuang[] = ' (lok_ruang LIKE "%' . addslashes($ruang->Name) . '%" OR lokasi_ruang LIKE "%' . addslashes($ruang->Name) . '%") ';
+                        $groupValue[] = $ruang->Name;
+                    }
                 }
+            }
+            if (!empty($groupValue)) {
+                $VALUE['ruang_perpus'] = $groupValue;
+            } else {
+                $VALUE['ruang_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiRuang)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiRuang) . ') ';
+            }
         }
 
         if (isset($_POST['tujuan'])) {
@@ -1379,18 +1427,26 @@ public function actionExportWordKunjunganPeriodikData()
         }
 
         if (isset($_POST['lokasi_perpus'])) {
+            $groupValue = array();
+            $nilaiAndValue = array();
             foreach ($_POST['lokasi_perpus'] as $key => $value) {
-                $lokasi = LocationLibrary::findOne(['ID' => $value]);
-                $nilaiAndValue[] = " lokasi_perpus LIKE '%".$lokasi->Name."%'";
-                $Value2[] .= $lokasi->Name;
-                if (!in_array('0',$_POST['lokasi_perpus'])) {
-                    $test = LocationLibrary::find()->where(['LIKE', 'Name', $lokasi->Name])->limit(1)->asArray()->All();
-                     $groupValue = array();
-                     $groupValue[$t] = implode("','",$Value2);
-                    $VALUE['lokasi_perpus'] = $groupValue;
-                    }else{$VALUE['lokasi_perpus'] = array('Semua');}
-                }if ($value != "0" ) {$andValue .= ' AND '.implode('OR ',$nilaiAndValue);}
+                if ($value != "0") {
+                    $lokasi = LocationLibrary::findOne(['ID' => $value]);
+                    if ($lokasi) {
+                        $nilaiAndValue[] = ' (lokasi LIKE "%' . addslashes($lokasi->Name) . '%" OR lokasi_perpus LIKE "%' . addslashes($lokasi->Name) . '%") ';
+                        $groupValue[] = $lokasi->Name;
+                    }
+                }
             }
+            if (!empty($groupValue)) {
+                $VALUE['lokasi_perpus'] = $groupValue;
+            } else {
+                $VALUE['lokasi_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiAndValue)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiAndValue) . ') ';
+            }
+        }
             
 
         $genderValue = '0';
@@ -1415,15 +1471,17 @@ public function actionExportWordKunjunganPeriodikData()
                 }
         }
 
-        $sql = "SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+        $sql = "SELECT ket, tgl_kunjungan, periode, lokasi, lokasi as lokasi_perpus, lok_ruang, lok_ruang as lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'anggota' AS ket,
                 DATE_FORMAT(memberguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 memberguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 memberguesses.NoAnggota AS no_pengunjung,
                 memberguesses.Nama AS nama,
                 jenis_kelamin.Name AS gender,
@@ -1443,13 +1501,15 @@ public function actionExportWordKunjunganPeriodikData()
                 WHERE memberguesses.NoAnggota IS NOT NULL AND members.MemberNo IS NOT NULL ".$tujuan.$andGenderValue2."
                 ) member
                 UNION ALL
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'non anggota' AS ket,
                 DATE_FORMAT(memberguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 memberguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 memberguesses.NoPengunjung AS no_pengunjung,
                 memberguesses.Nama AS nama,
                 jenis_kelamin.Name AS gender,
@@ -1468,13 +1528,15 @@ public function actionExportWordKunjunganPeriodikData()
                 WHERE memberguesses.NoAnggota IS NULL ".$tujuan.$andGenderValue."
                 ) non_member
                 UNION ALL
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'rombongan' AS ket,
                 DATE_FORMAT(groupguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 groupguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 groupguesses.NoPengunjung AS no_pengunjung,
                 groupguesses.NamaKetua AS nama,
                 CONCAT(IFNULL(CONCAT(groupguesses.CountLaki, ' Laki-laki'),''),'<br>', IFNULL(CONCAT(groupguesses.CountPerempuan, ' Perempuan'),'')) AS gender,
@@ -1498,9 +1560,8 @@ public function actionExportWordKunjunganPeriodikData()
                 WHERE tgl_kunjungan ";
         
         $sql .= $sqlPeriode;
-        $inValue = implode(',', $inValue);
-        if($inValue != ''){
-        $sql .= 'AND ket IN ('.$inValue.')';
+        if (!empty($inValue)) {
+            $sql .= ' AND ket IN (' . implode(',', $inValue) . ')';
         }
         $sql .= $andValue;
         $sql .= ' ORDER BY tgl_kunjungan ASC';
@@ -1510,9 +1571,12 @@ public function actionExportWordKunjunganPeriodikData()
     $format_hari = $format_hari;
 
     $Berdasarkan = array();
+    if (!empty($VALUE) && is_array($VALUE)) {
         foreach ($VALUE as $key => $value) {
-            $Berdasarkan[] .= $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+            $valText = is_array($value) ? implode(yii::t('app',' , '), $value) : $value;
+            $Berdasarkan[] = $this->getRealNameKriteria($key).' (\''.$valText.'\')';
         }
+    }
     $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
 
     $type = $_GET['type'];
@@ -1576,6 +1640,7 @@ public function actionExportWordKunjunganPeriodikData()
 public function actionExportPdfKunjunganPeriodikData() 
     {
         $_POST =  $_SESSION['Array_POST_Filter'];
+        $VALUE = array();
         $andValue = '';
         $tujuan = '';
         $sqlPeriode = '';
@@ -1611,37 +1676,35 @@ public function actionExportPdfKunjunganPeriodikData()
 
         $inValue = array();
         if (isset($_POST['anggota']) == true) {
-                
-                    $inValue[] =  '"anggota"';
-                
-            }    
+            $inValue[] =  '"anggota"';
+        }    
         if (isset($_POST['non_anggota']) == true) {
-                
-                    $inValue[]=  '"non anggota"';
-                
-            }        
+            $inValue[]=  '"non anggota"';
+        }        
         if (isset($_POST['rombongan']) == true) {
-                
-                    $inValue[] =  '"rombongan"';
-                
-            }
+            $inValue[] =  '"rombongan"';
+        }
         
         if (isset($_POST['ruang_perpus'])) {
+            $groupValue = array();
+            $nilaiRuang = array();
             foreach ($_POST['ruang_perpus'] as $key => $value) {
-                $Value[] .= "'".$value."'";
-                if (!in_array('0',$_POST['ruang_perpus'])) {
-                    $test = Locations::find()->where(['in', 'ID', $_POST['ruang_perpus']])->asArray()->All();
-                    $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['ruang_perpus'] = $groupValue;
-                }else{$VALUE['ruang_perpus'] = array('Semua');}
-            }
-                if ($value != "0" ) {
+                if ($value != "0") {
                     $ruang = Locations::findOne(['ID' => $value]);
-                    $andValue .= ' AND lokasi_ruang LIKE "'.$ruang->Name.'" ';
+                    if ($ruang) {
+                        $nilaiRuang[] = ' (lok_ruang LIKE "%' . addslashes($ruang->Name) . '%" OR lokasi_ruang LIKE "%' . addslashes($ruang->Name) . '%") ';
+                        $groupValue[] = $ruang->Name;
+                    }
                 }
+            }
+            if (!empty($groupValue)) {
+                $VALUE['ruang_perpus'] = $groupValue;
+            } else {
+                $VALUE['ruang_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiRuang)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiRuang) . ') ';
+            }
         }
 
         if (isset($_POST['tujuan'])) {
@@ -1654,19 +1717,26 @@ public function actionExportPdfKunjunganPeriodikData()
         }
 
         if (isset($_POST['lokasi_perpus'])) {
+            $groupValue = array();
+            $nilaiAndValue = array();
             foreach ($_POST['lokasi_perpus'] as $key => $value) {
-                $lokasi = LocationLibrary::findOne(['ID' => $value]);
-                $nilaiAndValue[] = " lokasi_perpus LIKE '%".$lokasi->Name."%'";
-                $Value2[] .= $lokasi->Name;
-                if (!in_array('0',$_POST['lokasi_perpus'])) {
-                    $test = LocationLibrary::find()->where(['LIKE', 'Name', $lokasi->Name])->limit(1)->asArray()->All();
-                     $groupValue = array();
-                     $groupValue[$t] = implode("','",$Value2);
-                    $VALUE['lokasi_perpus'] = $groupValue;
-                    }else{$VALUE['lokasi_perpus'] = array('Semua');}
-                }if ($value != "0" ) {$andValue .= ' AND '.implode('OR ',$nilaiAndValue);}
+                if ($value != "0") {
+                    $lokasi = LocationLibrary::findOne(['ID' => $value]);
+                    if ($lokasi) {
+                        $nilaiAndValue[] = ' (lokasi LIKE "%' . addslashes($lokasi->Name) . '%" OR lokasi_perpus LIKE "%' . addslashes($lokasi->Name) . '%") ';
+                        $groupValue[] = $lokasi->Name;
+                    }
+                }
             }
-            
+            if (!empty($groupValue)) {
+                $VALUE['lokasi_perpus'] = $groupValue;
+            } else {
+                $VALUE['lokasi_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiAndValue)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiAndValue) . ') ';
+            }
+        }
 
         $genderValue = '0';
         if (isset($_POST['jenis_kelamin'])) {
@@ -1675,30 +1745,34 @@ public function actionExportPdfKunjunganPeriodikData()
                 if (!in_array('0',$_POST['jenis_kelamin'])) {
                     $test = JenisKelamin::find()->where(['in', 'ID', $_POST['jenis_kelamin']])->asArray()->All();
                     $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['jenis_kelamin'] = $groupValue;
-                    }else{$VALUE['jenis_kelamin'] = array('Semua');}
-            }
-                if ($value != null ) {
-                    $genderValue = addslashes($value);
-                    if ($value != 0) {
-                        $andGenderValue .= ' AND memberguesses.JenisKelamin_id = "'.addslashes($value).'" ';
-                        $andGenderValue2 .= ' AND members.Sex_id = "'.addslashes($value).'" ';
+                    foreach ($test as $t => $tval) {
+                        $groupValue[$t] = $tval['Name'];
                     }
+                    $VALUE['jenis_kelamin'] = $groupValue;
+                } else {
+                    $VALUE['jenis_kelamin'] = array('Semua');
                 }
+            }
+            if ($value != null ) {
+                $genderValue = addslashes($value);
+                if ($value != 0) {
+                    $andGenderValue .= ' AND memberguesses.JenisKelamin_id = "'.addslashes($value).'" ';
+                    $andGenderValue2 .= ' AND members.Sex_id = "'.addslashes($value).'" ';
+                }
+            }
         }
         
-        $sql = "SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+        $sql = "SELECT ket, tgl_kunjungan, periode, lokasi, lokasi as lokasi_perpus, lok_ruang, lok_ruang as lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'anggota' AS ket,
                 DATE_FORMAT(memberguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 memberguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 memberguesses.NoAnggota AS no_pengunjung,
                 memberguesses.Nama AS nama,
                 jenis_kelamin.Name AS gender,
@@ -1718,13 +1792,15 @@ public function actionExportPdfKunjunganPeriodikData()
                 WHERE memberguesses.NoAnggota IS NOT NULL AND members.MemberNo IS NOT NULL ".$tujuan.$andGenderValue2."
                 ) member
                 UNION ALL
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'non anggota' AS ket,
                 DATE_FORMAT(memberguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 memberguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 memberguesses.NoPengunjung AS no_pengunjung,
                 memberguesses.Nama AS nama,
                 jenis_kelamin.Name AS gender,
@@ -1743,13 +1819,15 @@ public function actionExportPdfKunjunganPeriodikData()
                 WHERE memberguesses.NoAnggota IS NULL ".$tujuan.$andGenderValue."
                 ) non_member
                 UNION ALL
-                SELECT ket, tgl_kunjungan, periode, lokasi, lok_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
+                SELECT ket, tgl_kunjungan, periode, lokasi, lokasi_perpus, lok_ruang, lokasi_ruang, no_pengunjung, nama, gender, pekerjaan, pendidikan, tujuan, info
                 FROM(
                 SELECT 'rombongan' AS ket,
                 DATE_FORMAT(groupguesses.CreateDate, '%Y-%m-%d') AS tgl_kunjungan,
                 groupguesses.CreateDate AS periode,
                 location_library.Name AS lokasi,
+                location_library.Name AS lokasi_perpus,
                 locations.Name AS lok_ruang,
+                locations.Name AS lokasi_ruang,
                 groupguesses.NoPengunjung AS no_pengunjung,
                 groupguesses.NamaKetua AS nama,
                 CONCAT(IFNULL(CONCAT(groupguesses.CountLaki, ' Laki-laki'),''),'<br>', IFNULL(CONCAT(groupguesses.CountPerempuan, ' Perempuan'),'')) AS gender,
@@ -1772,20 +1850,20 @@ public function actionExportPdfKunjunganPeriodikData()
                 ) group_guess ) test
                 WHERE tgl_kunjungan ";
         $sql .= $sqlPeriode;
-        $inValue = implode(',', $inValue);
-        if($inValue != ''){
-        $sql .= 'AND ket IN ('.$inValue.')';
+        if (!empty($inValue)) {
+            $sql .= ' AND ket IN (' . implode(',', $inValue) . ')';
         }
         $sql .= $andValue;
         $sql .= ' ORDER BY tgl_kunjungan ASC';
 
         $data = Yii::$app->db->createCommand($sql)->queryAll(); 
-// print_r($sql);
-// die;
 
         $Berdasarkan = array();
-        foreach ($VALUE as $key => $value) {
-            $Berdasarkan[] .= $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+        if (!empty($VALUE) && is_array($VALUE)) {
+            foreach ($VALUE as $key => $value) {
+                $valText = is_array($value) ? implode(yii::t('app',' , '), $value) : $value;
+                $Berdasarkan[] = $this->getRealNameKriteria($key).' (\''.$valText.'\')';
+            }
         }
         $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
 
@@ -4355,6 +4433,7 @@ public function actionRenderKunjunganPeriodikFrekuensi()
     {
 
         $_POST =  $_SESSION['Array_POST_Filter'];
+        $VALUE = array();
         $andValue = '';
         $sqlPeriode = '';
         $tujuan = '';
@@ -4393,37 +4472,35 @@ public function actionRenderKunjunganPeriodikFrekuensi()
 
         $inValue = array();
         if (isset($_POST['anggota']) == true) {
-                
-                    $inValue[] =  '"anggota"';
-                
-            }    
+            $inValue[] =  '"anggota"';
+        }    
         if (isset($_POST['non_anggota']) == true) {
-                
-                    $inValue[]=  '"non anggota"';
-                
-            }        
+            $inValue[]=  '"non anggota"';
+        }        
         if (isset($_POST['rombongan']) == true) {
-                
-                    $inValue[] =  '"rombongan"';
-                
-            }
+            $inValue[] =  '"rombongan"';
+        }
         
         if (isset($_POST['ruang_perpus'])) {
+            $groupValue = array();
+            $nilaiRuang = array();
             foreach ($_POST['ruang_perpus'] as $key => $value) {
-                $Value[] .= "'".$value."'";
-                if (!in_array('0',$_POST['ruang_perpus'])) {
-                    $test = Locations::find()->where(['in', 'ID', $_POST['ruang_perpus']])->asArray()->All();
-                    $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['ruang_perpus'] = $groupValue;
-                }else{$VALUE['ruang_perpus'] = array('Semua');}
-            }
-                if ($value != "0" ) {
+                if ($value != "0") {
                     $ruang = Locations::findOne(['ID' => $value]);
-                    $andValue .= ' AND lokasi_ruang LIKE "'.$ruang->Name.'" ';
+                    if ($ruang) {
+                        $nilaiRuang[] = ' (lokasi_ruang LIKE "%' . addslashes($ruang->Name) . '%" OR lok_ruang LIKE "%' . addslashes($ruang->Name) . '%") ';
+                        $groupValue[] = $ruang->Name;
+                    }
                 }
+            }
+            if (!empty($groupValue)) {
+                $VALUE['ruang_perpus'] = $groupValue;
+            } else {
+                $VALUE['ruang_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiRuang)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiRuang) . ') ';
+            }
         }
 
         if (isset($_POST['tujuan'])) {
@@ -4436,19 +4513,26 @@ public function actionRenderKunjunganPeriodikFrekuensi()
         }
 
         if (isset($_POST['lokasi_perpus'])) {
+            $groupValue = array();
+            $nilaiAndValue = array();
             foreach ($_POST['lokasi_perpus'] as $key => $value) {
-                $lokasi = LocationLibrary::findOne(['ID' => $value]);
-                $nilaiAndValue[] = " lokasi_perpus LIKE '%".$lokasi->Name."%'";
-                $Value2[] .= $lokasi->Name;
-                if (!in_array('0',$_POST['lokasi_perpus'])) {
-                    $test = LocationLibrary::find()->where(['LIKE', 'Name', $lokasi->Name])->limit(1)->asArray()->All();
-                     $groupValue = array();
-                     $groupValue[$t] = implode("','",$Value2);
-                    $VALUE['lokasi_perpus'] = $groupValue;
-                    }else{$VALUE['lokasi_perpus'] = array('Semua');}
-                }if ($value != "0" ) {$andValue .= ' AND '.implode('OR ',$nilaiAndValue);}
+                if ($value != "0") {
+                    $lokasi = LocationLibrary::findOne(['ID' => $value]);
+                    if ($lokasi) {
+                        $nilaiAndValue[] = ' (lokasi_perpus LIKE "%' . addslashes($lokasi->Name) . '%" OR lokasi LIKE "%' . addslashes($lokasi->Name) . '%") ';
+                        $groupValue[] = $lokasi->Name;
+                    }
+                }
             }
-            
+            if (!empty($groupValue)) {
+                $VALUE['lokasi_perpus'] = $groupValue;
+            } else {
+                $VALUE['lokasi_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiAndValue)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiAndValue) . ') ';
+            }
+        }
 
         $genderValue = '0';
         if (isset($_POST['jenis_kelamin'])) {
@@ -4457,19 +4541,21 @@ public function actionRenderKunjunganPeriodikFrekuensi()
                 if (!in_array('0',$_POST['jenis_kelamin'])) {
                     $test = JenisKelamin::find()->where(['in', 'ID', $_POST['jenis_kelamin']])->asArray()->All();
                     $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['jenis_kelamin'] = $groupValue;
-                    }else{$VALUE['jenis_kelamin'] = array('Semua');}
-            }
-                if ($value != null ) {
-                    $genderValue = addslashes($value);
-                    if ($value != 0) {
-                        $andGenderValue .= ' AND memberguesses.JenisKelamin_id = "'.addslashes($value).'" ';
-                        $andGenderValue2 .= ' AND members.Sex_id = "'.addslashes($value).'" ';
+                    foreach ($test as $t => $tval) {
+                        $groupValue[$t] = $tval['Name'];
                     }
+                    $VALUE['jenis_kelamin'] = $groupValue;
+                } else {
+                    $VALUE['jenis_kelamin'] = array('Semua');
                 }
+            }
+            if ($value != null ) {
+                $genderValue = addslashes($value);
+                if ($value != 0) {
+                    $andGenderValue .= ' AND memberguesses.JenisKelamin_id = "'.addslashes($value).'" ';
+                    $andGenderValue2 .= ' AND members.Sex_id = "'.addslashes($value).'" ';
+                }
+            }
         }
 
         $sql = "SELECT ket, Periode, Periodes, lokasi_perpus, lokasi_ruang, jum_anggota, jum_non_anggota, rombongan 
@@ -4598,21 +4684,20 @@ public function actionRenderKunjunganPeriodikFrekuensi()
                 WHERE Periode ";
         
         $sql .= $sqlPeriode;
-        $inValue = implode(',', $inValue);
-        if($inValue != ''){
-        $sql .= 'AND ket IN ('.$inValue.')';
+        if (!empty($inValue)) {
+            $sql .= ' AND ket IN (' . implode(',', $inValue) . ')';
         }
         $sql .= $andValue;
         $sql .= ' ORDER BY Periode ASC';
 
-
-
         $data = Yii::$app->db->createCommand($sql)->queryAll(); 
-// echo $sql;
-// die;
+
         $Berdasarkan = array();
-        foreach ($VALUE as $key => $value) {
-            $Berdasarkan[] .= $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+        if (!empty($VALUE) && is_array($VALUE)) {
+            foreach ($VALUE as $key => $value) {
+                $valText = is_array($value) ? implode(yii::t('app',' , '), $value) : $value;
+                $Berdasarkan[] = $this->getRealNameKriteria($key).' (\''.$valText.'\')';
+            }
         }
         $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
 
@@ -4657,6 +4742,7 @@ public function actionExportExcelKunjunganPeriodikFrekuensi()
     // $model = Opaclogs::find()->All();
 
         $_POST =  $_SESSION['Array_POST_Filter'];
+        $VALUE = array();
         $andValue = '';
         $tujuan = '';
         $sqlPeriode = '';
@@ -4695,37 +4781,35 @@ public function actionExportExcelKunjunganPeriodikFrekuensi()
 
         $inValue = array();
         if (isset($_POST['anggota']) == true) {
-                
-                    $inValue[] =  '"anggota"';
-                
-            }    
+            $inValue[] =  '"anggota"';
+        }    
         if (isset($_POST['non_anggota']) == true) {
-                
-                    $inValue[]=  '"non anggota"';
-                
-            }        
+            $inValue[]=  '"non anggota"';
+        }        
         if (isset($_POST['rombongan']) == true) {
-                
-                    $inValue[] =  '"rombongan"';
-                
-            }
+            $inValue[] =  '"rombongan"';
+        }
         
         if (isset($_POST['ruang_perpus'])) {
+            $groupValue = array();
+            $nilaiRuang = array();
             foreach ($_POST['ruang_perpus'] as $key => $value) {
-                $Value[] .= "'".$value."'";
-                if (!in_array('0',$_POST['ruang_perpus'])) {
-                    $test = Locations::find()->where(['in', 'ID', $_POST['ruang_perpus']])->asArray()->All();
-                    $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['ruang_perpus'] = $groupValue;
-                }else{$VALUE['ruang_perpus'] = array('Semua');}
-            }
-                if ($value != "0" ) {
+                if ($value != "0") {
                     $ruang = Locations::findOne(['ID' => $value]);
-                    $andValue .= ' AND lokasi_ruang LIKE "'.$ruang->Name.'" ';
+                    if ($ruang) {
+                        $nilaiRuang[] = ' (lokasi_ruang LIKE "%' . addslashes($ruang->Name) . '%" OR lok_ruang LIKE "%' . addslashes($ruang->Name) . '%") ';
+                        $groupValue[] = $ruang->Name;
+                    }
                 }
+            }
+            if (!empty($groupValue)) {
+                $VALUE['ruang_perpus'] = $groupValue;
+            } else {
+                $VALUE['ruang_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiRuang)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiRuang) . ') ';
+            }
         }
 
         if (isset($_POST['tujuan'])) {
@@ -4738,19 +4822,26 @@ public function actionExportExcelKunjunganPeriodikFrekuensi()
         }
 
         if (isset($_POST['lokasi_perpus'])) {
+            $groupValue = array();
+            $nilaiAndValue = array();
             foreach ($_POST['lokasi_perpus'] as $key => $value) {
-                $lokasi = LocationLibrary::findOne(['ID' => $value]);
-                $nilaiAndValue[] = " lokasi_perpus LIKE '%".$lokasi->Name."%'";
-                $Value2[] .= $lokasi->Name;
-                if (!in_array('0',$_POST['lokasi_perpus'])) {
-                    $test = LocationLibrary::find()->where(['LIKE', 'Name', $lokasi->Name])->limit(1)->asArray()->All();
-                     $groupValue = array();
-                     $groupValue[$t] = implode("','",$Value2);
-                    $VALUE['lokasi_perpus'] = $groupValue;
-                    }else{$VALUE['lokasi_perpus'] = array('Semua');}
-                }if ($value != "0" ) {$andValue .= ' AND '.implode('OR ',$nilaiAndValue);}
+                if ($value != "0") {
+                    $lokasi = LocationLibrary::findOne(['ID' => $value]);
+                    if ($lokasi) {
+                        $nilaiAndValue[] = ' (lokasi_perpus LIKE "%' . addslashes($lokasi->Name) . '%" OR lokasi LIKE "%' . addslashes($lokasi->Name) . '%") ';
+                        $groupValue[] = $lokasi->Name;
+                    }
+                }
             }
-            
+            if (!empty($groupValue)) {
+                $VALUE['lokasi_perpus'] = $groupValue;
+            } else {
+                $VALUE['lokasi_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiAndValue)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiAndValue) . ') ';
+            }
+        }
 
         $genderValue = '0';
         if (isset($_POST['jenis_kelamin'])) {
@@ -4759,19 +4850,21 @@ public function actionExportExcelKunjunganPeriodikFrekuensi()
                 if (!in_array('0',$_POST['jenis_kelamin'])) {
                     $test = JenisKelamin::find()->where(['in', 'ID', $_POST['jenis_kelamin']])->asArray()->All();
                     $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['jenis_kelamin'] = $groupValue;
-                    }else{$VALUE['jenis_kelamin'] = array('Semua');}
-            }
-                if ($value != null ) {
-                    $genderValue = addslashes($value);
-                    if ($value != 0) {
-                        $andGenderValue .= ' AND memberguesses.JenisKelamin_id = "'.addslashes($value).'" ';
-                        $andGenderValue2 .= ' AND members.Sex_id = "'.addslashes($value).'" ';
+                    foreach ($test as $t => $tval) {
+                        $groupValue[$t] = $tval['Name'];
                     }
+                    $VALUE['jenis_kelamin'] = $groupValue;
+                } else {
+                    $VALUE['jenis_kelamin'] = array('Semua');
                 }
+            }
+            if ($value != null ) {
+                $genderValue = addslashes($value);
+                if ($value != 0) {
+                    $andGenderValue .= ' AND memberguesses.JenisKelamin_id = "'.addslashes($value).'" ';
+                    $andGenderValue2 .= ' AND members.Sex_id = "'.addslashes($value).'" ';
+                }
+            }
         }
 
         $sql = "SELECT ket, Periode, Periodes, lokasi_perpus, lokasi_ruang, jum_anggota, jum_non_anggota, rombongan 
@@ -4899,27 +4992,26 @@ public function actionExportExcelKunjunganPeriodikFrekuensi()
                 WHERE Periode ";
 
     $sql .= $sqlPeriode;
-        $inValue = implode(',', $inValue);
-        if($inValue != ''){
-        $sql .= 'AND ket IN ('.$inValue.')';
-        }
-        $sql .= $andValue;
-        $sql .= ' ORDER BY Periode ASC';
+    if (!empty($inValue)) {
+        $sql .= ' AND ket IN (' . implode(',', $inValue) . ')';
+    }
+    $sql .= $andValue;
+    $sql .= ' ORDER BY Periode ASC';
 
     $model = Yii::$app->db->createCommand($sql)->queryAll(); 
     $periode2 = $periode2;
     $format_hari = $periode;
 
     $Berdasarkan = array();
+    if (!empty($VALUE) && is_array($VALUE)) {
         foreach ($VALUE as $key => $value) {
-            $Berdasarkan[] .= $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+            $valText = is_array($value) ? implode(yii::t('app',' , '), $value) : $value;
+            $Berdasarkan[] = $this->getRealNameKriteria($key).' (\''.$valText.'\')';
         }
-        $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
+    }
+    $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
 
-$headers = Yii::getAlias('@webroot','/teeeesst');
-// $headers = Yii::$app->urlManager->createUrl('@app',"../uploaded_files/aplikasi/kop.png");
-// print_r($headers);
-// die;
+    $headers = Yii::getAlias('@webroot','/teeeesst');
 
 
     $filename = 'Laporan_Periodik_Frekuensi.xls';
@@ -4998,6 +5090,7 @@ public function actionExportExcelOdtKunjunganPeriodikFrekuensi()
     // $model = Opaclogs::find()->All();
 
         $_POST =  $_SESSION['Array_POST_Filter'];
+        $VALUE = array();
         $andValue = '';
         $tujuan = '';
         $sqlPeriode = '';
@@ -5036,37 +5129,35 @@ public function actionExportExcelOdtKunjunganPeriodikFrekuensi()
 
         $inValue = array();
         if (isset($_POST['anggota']) == true) {
-                
-                    $inValue[] =  '"anggota"';
-                
-            }    
+            $inValue[] =  '"anggota"';
+        }    
         if (isset($_POST['non_anggota']) == true) {
-                
-                    $inValue[]=  '"non anggota"';
-                
-            }        
+            $inValue[]=  '"non anggota"';
+        }        
         if (isset($_POST['rombongan']) == true) {
-                
-                    $inValue[] =  '"rombongan"';
-                
-            }
+            $inValue[] =  '"rombongan"';
+        }
         
         if (isset($_POST['ruang_perpus'])) {
+            $groupValue = array();
+            $nilaiRuang = array();
             foreach ($_POST['ruang_perpus'] as $key => $value) {
-                $Value[] .= "'".$value."'";
-                if (!in_array('0',$_POST['ruang_perpus'])) {
-                    $test = Locations::find()->where(['in', 'ID', $_POST['ruang_perpus']])->asArray()->All();
-                    $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['ruang_perpus'] = $groupValue;
-                }else{$VALUE['ruang_perpus'] = array('Semua');}
-            }
-                if ($value != "0" ) {
+                if ($value != "0") {
                     $ruang = Locations::findOne(['ID' => $value]);
-                    $andValue .= ' AND lokasi_ruang LIKE "'.$ruang->Name.'" ';
+                    if ($ruang) {
+                        $nilaiRuang[] = ' (lokasi_ruang LIKE "%' . addslashes($ruang->Name) . '%" OR lok_ruang LIKE "%' . addslashes($ruang->Name) . '%") ';
+                        $groupValue[] = $ruang->Name;
+                    }
                 }
+            }
+            if (!empty($groupValue)) {
+                $VALUE['ruang_perpus'] = $groupValue;
+            } else {
+                $VALUE['ruang_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiRuang)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiRuang) . ') ';
+            }
         }
 
         if (isset($_POST['tujuan'])) {
@@ -5079,19 +5170,26 @@ public function actionExportExcelOdtKunjunganPeriodikFrekuensi()
         }
 
         if (isset($_POST['lokasi_perpus'])) {
+            $groupValue = array();
+            $nilaiAndValue = array();
             foreach ($_POST['lokasi_perpus'] as $key => $value) {
-                $lokasi = LocationLibrary::findOne(['ID' => $value]);
-                $nilaiAndValue[] = " lokasi_perpus LIKE '%".$lokasi->Name."%'";
-                $Value2[] .= $lokasi->Name;
-                if (!in_array('0',$_POST['lokasi_perpus'])) {
-                    $test = LocationLibrary::find()->where(['LIKE', 'Name', $lokasi->Name])->limit(1)->asArray()->All();
-                     $groupValue = array();
-                     $groupValue[$t] = implode("','",$Value2);
-                    $VALUE['lokasi_perpus'] = $groupValue;
-                    }else{$VALUE['lokasi_perpus'] = array('Semua');}
-                }if ($value != "0" ) {$andValue .= ' AND '.implode('OR ',$nilaiAndValue);}
+                if ($value != "0") {
+                    $lokasi = LocationLibrary::findOne(['ID' => $value]);
+                    if ($lokasi) {
+                        $nilaiAndValue[] = ' (lokasi_perpus LIKE "%' . addslashes($lokasi->Name) . '%" OR lokasi LIKE "%' . addslashes($lokasi->Name) . '%") ';
+                        $groupValue[] = $lokasi->Name;
+                    }
+                }
             }
-            
+            if (!empty($groupValue)) {
+                $VALUE['lokasi_perpus'] = $groupValue;
+            } else {
+                $VALUE['lokasi_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiAndValue)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiAndValue) . ') ';
+            }
+        }
 
         $genderValue = '0';
         if (isset($_POST['jenis_kelamin'])) {
@@ -5100,19 +5198,21 @@ public function actionExportExcelOdtKunjunganPeriodikFrekuensi()
                 if (!in_array('0',$_POST['jenis_kelamin'])) {
                     $test = JenisKelamin::find()->where(['in', 'ID', $_POST['jenis_kelamin']])->asArray()->All();
                     $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['jenis_kelamin'] = $groupValue;
-                    }else{$VALUE['jenis_kelamin'] = array('Semua');}
-            }
-                if ($value != null ) {
-                    $genderValue = addslashes($value);
-                    if ($value != 0) {
-                        $andGenderValue .= ' AND memberguesses.JenisKelamin_id = "'.addslashes($value).'" ';
-                        $andGenderValue2 .= ' AND members.Sex_id = "'.addslashes($value).'" ';
+                    foreach ($test as $t => $tval) {
+                        $groupValue[$t] = $tval['Name'];
                     }
+                    $VALUE['jenis_kelamin'] = $groupValue;
+                } else {
+                    $VALUE['jenis_kelamin'] = array('Semua');
                 }
+            }
+            if ($value != null ) {
+                $genderValue = addslashes($value);
+                if ($value != 0) {
+                    $andGenderValue .= ' AND memberguesses.JenisKelamin_id = "'.addslashes($value).'" ';
+                    $andGenderValue2 .= ' AND members.Sex_id = "'.addslashes($value).'" ';
+                }
+            }
         }
 
         $sql = "SELECT ket, Periode, Periodes, lokasi_perpus, lokasi_ruang, jum_anggota, jum_non_anggota, rombongan 
@@ -5240,9 +5340,8 @@ public function actionExportExcelOdtKunjunganPeriodikFrekuensi()
                 WHERE Periode ";
 
         $sql .= $sqlPeriode;
-        $inValue = implode(',', $inValue);
-        if($inValue != ''){
-        $sql .= 'AND ket IN ('.$inValue.')';
+        if (!empty($inValue)) {
+            $sql .= ' AND ket IN (' . implode(',', $inValue) . ')';
         }
         $sql .= $andValue;
         $sql .= ' ORDER BY Periode ASC';     
@@ -5251,12 +5350,14 @@ public function actionExportExcelOdtKunjunganPeriodikFrekuensi()
     $periode2 = $periode2;
     $format_hari = $periode;
 
-    
     $Berdasarkan = array();
+    if (!empty($VALUE) && is_array($VALUE)) {
         foreach ($VALUE as $key => $value) {
-            $Berdasarkan[] .= $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+            $valText = is_array($value) ? implode(yii::t('app',' , '), $value) : $value;
+            $Berdasarkan[] = $this->getRealNameKriteria($key).' (\''.$valText.'\')';
         }
-        $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
+    }
+    $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
 
     $headers = Yii::getAlias('@webroot','/teeeesst');
 
@@ -5320,6 +5421,7 @@ public function actionExportWordKunjunganPeriodikFrekuensi()
     // $model = Opaclogs::find()->All();
 
         $_POST =  $_SESSION['Array_POST_Filter'];
+        $VALUE = array();
         $andValue = '';
         $tujuan = '';
         $sqlPeriode = '';
@@ -5358,37 +5460,35 @@ public function actionExportWordKunjunganPeriodikFrekuensi()
 
         $inValue = array();
         if (isset($_POST['anggota']) == true) {
-                
-                    $inValue[] =  '"anggota"';
-                
-            }    
+            $inValue[] =  '"anggota"';
+        }    
         if (isset($_POST['non_anggota']) == true) {
-                
-                    $inValue[]=  '"non anggota"';
-                
-            }        
+            $inValue[]=  '"non anggota"';
+        }        
         if (isset($_POST['rombongan']) == true) {
-                
-                    $inValue[] =  '"rombongan"';
-                
-            }
+            $inValue[] =  '"rombongan"';
+        }
         
         if (isset($_POST['ruang_perpus'])) {
+            $groupValue = array();
+            $nilaiRuang = array();
             foreach ($_POST['ruang_perpus'] as $key => $value) {
-                $Value[] .= "'".$value."'";
-                if (!in_array('0',$_POST['ruang_perpus'])) {
-                    $test = Locations::find()->where(['in', 'ID', $_POST['ruang_perpus']])->asArray()->All();
-                    $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['ruang_perpus'] = $groupValue;
-                }else{$VALUE['ruang_perpus'] = array('Semua');}
-            }
-                if ($value != "0" ) {
+                if ($value != "0") {
                     $ruang = Locations::findOne(['ID' => $value]);
-                    $andValue .= ' AND lokasi_ruang LIKE "'.$ruang->Name.'" ';
+                    if ($ruang) {
+                        $nilaiRuang[] = ' (lokasi_ruang LIKE "%' . addslashes($ruang->Name) . '%" OR lok_ruang LIKE "%' . addslashes($ruang->Name) . '%") ';
+                        $groupValue[] = $ruang->Name;
+                    }
                 }
+            }
+            if (!empty($groupValue)) {
+                $VALUE['ruang_perpus'] = $groupValue;
+            } else {
+                $VALUE['ruang_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiRuang)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiRuang) . ') ';
+            }
         }
 
         if (isset($_POST['tujuan'])) {
@@ -5401,19 +5501,26 @@ public function actionExportWordKunjunganPeriodikFrekuensi()
         }
 
         if (isset($_POST['lokasi_perpus'])) {
+            $groupValue = array();
+            $nilaiAndValue = array();
             foreach ($_POST['lokasi_perpus'] as $key => $value) {
-                $lokasi = LocationLibrary::findOne(['ID' => $value]);
-                $nilaiAndValue[] = " lokasi_perpus LIKE '%".$lokasi->Name."%'";
-                $Value2[] .= $lokasi->Name;
-                if (!in_array('0',$_POST['lokasi_perpus'])) {
-                    $test = LocationLibrary::find()->where(['LIKE', 'Name', $lokasi->Name])->limit(1)->asArray()->All();
-                     $groupValue = array();
-                     $groupValue[$t] = implode("','",$Value2);
-                    $VALUE['lokasi_perpus'] = $groupValue;
-                    }else{$VALUE['lokasi_perpus'] = array('Semua');}
-                }if ($value != "0" ) {$andValue .= ' AND '.implode('OR ',$nilaiAndValue);}
+                if ($value != "0") {
+                    $lokasi = LocationLibrary::findOne(['ID' => $value]);
+                    if ($lokasi) {
+                        $nilaiAndValue[] = ' (lokasi_perpus LIKE "%' . addslashes($lokasi->Name) . '%" OR lokasi LIKE "%' . addslashes($lokasi->Name) . '%") ';
+                        $groupValue[] = $lokasi->Name;
+                    }
+                }
             }
-            
+            if (!empty($groupValue)) {
+                $VALUE['lokasi_perpus'] = $groupValue;
+            } else {
+                $VALUE['lokasi_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiAndValue)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiAndValue) . ') ';
+            }
+        }
 
         $genderValue = '0';
         if (isset($_POST['jenis_kelamin'])) {
@@ -5422,19 +5529,21 @@ public function actionExportWordKunjunganPeriodikFrekuensi()
                 if (!in_array('0',$_POST['jenis_kelamin'])) {
                     $test = JenisKelamin::find()->where(['in', 'ID', $_POST['jenis_kelamin']])->asArray()->All();
                     $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['jenis_kelamin'] = $groupValue;
-                    }else{$VALUE['jenis_kelamin'] = array('Semua');}
-            }
-                if ($value != null ) {
-                    $genderValue = addslashes($value);
-                    if ($value != 0) {
-                        $andGenderValue .= ' AND memberguesses.JenisKelamin_id = "'.addslashes($value).'" ';
-                        $andGenderValue2 .= ' AND members.Sex_id = "'.addslashes($value).'" ';
+                    foreach ($test as $t => $tval) {
+                        $groupValue[$t] = $tval['Name'];
                     }
+                    $VALUE['jenis_kelamin'] = $groupValue;
+                } else {
+                    $VALUE['jenis_kelamin'] = array('Semua');
                 }
+            }
+            if ($value != null ) {
+                $genderValue = addslashes($value);
+                if ($value != 0) {
+                    $andGenderValue .= ' AND memberguesses.JenisKelamin_id = "'.addslashes($value).'" ';
+                    $andGenderValue2 .= ' AND members.Sex_id = "'.addslashes($value).'" ';
+                }
+            }
         }
 
         $sql = "SELECT ket, Periode, Periodes, lokasi_perpus, lokasi_ruang, jum_anggota, jum_non_anggota, rombongan 
@@ -5562,27 +5671,26 @@ public function actionExportWordKunjunganPeriodikFrekuensi()
                 WHERE Periode ";
 
     $sql .= $sqlPeriode;
-        $inValue = implode(',', $inValue);
-        if($inValue != ''){
-        $sql .= 'AND ket IN ('.$inValue.')';
-        }
-        $sql .= $andValue;
-        $sql .= ' ORDER BY Periode ASC';
+    if (!empty($inValue)) {
+        $sql .= ' AND ket IN (' . implode(',', $inValue) . ')';
+    }
+    $sql .= $andValue;
+    $sql .= ' ORDER BY Periode ASC';
 
     $model = Yii::$app->db->createCommand($sql)->queryAll(); 
     $periode2 = $periode2;
     $format_hari = $periode;
     
     $Berdasarkan = array();
+    if (!empty($VALUE) && is_array($VALUE)) {
         foreach ($VALUE as $key => $value) {
-            $Berdasarkan[] .= $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+            $valText = is_array($value) ? implode(yii::t('app',' , '), $value) : $value;
+            $Berdasarkan[] = $this->getRealNameKriteria($key).' (\''.$valText.'\')';
         }
-        $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
+    }
+    $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
 
-$headers = Yii::getAlias('@webroot','/teeeesst');
-// $headers = Yii::$app->urlManager->createUrl('@app',"../uploaded_files/aplikasi/kop.png");
-// print_r($headers);
-// die;
+    $headers = Yii::getAlias('@webroot','/teeeesst');
 
 
     $type = $_GET['type'];
@@ -5661,6 +5769,7 @@ public function actionExportPdfKunjunganPeriodikFrekuensi()
     {
 
         $_POST =  $_SESSION['Array_POST_Filter'];
+        $VALUE = array();
         $andValue = '';
         $tujuan = '';
         $sqlPeriode = '';
@@ -5699,37 +5808,35 @@ public function actionExportPdfKunjunganPeriodikFrekuensi()
 
         $inValue = array();
         if (isset($_POST['anggota']) == true) {
-                
-                    $inValue[] =  '"anggota"';
-                
-            }    
+            $inValue[] =  '"anggota"';
+        }    
         if (isset($_POST['non_anggota']) == true) {
-                
-                    $inValue[]=  '"non anggota"';
-                
-            }        
+            $inValue[]=  '"non anggota"';
+        }        
         if (isset($_POST['rombongan']) == true) {
-                
-                    $inValue[] =  '"rombongan"';
-                
-            }
+            $inValue[] =  '"rombongan"';
+        }
         
         if (isset($_POST['ruang_perpus'])) {
+            $groupValue = array();
+            $nilaiRuang = array();
             foreach ($_POST['ruang_perpus'] as $key => $value) {
-                $Value[] .= "'".$value."'";
-                if (!in_array('0',$_POST['ruang_perpus'])) {
-                    $test = Locations::find()->where(['in', 'ID', $_POST['ruang_perpus']])->asArray()->All();
-                    $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['ruang_perpus'] = $groupValue;
-                }else{$VALUE['ruang_perpus'] = array('Semua');}
-            }
-                if ($value != "0" ) {
+                if ($value != "0") {
                     $ruang = Locations::findOne(['ID' => $value]);
-                    $andValue .= ' AND lokasi_ruang LIKE "'.$ruang->Name.'" ';
+                    if ($ruang) {
+                        $nilaiRuang[] = ' (lokasi_ruang LIKE "%' . addslashes($ruang->Name) . '%" OR lok_ruang LIKE "%' . addslashes($ruang->Name) . '%") ';
+                        $groupValue[] = $ruang->Name;
+                    }
                 }
+            }
+            if (!empty($groupValue)) {
+                $VALUE['ruang_perpus'] = $groupValue;
+            } else {
+                $VALUE['ruang_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiRuang)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiRuang) . ') ';
+            }
         }
 
         if (isset($_POST['tujuan'])) {
@@ -5742,19 +5849,26 @@ public function actionExportPdfKunjunganPeriodikFrekuensi()
         }
 
         if (isset($_POST['lokasi_perpus'])) {
+            $groupValue = array();
+            $nilaiAndValue = array();
             foreach ($_POST['lokasi_perpus'] as $key => $value) {
-                $lokasi = LocationLibrary::findOne(['ID' => $value]);
-                $nilaiAndValue[] = " lokasi_perpus LIKE '%".$lokasi->Name."%'";
-                $Value2[] .= $lokasi->Name;
-                if (!in_array('0',$_POST['lokasi_perpus'])) {
-                    $test = LocationLibrary::find()->where(['LIKE', 'Name', $lokasi->Name])->limit(1)->asArray()->All();
-                     $groupValue = array();
-                     $groupValue[$t] = implode("','",$Value2);
-                    $VALUE['lokasi_perpus'] = $groupValue;
-                    }else{$VALUE['lokasi_perpus'] = array('Semua');}
-                }if ($value != "0" ) {$andValue .= ' AND '.implode('OR ',$nilaiAndValue);}
+                if ($value != "0") {
+                    $lokasi = LocationLibrary::findOne(['ID' => $value]);
+                    if ($lokasi) {
+                        $nilaiAndValue[] = ' (lokasi_perpus LIKE "%' . addslashes($lokasi->Name) . '%" OR lokasi LIKE "%' . addslashes($lokasi->Name) . '%") ';
+                        $groupValue[] = $lokasi->Name;
+                    }
+                }
             }
-            
+            if (!empty($groupValue)) {
+                $VALUE['lokasi_perpus'] = $groupValue;
+            } else {
+                $VALUE['lokasi_perpus'] = array('Semua');
+            }
+            if (!empty($nilaiAndValue)) {
+                $andValue .= ' AND (' . implode(' OR ', $nilaiAndValue) . ') ';
+            }
+        }
 
         $genderValue = '0';
         if (isset($_POST['jenis_kelamin'])) {
@@ -5763,19 +5877,21 @@ public function actionExportPdfKunjunganPeriodikFrekuensi()
                 if (!in_array('0',$_POST['jenis_kelamin'])) {
                     $test = JenisKelamin::find()->where(['in', 'ID', $_POST['jenis_kelamin']])->asArray()->All();
                     $groupValue = array();
-                        foreach ($test as $t => $tval) {
-                            $groupValue[$t] = $tval['Name'];
-                        }
-                    $VALUE['jenis_kelamin'] = $groupValue;
-                    }else{$VALUE['jenis_kelamin'] = array('Semua');}
-            }
-                if ($value != null ) {
-                    $genderValue = addslashes($value);
-                    if ($value != 0) {
-                        $andGenderValue .= ' AND memberguesses.JenisKelamin_id = "'.addslashes($value).'" ';
-                        $andGenderValue2 .= ' AND members.Sex_id = "'.addslashes($value).'" ';
+                    foreach ($test as $t => $tval) {
+                        $groupValue[$t] = $tval['Name'];
                     }
+                    $VALUE['jenis_kelamin'] = $groupValue;
+                } else {
+                    $VALUE['jenis_kelamin'] = array('Semua');
                 }
+            }
+            if ($value != null ) {
+                $genderValue = addslashes($value);
+                if ($value != 0) {
+                    $andGenderValue .= ' AND memberguesses.JenisKelamin_id = "'.addslashes($value).'" ';
+                    $andGenderValue2 .= ' AND members.Sex_id = "'.addslashes($value).'" ';
+                }
+            }
         }
 
         $sql = "SELECT ket, Periode, Periodes, lokasi_perpus, lokasi_ruang, jum_anggota, jum_non_anggota, rombongan 
@@ -5903,21 +6019,20 @@ public function actionExportPdfKunjunganPeriodikFrekuensi()
                 WHERE Periode ";
         
         $sql .= $sqlPeriode;
-        $inValue = implode(',', $inValue);
-        if($inValue != ''){
-        $sql .= 'AND ket IN ('.$inValue.')';
+        if (!empty($inValue)) {
+            $sql .= ' AND ket IN (' . implode(',', $inValue) . ')';
         }
         $sql .= $andValue;
         $sql .= ' ORDER BY Periode ASC';
 
-
-
         $data = Yii::$app->db->createCommand($sql)->queryAll(); 
-// echo $sql;
-// die;
+
         $Berdasarkan = array();
-        foreach ($VALUE as $key => $value) {
-            $Berdasarkan[] .= $this->getRealNameKriteria($key).' (\''.implode(yii::t('app',' , '), $value).'\')';
+        if (!empty($VALUE) && is_array($VALUE)) {
+            foreach ($VALUE as $key => $value) {
+                $valText = is_array($value) ? implode(yii::t('app',' , '), $value) : $value;
+                $Berdasarkan[] = $this->getRealNameKriteria($key).' (\''.$valText.'\')';
+            }
         }
         $Berdasarkan = implode(yii::t('app',' dan '), $Berdasarkan);
 
