@@ -93,10 +93,16 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *Purge Total Stored Procedure di Pencarian Lanjut (PencarianLanjutController.php):* Menghilangkan pemanggilan `CALL insertTempLanjutOpac` pada halaman 1 dan beralih penuh ke direct query engine `getDirectSearchDataLanjut()`, `getDirectSearchCountLanjut()`, dan `getDirectSearchFacetsLanjut()`.
   - [x] *Multi-Portal Hardening (digitalcollection & article):* Membungkus pemanggilan logger `OpacHelpers::opacLogs` dan stored procedure dalam blok `try-catch` defensif pada `digitalcollection/controllers/BrowseController.php` dan `article/controllers/BrowseController.php`.
   - [x] *Audit Zero-Comments & Linter:* Seluruh 6 file yang dimodifikasi lolos verifikasi sintaks `php -l` dengan exit code 0 dan 100% patuh terhadap Zero-Comments Rule (0 komentar di kode baru).
+- [x] **Fase 26: Solusi Tuntas Error 400 Bad Request Ekspor GridView (Excel/CSV/PDF) ke Controller Map Kustom:**
+  - [x] *Custom ExportController:* Pembuatan `backend/controllers/ExportController.php` yang meng-extends `kartik\grid\controllers\ExportController` dengan menyetel `public $enableCsrfValidation = false;` (membebaskan endpoint streaming murni dari desinkronisasi token CSRF popup/PJAX tanpa menyentuh vendor).
+  - [x] *Pendaftaran controllerMap:* Mendaftarkan mapping `'export' => 'backend\controllers\ExportController'` pada modul `gridview` di `backend/config/modules.php`.
+  - [x] *Penyelarasan RBAC allowActions:* Mendaftarkan rute `'gridview/*'` pada `allowActions` di `backend/config/main.php` guna mencegah blokade HTTP 403 dari `mdm\admin\components\AccessControl`.
+  - [x] *Audit Zero-Comments & Linter:* Seluruh kode baru lolos audit Zero-Comments (0 komentar) dan lulus uji sintaks `php -l` dengan exit code 0.
 
 ## 4. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).
 - [x] Pengujian tambah 1 rak uji coba di Admin (Lantai 2, DDC 330 - 339).
+- [x] Pengujian perbaikan ekspor ke Excel/CSV pada GridView tabel backend di intranet `172.30.14.94`.
 - [ ] Pengujian pencarian katalog dan paginasi di OPAC setelah penerapan error-handling dan optimasi query.
 - [ ] Pengujian cetak stiker rak dan scan melalui kamera ponsel di jaringan `172.30.14.94`.
 

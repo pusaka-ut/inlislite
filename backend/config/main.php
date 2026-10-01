@@ -58,6 +58,7 @@ return [
         'allowActions' => [
             'site/*',
             'rak/*',
+            'gridview/*',
             'debug/*',
             'gii/*',
             //'mimin/*', // only in dev mode

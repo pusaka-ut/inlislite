@@ -83,3 +83,13 @@ inlislite3/
    - Penomoran `$awal` yang akurat.
    - Koreksi URL facet link yang sebelumnya memakai parameter keliru `katakunci` menjadi parameter telusur valid (`tag`, `findBy`, `query`, `query2`).
    - Adaptive layout grid (`col-sm-9` vs `col-sm-12`) dan proteksi anti-kotak kosong.
+
+## 8. Arsitektur Ekspor Backend & Penanganan Error 400 Bad Request CSRF (Fase 26)
+1. **Akar Masalah HTTP 400 (`Bad Request: Tidak dapat mem-verifikasi pengiriman data Anda`):**
+   - Widget tabel `kartik\grid\GridView` mengumpulkan baris HTML tabel di sisi klien melalui JavaScript (`kv-grid-export.js`), membuat tag form tersembunyi ber-target popup window (`kvDownloadDialog`), lalu melakukan POST ke route `/gridview/export/download`.
+   - Secara default, controller vendor `kartik\grid\controllers\ExportController` mewarisi `yii\web\Controller` dengan validasi CSRF aktif (`$enableCsrfValidation = true`). Pada navigasi tabel berbasis PJAX atau form yang di-submit lewat jendela popup terpisah, token CSRF tidak sinkron dengan session aktif di server sehingga request ditolak oleh `Request::validateCsrfToken()`.
+2. **Implementasi Zero-Touch Vendor via Controller Map:**
+   - Tanpa mengubah berkas pada direktori `vendor/`, sistem membuat controller kustom `backend\controllers\ExportController` yang meng-extends `kartik\grid\controllers\ExportController` dengan menyetel `public $enableCsrfValidation = false;`.
+   - Controller tersebut didaftarkan pada modul `gridview` di `backend/config/modules.php` via konfigurasi `controllerMap => ['export' => 'backend\controllers\ExportController']`.
+3. **Penyelarasan Otorisasi RBAC:**
+   - Route `gridview/*` didaftarkan ke dalam `allowActions` pada `backend/config/main.php` di bawah filter `as access` (`mdm\admin\components\AccessControl`), menjamin seluruh staf/operator perpustakaan dapat mengunduh berkas ekspor tanpa terhadang error otorisasi HTTP 403.

@@ -70,6 +70,9 @@ return
         ],
         'gridview' => [
             'class' => 'kartik\grid\Module',
+            'controllerMap' => [
+                'export' => 'backend\controllers\ExportController',
+            ],
         ],
         'backuprestore' => [
             'class' => '\oe\modules\backuprestore\Module',
