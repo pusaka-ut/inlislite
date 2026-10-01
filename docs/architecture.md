@@ -102,3 +102,18 @@ inlislite3/
    - Menghindari modifikasi manual pada 100+ view tabel, konfigurasi default widget dideklarasikan secara global pada `backend/config/bootstrap.php` menggunakan `\Yii::$container->set('kartik\grid\GridView', ...)`.
 3. **Umpan Balik Visual Modern (In-Page Floating Toast UI):**
    - Menggantikan jendela popup lama 350x120px dengan kartu notifikasi melayang di pojok kanan atas berdesain resmi Universitas Terbuka (Navy `#002b55` dan Gold `#ffcc00`) yang dilengkapi spinner animasi, perlindungan klik ganda, transisi sukses otomatis, dan *auto-dismiss* halus.
+
+## 10. Arsitektur Modernisasi Header, Sidebar Gradasi Bergerak, & Dashboard Components (Fase 28)
+1. **Pembersihan Markup Semantik & Eliminasi Hack Inline Styles:**
+   - Menghapus seluruh hardcoded inline styles peninggalan lawas pada widget `inliscore\adminlte\widgets\NavBar` (`padding-top: 59px` pada toggle button, `height: 70px` inline pada logo, `padding-top: 15px` pada brand link, dan `margin-top: 5px` pada `#clocktime`), serta inline styles pada view layout `heading.php` dan `heading-member.php` (`height: 89px`, `background: #369`, dan `padding-top: 38px`).
+   - Kontrol estetika dialirkan 100% ke pipeline CSS terpadu (`backend/assets_b/css/modern-adminlte.css`), menjaga kode PHP tetap modular, bersih, dan mematuhi Zero-Comments Rule.
+2. **Horizontal Flex Command Bar (74px) & Preservasi Konten 100%:**
+   - Menyelaraskan seluruh komponen header pada garis horizontal tunggal yang presisi via CSS Flexbox `align-items: center; justify-content: space-between; min-height: 74px;`.
+   - Seluruh konten inti tetap utuh: Toggle squircle kaca, logo UT, identitas perpustakaan, jam digital dinamis, dan user profile menu. Jam digital dan profil pengguna kini sejajar berdampingan secara simetris di sisi kanan.
+3. **Living Dynamic Moving Gradient (Akselerasi GPU):**
+   - Menerapkan keyframe animasi `@keyframes inlisHeaderFlow` (18 detik) pada header dan `@keyframes inlisSidebarFlow` (22 detik) pada sidebar menggunakan spektrum warna resmi Universitas Terbuka (`#00172e`, `#001f3f`, `#002b55`, `#004080`). Animasi menggunakan transisi `background-position` yang diakselerasi langsung oleh GPU tanpa membebani performa CPU browser.
+4. **Frosted Glass Bubble & Floating Squircle Navigation (Pillio Concept):**
+   - Mengemas toggle button, jam digital, dan user profile pill ke dalam kapsul kaca (*frosted glass bubble*) ber-`backdrop-filter: blur(10px–14px)` dan border semi-transparan tipis.
+   - Menu navigasi sidebar bertransformasi dari balok persegi kaku menjadi kapsul melayang `border-radius: 12px` dengan margin samping dan efek cahaya aktif (*golden sheen glow*).
+5. **Modernisasi Squircle Stat Cards (SmallBox):**
+   - Mengubah widget `SmallBox` menjadi kartu elevated modern ber-radius `18px`, shadow ambient multi-layer halus, angka tebal 30px berbobot 800, dan bilah tombol `Detail` kaca transparan yang menyatu mulus di bagian bawah.

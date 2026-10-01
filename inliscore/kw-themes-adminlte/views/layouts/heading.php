@@ -25,7 +25,6 @@ if(empty($location)){
         <?php
             NavBar::begin([
                 'brandShortLabel' => Html::img(Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/logoinlis.png'), ['alt'=>'some', 'class'=>'','height'=>'26px']),
-                // 'brandShortLabel' => Html::tag('p','PERPUSTAKAAN', ['alt'=>'some', 'class'=>'','style' => ['font-size'=>'22px','margin'=>'0px']]),
                 'brandLabel' =>  Yii::$app->config->get('NamaPerpustakaan').' <br/> '.
                     $id->Address,
                 'brandUrl' => Yii::$app->homeUrl,
@@ -33,11 +32,6 @@ if(empty($location)){
               
                 'options' => [
                     'class' => 'navbar-static-top',
-                    // 'style'=>['height'=> '89px','background' => '#0ea043']
-                    'style'=>['height'=> '89px','background' => '#369']
-                ],
-                'containerOptions'=>[
-                     'style'=>['padding-top'=> '38px']
                 ],
                 
             ]);

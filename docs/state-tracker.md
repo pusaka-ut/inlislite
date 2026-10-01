@@ -103,12 +103,21 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *In-Page Floating Toast UI (Pengganti Popup):* Pembuatan komponen visual `.inlis-export-toast` bertema UT Royal Blue (`#002b55`) dan Emas UT (`#ffcc00`) di `backend/assets_b/css/modern-adminlte.css` dengan spinner halus dan animasi kartu melayang.
   - [x] *Global Delegated Event Handler:* Penambahan listener interaktif di `backend/assets_b/js/app.js` untuk mendeteksi klik tombol ekspor (`.export-xls`, `.export-csv`, dll.), mencegah klik ganda (anti double-click), memicu toast loading, dan transisi sukses otomatis.
   - [x] *Preservasi State Pustakawan:* Pengunduhan berkas berjalan mulus secara native via browser tanpa reload halaman, menjamin centang checkbox, filter, dan scroll tabel tetap utuh 100%.
+- [x] **Fase 28: Modernisasi Estetika Terpadu Header, Sidebar Gradasi Bergerak, Glassmorphism, & Dashboard Components:**
+  - [x] *Pembersihan Inline Styles Markup:* Menghapus hardcoded inline styles peninggalan lawas pada `inliscore/kw-themes-adminlte/widgets/NavBar.php`, `heading.php`, dan `heading-member.php` (`padding-top: 59px`, `height: 70px`, `padding-top: 15px`, `height: 89px`, `padding-top: 38px`, `margin-top: 5px`).
+  - [x] *Horizontal Flex Command Bar (74px) & Preservasi Konten 100%:* Menyelaraskan seluruh 5 elemen inti header pada garis horizontal tunggal yang simetris via CSS Flexbox di `backend/assets_b/css/modern-adminlte.css`.
+  - [x] *Living Dynamic Gradient Flow (Akselerasi GPU):* Menerapkan `@keyframes inlisHeaderFlow` (18s) dan `@keyframes inlisSidebarFlow` (22s) dengan spektrum palet resmi Universitas Terbuka tanpa beban komputasi CPU.
+  - [x] *Frosted Glass Bubble Aesthetic:* Mengemas toggle squircle, jam digital dinamis, dan user profile pill ke dalam kapsul kaca melayang (`backdrop-filter: blur(10px–14px)`) dengan cincin emas UT dan dropdown ber-radius 16px.
+  - [x] *Floating Squircle Sidebar Navigation:* Mengubah menu sidebar menjadi kapsul melayang `border-radius: 12px` dengan margin samping dan active state bercahaya lembut (*golden sheen glow*).
+  - [x] *Modernisasi Dashboard Components & SmallBox:* Mengubah 4 kartu statistik dashboard menjadi squircle modern `border-radius: 18px` dengan soft shadow dan bilah tombol `Detail` kaca transparan.
+  - [x] *Audit Zero-Comments & Linter:* Seluruh kode PHP lolos verifikasi sintaks `php -l` dengan exit code 0 dan 100% patuh terhadap Zero-Comments Rule.
 
 ## 4. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).
 - [x] Pengujian tambah 1 rak uji coba di Admin (Lantai 2, DDC 330 - 339).
 - [x] Pengujian perbaikan ekspor ke Excel/CSV pada GridView tabel backend di intranet `172.30.14.94`.
 - [x] Pengujian modernisasi ekspor direct download & in-page floating toast di intranet `172.30.14.94`.
+- [x] Pengujian estetika modern dashboard backend (header flex 74px, sidebar gradasi bergerak, frosted glass capsule, dan kartu SmallBox) di intranet `172.30.14.94`.
 - [ ] Pengujian pencarian katalog dan paginasi di OPAC setelah penerapan error-handling dan optimasi query.
 - [ ] Pengujian cetak stiker rak dan scan melalui kamera ponsel di jaringan `172.30.14.94`.
 

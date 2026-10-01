@@ -76,3 +76,21 @@ Dokumentasi ini adalah Single Source of Truth untuk standar desain, warna, tipog
   - Pure Floating Carousel Controls: Menghapus seluruh background kotak/lingkaran/oval pada navigasi slider (`background: transparent !important; border: none !important; border-radius: 0 !important; box-shadow: none !important`). Menggunakan floating chevron FontAwesome (`#94a3b8`) dengan hover state dinamis bertransisi ke UT Deep Navy (`#002b55`) dan scale `1.2`, bebas dari distorsi bentuk di berbagai breakpoint.
   - Global Brand Link Header: Menyeragamkan seluruh layout OPAC (`main-sederhana.php`, `main.php`, `main-advance.php`, `main-search.php`, `main-sederhana-search.php`, `main-advance-search.php`, `main2.php`, dan `detail-opac/index.php`) menggunakan struktur `.brand-link` modern dengan logo 60px, `.brand-title` tebal putih, `.brand-subtitle` emas UT, dan `.header-right-wrapper`. Seluruh inline style `background-color: #FFF` pada `.wrapper` dibersihkan.
   - Visitor Counter Pill: Memindahkan dan merapikan penghitung pengunjung dari bilah putih terpisah ke dalam kontainer footer navy utama menggunakan komponen `.footer-counter-container` dan badge pill emas UT `.opac-counter-pill` (`background: rgba(255, 255, 255, 0.08)`, border semi-transparan, `border-radius: 9999px`, font 11.5px, icon `<i class="fa fa-eye"></i>`, dan angka kunjungan berformat ribuan). Konsisten hadir di seluruh 8 layout OPAC.
+
+## 5. Modernisasi Terpadu Header, Sidebar Gradasi Bergerak, Glassmorphism, & Dashboard Components (Fase 28)
+- **Living Dynamic Gradient Flow (Gradasi Bergerak):**
+  - Header (`@keyframes inlisHeaderFlow` 18s) dan Sidebar (`@keyframes inlisSidebarFlow` 22s) menerapkan animasi gradasi bergerak kontinu menggunakan spektrum resmi Universitas Terbuka (`#00172e`, `#001f3f`, `#002b55`, `#004080`, `#00264d`). Pergerakan halus berbasis GPU tanpa menyita thread CPU.
+- **Single Horizontal Flex Command Bar (Tinggi 74px):**
+  - Mengeliminasi seluruh inline padding/height warisan 2018 (`padding-top: 59px`, `padding-top: 38px`, `height: 89px`, `margin-top: 5px`).
+  - Seluruh elemen header (Toggle squircle, logo UT, brand identity stack, jam digital dinamis, dan user profile pill) sejajar sempurna secara vertikal via CSS Flexbox `align-items: center; justify-content: space-between;`.
+- **Frosted Glass Bubble Aesthetic (Glassmorphism):**
+  - Toggle Button: Kapsul squircle kaca `42px x 42px`, `border-radius: 12px`, `backdrop-filter: blur(10px)`.
+  - Jam Digital: Frosted glass capsule pill `border-radius: 9999px`, icon jam emas UT `\f017`, typography putih kontras tinggi.
+  - User Profile Menu: Frosted glass capsule bubble `border-radius: 9999px`, cincin emas avatar, nama `deyan` bold putih, dan chevron panah bawah dinamis.
+- **Floating Squircle Navigation (Pillio Concept):**
+  - Menu sidebar diubah dari balok persegi kaku menjadi kapsul melayang `border-radius: 12px` dengan margin samping `margin: 3px 10px`.
+  - Active State (Beranda): Golden sheen glow `rgba(255, 204, 0, 0.2)` berpadu royal blue depth dan icon bersinar emas.
+  - Submenu Treeview: Translucent indented capsule `border-radius: 12px` dengan child items ber-radius `8px`.
+- **Modernized Dashboard Components & SmallBox Stat Cards:**
+  - Kartu statistik 4 kotak (Judul, Konten Digital, Eksemplar, Anggota) bertransformasi menjadi squircle modern `border-radius: 18px`, bayangan multi-layer ambient `0 8px 24px -4px rgba(0,43,85,0.12)`, font angka tebal 30px, dan tombol aksi `Detail` berupa *frosted glass bar* yang menyatu di bawah.
+  - Box Highcharts dibungkus kartu putih bersih ber-radius `18px` dengan border slate halus.

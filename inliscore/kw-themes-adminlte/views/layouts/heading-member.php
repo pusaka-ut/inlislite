@@ -23,12 +23,7 @@ NavBar::begin([
     'brandUrl' => Yii::$app->homeUrl,
     'options' => [
         'class' => 'navbar-static-top',
-        'style'=>['height'=> '89px','background' => '#369']
     ],
-    'containerOptions'=>[
-        'style'=>['padding-top'=> '38px']
-    ],
-
 ]);
 
 

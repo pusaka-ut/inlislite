@@ -71,7 +71,7 @@ class NavBar extends Widget
      * @var array the HTML attributes of the brand link.
      * @see \yii\helpers\Html::renderTagAttributes() for details on how attributes are being rendered.
      */
-    public $brandOptions = ['style'=>'padding-top:15px;font-size:12px;'];
+    public $brandOptions = [];
     /**
      * @var string text to show for screen readers for the button to toggle the navbar.
      */
@@ -113,10 +113,8 @@ class NavBar extends Widget
         echo $this->renderToggleButton();
 
 
-        // Logo Perpus
-        echo Html::img(Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/logo_perpusnas_2015.png'), ['alt'=>'logo perpustakaan inlislite', 'class'=>'logo-perpus','height'=>'70px']);
+        echo Html::img(Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/logo_perpusnas_2015.png'), ['alt'=>'logo perpustakaan inlislite', 'class'=>'logo-perpus']);
 
-        // Nama Perpus dan Alamat
         Html::addCssClass($this->brandOptions, 'logo hidden-xs');
         echo Html::a(
             Html::tag('span',$this->brandShortLabel,['class'=>'',]).
@@ -125,7 +123,7 @@ class NavBar extends Widget
 
         ?>
         <div class="collapse navbar-collapse pull-right clockZ" id="navbar-collapse">
-            <span class="pull-right" style="color:#fff; margin-right:5px; margin-top:5px" id="clocktime" ></span>
+            <span class="pull-right" id="clocktime"></span>
         </div>
         
 
@@ -170,9 +168,6 @@ class NavBar extends Widget
         $screenReader = "<span class=\"sr-only\">{$this->screenReaderToggleText}</span>";
         return Html::a("{$screenReader}\n{$bar}\n{$bar}\n{$bar}", '#', [
             'class' => 'sidebar-toggle ass',
-            // add new
-            'style' => ['padding-top'=>'59px'],
-            // add new
             'data-toggle' => 'offcanvas',
             'role'=>"button",
         ]);
