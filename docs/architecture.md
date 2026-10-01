@@ -117,3 +117,15 @@ inlislite3/
    - Menu navigasi sidebar bertransformasi dari balok persegi kaku menjadi kapsul melayang `border-radius: 12px` dengan margin samping dan efek cahaya aktif (*golden sheen glow*).
 5. **Modernisasi Squircle Stat Cards (SmallBox):**
    - Mengubah widget `SmallBox` menjadi kartu elevated modern ber-radius `18px`, shadow ambient multi-layer halus, angka tebal 30px berbobot 800, dan bilah tombol `Detail` kaca transparan yang menyatu mulus di bagian bawah.
+
+## 11. Arsitektur Dual Semantic Flex Header & Living Vibrant Dynamic Gradient (Fase 29)
+1. **Solusi Sistemik Terhadap Isu Direct Children Flexbox:**
+   - Pada `inliscore\adminlte\widgets\NavBar`, lima elemen navbar sebelumnya dirender sebagai direct children dari `<nav class="navbar">`. Sifat bawaan `justify-content: space-between` mendistribusikan spasi rata sehingga elemen terpencar ke tengah layar.
+   - Solusi arsitektural: Membungkus elemen ke dalam dua kontainer semantik:
+     - `.inlis-header-left`: Toggle button, logo UT, dan brand title link.
+     - `.inlis-header-right`: Digital clock pill dan user profile menu container.
+   - Menghasilkan pengelompokan alami: kluster identitas di sisi kiri dan kluster status/profil di sisi kanan.
+2. **Living Dynamic Vibrant Gradient (Akselerasi GPU 60fps):**
+   - Header dan sidebar mengadopsi spektrum multi-stop kontras tinggi (`#06152d` - `#0284c7`), menghasilkan gelombang cahaya bergerak yang jelas dan estetik tanpa membebani thread JavaScript/CPU.
+3. **Bubble Glassmorphism Specular Sheen:**
+   - Menerapkan specular reflection sheen fisik (`inset 0 1.5px 1.5px rgba(255, 255, 255, 0.55)`) pada seluruh kapsul kaca melayang (jam, user pill, squircle toggle).

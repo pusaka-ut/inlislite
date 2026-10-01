@@ -109,10 +109,8 @@ class NavBar extends Widget
         $tag = ArrayHelper::remove($options, 'tag', 'nav');
         echo Html::beginTag($tag, $options);
 
-
+        echo Html::beginTag('div', ['class' => 'inlis-header-left']);
         echo $this->renderToggleButton();
-
-
         echo Html::img(Yii::$app->urlManager->createUrl('../uploaded_files/aplikasi/logo_perpusnas_2015.png'), ['alt'=>'logo perpustakaan inlislite', 'class'=>'logo-perpus']);
 
         Html::addCssClass($this->brandOptions, 'logo hidden-xs');
@@ -120,14 +118,13 @@ class NavBar extends Widget
             Html::tag('span',$this->brandShortLabel,['class'=>'',]).
             Html::tag('span',$this->brandLabel,['class'=>'logo-lg'])
             , $this->brandUrl === false ? Yii::$app->homeUrl : $this->brandUrl , $this->brandOptions);
+        echo Html::endTag('div');
 
+        echo Html::beginTag('div', ['class' => 'inlis-header-right']);
         ?>
-        <div class="collapse navbar-collapse pull-right clockZ" id="navbar-collapse">
-            <span class="pull-right" id="clocktime"></span>
+        <div class="collapse navbar-collapse clockZ" id="navbar-collapse">
+            <span id="clocktime"></span>
         </div>
-        
-
-        
         <?php
         
         if ($this->renderInnerContainer) {
@@ -141,9 +138,6 @@ class NavBar extends Widget
         $tag = ArrayHelper::remove($options, 'tag', 'div');
         echo Html::beginTag($tag, $options);
     }
-    /**
-     * Renders the widget.
-     */
     public function run()
     {
         $tag = ArrayHelper::remove($this->containerOptions, 'tag', 'div');
@@ -151,6 +145,7 @@ class NavBar extends Widget
         if ($this->renderInnerContainer) {
             echo Html::endTag('div');
         }
+        echo Html::endTag('div');
         $tag = ArrayHelper::remove($this->options, 'tag', 'nav');
         echo Html::endTag($tag, $this->options);
         echo Html::endTag('header');
@@ -179,16 +174,11 @@ $lang = Yii::$app->config->get('language');
     $(function(){
         $(document).on('click','.language',function(){
             var lang = $(this).attr('id');
-            // var demo = "<?= Yii::$app->urlManager->createUrl('site/language') ?>";
-
             $.post("<?= Yii::$app->urlManager->createUrl('site/language') ?>",{'lang':lang},function(data){
-            // $.post(demo,{'lang':lang},function(data){
-                console.log(data);
                 location.reload();
             });
         });
     });
-    //alert(Date());
     function startTime()
     {   var today=new Date();
         var weekday=new Array(7);
@@ -219,7 +209,6 @@ $lang = Yii::$app->config->get('language');
         document.getElementById('clocktime').innerHTML=dayname+", "+day+" "+month+" "+year+", "+h+":"+m+":"+s;
         t=setTimeout(function(){startTime()},500);
     }
-    // function checkTime to add a zero in front of numbers < 10
     function checkTime(i)
     {   if(i<10){i="0"+i;}
         return i;

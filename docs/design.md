@@ -94,3 +94,21 @@ Dokumentasi ini adalah Single Source of Truth untuk standar desain, warna, tipog
 - **Modernized Dashboard Components & SmallBox Stat Cards:**
   - Kartu statistik 4 kotak (Judul, Konten Digital, Eksemplar, Anggota) bertransformasi menjadi squircle modern `border-radius: 18px`, bayangan multi-layer ambient `0 8px 24px -4px rgba(0,43,85,0.12)`, font angka tebal 30px, dan tombol aksi `Detail` berupa *frosted glass bar* yang menyatu di bawah.
   - Box Highcharts dibungkus kartu putih bersih ber-radius `18px` dengan border slate halus.
+
+## 6. Penataan Ulang Presisi Header 2 Flex Container & Spektrum Living Vibrant Gradient (Fase 29)
+- **Dual Semantic Flex Containers (Preservasi 100% Konten & Penataan Padu):**
+  - Mengelompokkan seluruh elemen navbar di `NavBar.php` ke dalam dua kontainer flex independen:
+    1. `.inlis-header-left`: Menampung Toggle Button Squircle (`42px x 42px`), Logo Perpusnas/UT (`.logo-perpus`, `46px`), dan Brand Identity Link (`.logo`) yang ditata secara horizontal sejajar (`flex-direction: row; gap: 10px;`). Menghilangkan fenomena elemen terpencar ke tengah layar.
+    2. `.inlis-header-right`: Menampung Digital Clock Bubble Pill (`.clockZ`) dan User Profile Glass Capsule (`.navbar-custom-menu`) dengan spasi proporsional (`gap: 14px; margin-left: auto;`).
+- **Living Vibrant Dynamic Gradient Flow (Spektrum Kontras Tinggi Universitas Terbuka):**
+  - Menggantikan gradasi dongker monoton dengan spektrum multi-stop yang hidup dan berkarakter:
+    - Deep Midnight Navy: `#06152d`
+    - Royal Sapphire: `#0d3268`
+    - Electric UT Blue: `#1d4ed8`
+    - Luminous Ocean Cyan: `#0284c7`
+    - Deep Oceanic Navy: `#0a2540`
+  - Pergerakan animasi GPU-accelerated: `@keyframes inlisHeaderFlow` 14s berukuran `300% 300%` pada header dan `@keyframes inlisSidebarFlow` 16s berukuran `100% 300%` pada sidebar. Aliran gelombang cahaya biru dinamis tampak jelas, lembut, dan elegan.
+- **Bubble Glassmorphism Bevel & Specular Highlight Sheen:**
+  - Jam digital, kapsul profil, dan toggle button dilengkapi efek refleksi kaca cembung (*bubble glass highlight*) menggunakan `box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18), inset 0 1.5px 1.5px rgba(255, 255, 255, 0.55), inset 0 -1px 1px rgba(0, 0, 0, 0.12)` dan filter `backdrop-filter: blur(16px) saturate(180%)`.
+- **Responsive Viewport Breakpoint:**
+  - Pada breakpoint mobile (<= 767px), jam digital disembunyikan secara anggun, padding navbar diperkecil, dan ukuran logo disesuaikan menjadi 38px, menjamin zero-overflow.
