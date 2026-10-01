@@ -93,3 +93,12 @@ inlislite3/
    - Controller tersebut didaftarkan pada modul `gridview` di `backend/config/modules.php` via konfigurasi `controllerMap => ['export' => 'backend\controllers\ExportController']`.
 3. **Penyelarasan Otorisasi RBAC:**
    - Route `gridview/*` didaftarkan ke dalam `allowActions` pada `backend/config/main.php` di bawah filter `as access` (`mdm\admin\components\AccessControl`), menjamin seluruh staf/operator perpustakaan dapat mengunduh berkas ekspor tanpa terhadang error otorisasi HTTP 403.
+
+## 9. Modernisasi Terpadu Pengalaman Ekspor GridView: Direct Download & In-Page Toast (Fase 27)
+1. **Akomodasi Manfaat Desain Lama ke Standar Modern:**
+   - Desain bawaan lama menggunakan jendela popup (`_popup`) dan alert konfirmasi untuk mencegah hilangnya *state* kerja dan memberi tahu proses pembuatan berkas.
+   - Sistem memodernisasi arsitektur ini dengan beralih ke **Direct Download Native (`target = '_self'`)** dan **Tanpa Alert Konfirmasi Kaku (`showConfirmAlert = false`)**. Berkat header HTTP `Content-Disposition: attachment`, browser modern langsung mengalirkan berkas ke pengelola unduhan tanpa me-reload halaman, mempertahankan centang checkbox, filter, dan posisi scroll 100% utuh.
+2. **Penerapan Sistemik 100% Global via Dependency Injection Container:**
+   - Menghindari modifikasi manual pada 100+ view tabel, konfigurasi default widget dideklarasikan secara global pada `backend/config/bootstrap.php` menggunakan `\Yii::$container->set('kartik\grid\GridView', ...)`.
+3. **Umpan Balik Visual Modern (In-Page Floating Toast UI):**
+   - Menggantikan jendela popup lama 350x120px dengan kartu notifikasi melayang di pojok kanan atas berdesain resmi Universitas Terbuka (Navy `#002b55` dan Gold `#ffcc00`) yang dilengkapi spinner animasi, perlindungan klik ganda, transisi sukses otomatis, dan *auto-dismiss* halus.

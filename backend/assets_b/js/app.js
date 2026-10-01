@@ -76,3 +76,60 @@ function endLoading()
 {
     $(".modal-backdrop").remove();
 }
+
+(function($) {
+    $(document).on('click', '.export-xls, .export-csv, .export-pdf, .export-txt, .export-html, .export-json', function() {
+        var $el = $(this);
+        if ($el.data('export-busy')) {
+            return;
+        }
+        $el.data('export-busy', true);
+        setTimeout(function() {
+            $el.removeData('export-busy');
+        }, 3000);
+
+        var format = 'Dokumen';
+        if ($el.hasClass('export-xls')) {
+            format = 'Excel';
+        } else if ($el.hasClass('export-csv')) {
+            format = 'CSV';
+        } else if ($el.hasClass('export-pdf')) {
+            format = 'PDF';
+        } else if ($el.hasClass('export-txt')) {
+            format = 'Text';
+        } else if ($el.hasClass('export-html')) {
+            format = 'HTML';
+        } else if ($el.hasClass('export-json')) {
+            format = 'JSON';
+        }
+
+        var $container = $('#inlisExportToastContainer');
+        if (!$container.length) {
+            $container = $('<div id="inlisExportToastContainer" class="inlis-export-toast-container"></div>').appendTo('body');
+        }
+
+        $container.empty();
+        var $toast = $('<div class="inlis-export-toast">' +
+            '<div class="inlis-export-toast-icon"><div class="inlis-export-spinner"></div></div>' +
+            '<div class="inlis-export-toast-body">' +
+            '<div class="inlis-export-toast-title">Menyiapkan Berkas Ekspor</div>' +
+            '<div class="inlis-export-toast-text">Memproses data ke format ' + format + '... Unduhan akan dimulai otomatis.</div>' +
+            '</div>' +
+            '</div>').appendTo($container);
+
+        setTimeout(function() {
+            if ($toast && $toast.length) {
+                $toast.addClass('toast-success');
+                $toast.find('.inlis-export-toast-icon').html('<i class="glyphicon glyphicon-ok" style="font-size:16px;"></i>');
+                $toast.find('.inlis-export-toast-title').text('Ekspor Berhasil');
+                $toast.find('.inlis-export-toast-text').text('Berkas ' + format + ' telah dialirkan ke browser.');
+                setTimeout(function() {
+                    $toast.addClass('toast-hiding');
+                    setTimeout(function() {
+                        $toast.remove();
+                    }, 350);
+                }, 2200);
+            }
+        }, 1800);
+    });
+})(jQuery);

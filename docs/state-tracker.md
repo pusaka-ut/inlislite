@@ -98,11 +98,17 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *Pendaftaran controllerMap:* Mendaftarkan mapping `'export' => 'backend\controllers\ExportController'` pada modul `gridview` di `backend/config/modules.php`.
   - [x] *Penyelarasan RBAC allowActions:* Mendaftarkan rute `'gridview/*'` pada `allowActions` di `backend/config/main.php` guna mencegah blokade HTTP 403 dari `mdm\admin\components\AccessControl`.
   - [x] *Audit Zero-Comments & Linter:* Seluruh kode baru lolos audit Zero-Comments (0 komentar) dan lulus uji sintaks `php -l` dengan exit code 0.
+- [x] **Fase 27: Modernisasi Terpadu Pengalaman Ekspor GridView (Direct Download & In-Page Toast Feedback):**
+  - [x] *Global Dependency Injection Container:* Mendaftarkan default `kartik\grid\GridView` (`target => TARGET_SELF` & `showConfirmAlert => false`) di `backend/config/bootstrap.php` sehingga otomatis berlaku ke 100+ view tabel tanpa menyunting file view manual.
+  - [x] *In-Page Floating Toast UI (Pengganti Popup):* Pembuatan komponen visual `.inlis-export-toast` bertema UT Royal Blue (`#002b55`) dan Emas UT (`#ffcc00`) di `backend/assets_b/css/modern-adminlte.css` dengan spinner halus dan animasi kartu melayang.
+  - [x] *Global Delegated Event Handler:* Penambahan listener interaktif di `backend/assets_b/js/app.js` untuk mendeteksi klik tombol ekspor (`.export-xls`, `.export-csv`, dll.), mencegah klik ganda (anti double-click), memicu toast loading, dan transisi sukses otomatis.
+  - [x] *Preservasi State Pustakawan:* Pengunduhan berkas berjalan mulus secara native via browser tanpa reload halaman, menjamin centang checkbox, filter, dan scroll tabel tetap utuh 100%.
 
 ## 4. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).
 - [x] Pengujian tambah 1 rak uji coba di Admin (Lantai 2, DDC 330 - 339).
 - [x] Pengujian perbaikan ekspor ke Excel/CSV pada GridView tabel backend di intranet `172.30.14.94`.
+- [x] Pengujian modernisasi ekspor direct download & in-page floating toast di intranet `172.30.14.94`.
 - [ ] Pengujian pencarian katalog dan paginasi di OPAC setelah penerapan error-handling dan optimasi query.
 - [ ] Pengujian cetak stiker rak dan scan melalui kamera ponsel di jaringan `172.30.14.94`.
 
