@@ -129,3 +129,7 @@ inlislite3/
    - Header dan sidebar mengadopsi spektrum multi-stop kontras tinggi (`#06152d` - `#0284c7`), menghasilkan gelombang cahaya bergerak yang jelas dan estetik tanpa membebani thread JavaScript/CPU.
 3. **Bubble Glassmorphism Specular Sheen:**
    - Menerapkan specular reflection sheen fisik (`inset 0 1.5px 1.5px rgba(255, 255, 255, 0.55)`) pada seluruh kapsul kaca melayang (jam, user pill, squircle toggle).
+4. **Eliminasi Legacy Absolute Positioning pada ClockZ (Fase 30):**
+   - Menetralkan aturan tahun 2016 di `site.css` yang memberikan `position: absolute; top: 5px; right: 10px; width: 200px;` pada `.clockZ`.
+   - Mengunci `.clockZ` dengan `position: static !important; width: auto !important;` dan `.inlis-header-right` dengan `flex-direction: row;` serta membersihkan class Bootstrap `collapse navbar-collapse` dari wrapper jam di `NavBar.php`.
+   - Menjamin 100% Jam Digital dan Kapsul User duduk berdampingan secara horizontal tanpa tumpang-tindih (*zero-overlapping*).

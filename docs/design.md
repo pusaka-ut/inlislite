@@ -110,5 +110,7 @@ Dokumentasi ini adalah Single Source of Truth untuk standar desain, warna, tipog
   - Pergerakan animasi GPU-accelerated: `@keyframes inlisHeaderFlow` 14s berukuran `300% 300%` pada header dan `@keyframes inlisSidebarFlow` 16s berukuran `100% 300%` pada sidebar. Aliran gelombang cahaya biru dinamis tampak jelas, lembut, dan elegan.
 - **Bubble Glassmorphism Bevel & Specular Highlight Sheen:**
   - Jam digital, kapsul profil, dan toggle button dilengkapi efek refleksi kaca cembung (*bubble glass highlight*) menggunakan `box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18), inset 0 1.5px 1.5px rgba(255, 255, 255, 0.55), inset 0 -1px 1px rgba(0, 0, 0, 0.12)` dan filter `backdrop-filter: blur(16px) saturate(180%)`.
-- **Responsive Viewport Breakpoint:**
+- **Responsive Viewport Breakpoint & Horizontal Alignment Non-Overlapping (Fase 30):**
+  - Mengeliminasi aturan legacy `position: absolute; top: 5px; right: 10px; width: 200px;` pada `.clockZ` di `site.css` dan menegaskan `position: static !important; width: auto !important;` pada `modern-adminlte.css`.
+  - Jam digital dan kapsul profil pengguna (`deyan`) kini terbukti 100% duduk sejajar horizontal berdampingan di alur flex normal tanpa tumpang-tindih (*zero-overlapping*).
   - Pada breakpoint mobile (<= 767px), jam digital disembunyikan secara anggun, padding navbar diperkecil, dan ukuran logo disesuaikan menjadi 38px, menjamin zero-overflow.

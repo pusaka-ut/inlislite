@@ -116,6 +116,11 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *Living Dynamic Vibrant Gradient (Akselerasi GPU):* Menggantikan palet gelap monoton dengan spektrum kontras tinggi Universitas Terbuka (`#06152d`, `#0d3268`, `#1d4ed8`, `#0284c7`, `#0a2540`) pada `@keyframes inlisHeaderFlow` (14s) dan `@keyframes inlisSidebarFlow` (16s).
   - [x] *Bubble Glassmorphism Specular Sheen:* Menerapkan bevel refleksi kaca fisik cembung (`inset 0 1.5px 1.5px rgba(255, 255, 255, 0.55)`) pada jam digital, kapsul profil, dan toggle button.
   - [x] *Audit Zero-Comments & Linter:* Lolos uji sintaks `php -l` pada `NavBar.php` dengan exit code 0 dan 100% patuh Zero-Comments Rule.
+- [x] **Fase 30: Resolusi Tuntas Penumpukan Header Kanan & Eliminasi Legacy Absolute Positioning:**
+  - [x] *Netralisasi Legacy Absolute Positioning:* Menetralkan aturan `position: absolute; top: 5px; right: 10px; width: 200px;` pada `.clockZ` di `backend/assets_b/css/site.css` menjadi `position: static; width: auto;`.
+  - [x] *Penegasan Flex Horizontal Non-Overlapping:* Mengunci `.inlis-header-right` dengan `display: flex !important; flex-direction: row !important; align-items: center !important; gap: 14px !important;` dan `.clockZ` dengan `position: static !important; width: auto !important;` di `modern-adminlte.css`.
+  - [x] *Pembersihan Markup Semantik:* Menghapus class Bootstrap `collapse navbar-collapse` dari wrapper jam di `NavBar.php`.
+  - [x] *Audit Zero-Comments & Linter:* Lolos uji sintaks `php -l` dan 100% mematuhi Zero-Comments Rule (0 komentar di kode baru).
 
 ## 4. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).

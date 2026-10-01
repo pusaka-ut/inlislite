@@ -122,7 +122,7 @@ class NavBar extends Widget
 
         echo Html::beginTag('div', ['class' => 'inlis-header-right']);
         ?>
-        <div class="collapse navbar-collapse clockZ" id="navbar-collapse">
+        <div class="clockZ" id="navbar-collapse">
             <span id="clocktime"></span>
         </div>
         <?php

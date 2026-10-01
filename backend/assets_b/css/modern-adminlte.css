@@ -105,10 +105,14 @@ body {
 
 .main-header .inlis-header-right {
   display: flex !important;
+  flex-direction: row !important;
   align-items: center !important;
+  justify-content: flex-end !important;
   gap: 14px !important;
   flex-shrink: 0 !important;
   margin-left: auto !important;
+  position: relative !important;
+  z-index: 10 !important;
 }
 
 .main-header .inlis-header-left .sidebar-toggle,
@@ -206,13 +210,23 @@ body {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important;
 }
 
+.main-header .clockZ,
 .main-header .inlis-header-right .clockZ,
-.main-header .navbar .clockZ {
+.main-header .navbar .clockZ,
+.clockZ {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: auto !important;
+  height: auto !important;
   display: inline-flex !important;
   align-items: center !important;
   margin: 0 !important;
   padding: 0 !important;
   float: none !important;
+  z-index: auto !important;
 }
 
 .main-header #clocktime {
@@ -243,6 +257,7 @@ body {
 
 .main-header .inlis-header-right .navbar-custom-menu,
 .main-header .navbar-custom-menu {
+  position: static !important;
   display: inline-flex !important;
   align-items: center !important;
   padding: 0 !important;

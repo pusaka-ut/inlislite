@@ -209,13 +209,9 @@ a.desc:after {
 }
 
 
-.clockZ
-{
-    position: absolute;
-    z-index: 1000;
-    top: 5px;
-    right: 10px;
-    width: 200px;
+.clockZ {
+    position: static;
+    width: auto;
 }
 
 #footer .inlislite{background:url(../images/logo-perpusnas.png) no-repeat top left;height:25px;padding:5px 0px 5px 28px; text-shadow:0px 0px 3px black;}
