@@ -165,3 +165,21 @@ inlislite3/
    - Mengubah toolbar aksi batch di `member/index.php` dan `member/keranjang.php` dari margin negatif inline menjadi flex-container responsif.
    - Menyertakan tombol `{update}` di ActionColumn tabel `index.php` dan memperbaiki link gii fiktif di `view.php` ke rute resmi keanggotaan.
    - Menghapus baris debug `echo $memberId;` pada `MemberController::actionCreate()`.
+
+
+## 14. Arsitektur Bypass PJAX GridView & Rekonstruksi Uploader Foto Mandiri (Fase 33)
+1. **Eliminasi Intersepsi PJAX pada Kolom Nama & ActionColumn (`index.php` & `keranjang.php`):**
+   - Menyematkan atribut bypass `'data-pjax' => '0'` pada tautan kolom nama `$data->Fullname` dan tombol `{update}` serta `{delete}` di `ActionColumn`.
+   - Menghapus atribut JavaScript warisan yang rusak `'Onclick' => 'test()'`.
+   - Menghentikan PJAX mencegat navigasi link form penuh, mengeliminasi total loading spinner layar penuh abu-abu (`kv-grid-loading`) yang macet membeku, dan mengembalikan alur navigasi browser normal tanpa perlu refresh manual.
+2. **Rekonstruksi Standalone Native HTML5 Photo Uploader (`_formFoto.php`):**
+   - Menggantikan widget Kartik FileInput yang bermasalah pada kontainer tab tersembunyi Bootstrap (`display: none` / kalkulasi lebar 0px yang memicu infinite spinning loader `.file-loading`).
+   - Mengimplementasikan Unified Photo Frame yang menampilkan foto aktif anggota saat ini (`$model->getImageUrl()`) dengan badge "Foto Saat Ini".
+   - Memanfaatkan HTML5 `FileReader` API (`readAsDataURL`) untuk menyajikan pratinjau (preview) foto instan berkecepatan milidetik begitu berkas dipilih, lengkap dengan badge "Pratinjau Foto Baru", nama berkas, dan kalkulasi ukuran berkas otomatis.
+   - Penataan tombol ergonomis berstandar tema Universitas Terbuka: `[ Pilih Berkas Foto ]` (UT Navy Blue `#002b55`), `[ Unggah & Simpan Foto ]` (UT Green `#10b981`), dan `[ Batal ]` (Slate Gray) yang muncul secara kontekstual.
+3. **Pengiriman Asinkron Fail-Safe via FormData & Proteksi CSRF:**
+   - Pengunggahan foto menggunakan objek native JavaScript `FormData` yang dikirimkan via `$.ajax` langsung ke endpoint `actionUploadFotoAnggota`.
+   - Parameter dan token CSRF (`_csrf`) disertakan secara eksplisit di dalam `FormData`, menjamin permintaan 100% kebal dari penolakan HTTP 400 Bad Request.
+   - Memberikan visual loading state pada tombol saat berkas dikirimkan dan menyajikan notifikasi SweetAlert ramah pengguna saat foto berhasil tersimpan.
+   - Penguatan fungsi `save_photo()` pada kamera webcam dengan penyertaan token CSRF.
+   - Penambahan tipe MIME `image/webp` pada array whitelist validasi `DirectoryHelpers::mimeType()`.

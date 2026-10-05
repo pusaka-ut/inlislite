@@ -136,6 +136,13 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *Perapihan Toolbar Batch Action & ActionColumn:* Menghilangkan margin negatif inline pada `index.php` dan `keranjang.php`, menggantinya dengan flexbox modern, serta menyertakan tombol `{update}` di ActionColumn.
   - [x] *Perapihan Header Update & Eliminasi Link Gii:* Merapikan toolbar tombol di `update.php` dan memperbaiki link tombol di `view.php` agar menggunakan rute keanggotaan resmi alih-alih `/backend/gii`.
   - [x] *Audit Zero-Comments & Linter:* Seluruh 7 file yang dimodifikasi lolos verifikasi sintaks `php -l` dengan exit code 0 dan 100% mematuhi Zero-Comments Rule tanpa menyisipkan komentar baru apapun.
+- [x] **Fase 33: Resolusi Tuntas Intersepsi PJAX & Rekonstruksi Uploader Foto Anggota Mandiri:**
+  - [x] *Eliminasi Intersepsi PJAX GridView (`index.php` & `keranjang.php`):* Menyematkan `'data-pjax' => '0'` pada tautan kolom nama `$data->Fullname` dan tombol `{update}` serta `{delete}` di ActionColumn, serta menghapus `'Onclick' => 'test()'`. Mengembalikan navigasi halaman normal tanpa layar abu-abu membeku.
+  - [x] *Rekonstruksi Standalone Native HTML5 Photo Uploader (`_formFoto.php`):* Menggantikan widget rapuh Kartik FileInput dengan Unified Photo Frame ber-badge status, instant client-side preview via HTML5 `FileReader` API (bebas kendala tab tersembunyi lebar 0px), dan penataan tombol yang rapi berstandar tema Universitas Terbuka (`[ Pilih Berkas Foto ]`, `[ Unggah & Simpan Foto ]`, `[ Batal ]`).
+  - [x] *Pengiriman Asinkron Fail-Safe via FormData & Proteksi CSRF:* Mengirimkan berkas via `FormData` asinkron langsung ke `actionUploadFotoAnggota` dengan token CSRF (`_csrf`) eksplisit, indikator loading spinner di tombol, dan SweetAlert feedback.
+  - [x] *Penguatan Keamanan Kamera Web:* Menyematkan token CSRF eksplisit pada AJAX `save_photo()`.
+  - [x] *Whitelist Ekstensi WEBP:* Menambahkan `image/webp` pada array whitelist `DirectoryHelpers::mimeType()`.
+  - [x] *Audit Zero-Comments & Linter:* Seluruh 4 berkas yang dimodifikasi lolos uji sintaks `php -l` dengan exit code 0 dan 100% mematuhi Zero-Comments Rule (0 komentar di kode baru).
 
 ## 4. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).

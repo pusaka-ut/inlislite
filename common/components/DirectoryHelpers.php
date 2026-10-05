@@ -38,13 +38,10 @@ class DirectoryHelpers
 
     public function mimeType($file)
     {
-        // echo $file;die;
         $mimetype = mime_content_type($file);
-        if(in_array($mimetype, array('image/jpg','image/jpeg', 'image/gif', 'image/png'))) {
-           // echo 'OK';
+        if(in_array($mimetype, array('image/jpg', 'image/jpeg', 'image/gif', 'image/png', 'image/webp'))) {
            return true;
         } else {
-            // echo 'Upload a real image, jerk!';
             unlink($file);
             return false;
         }

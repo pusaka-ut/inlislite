@@ -107,7 +107,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'Fullname',
                 'value' => function ($data) {
                     $url = Url::to(['update', 'id' => $data->ID]);
-                    return Html::a($data->Fullname, $url, ['title' => $data->Fullname, 'Onclick' => 'test()']);
+                    return Html::a(Html::encode($data->Fullname), $url, [
+                        'title' => $data->Fullname,
+                        'data-pjax' => '0'
+                    ]);
                 },
                 'visible' => \common\components\MemberHelpers::customMemberForm(2, 3)
             ],
@@ -316,6 +319,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         return Html::a('<span class="glyphicon glyphicon-pencil"></span> ' . Yii::t('app', 'Edit'), Yii::$app->urlManager->createUrl(['member/member/update', 'id' => $model->ID, 'edit' => 't']), [
                             'title' => Yii::t('app', 'Edit'),
                             'data-toggle' => 'tooltip',
+                            'data-pjax' => '0',
                             'class' => 'btn btn-primary btn-sm',
                             'style' => 'border-radius: 6px; margin-right: 4px;'
                         ]);
@@ -325,6 +329,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         return Html::a('<span class="glyphicon glyphicon-trash"></span> ' . Yii::t('app', 'Delete'), Yii::$app->urlManager->createUrl(['member/member/delete', 'id' => $model->ID, 'edit' => 't']), [
                             'title' => Yii::t('app', 'Delete'),
                             'data-toggle' => 'tooltip',
+                            'data-pjax' => '0',
                             'class' => 'btn btn-danger btn-sm',
                             'style' => 'border-radius: 6px;',
                             'data' => [

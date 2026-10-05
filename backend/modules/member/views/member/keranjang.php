@@ -101,7 +101,10 @@ $this->params['breadcrumbs'][] = $this->title;
                          'attribute'=>'Fullname',
                          'value' => function($data){
                              $url = Url::to(['update','id'=>$data->ID]);
-                             return Html::a($data->Fullname, $url, ['title' => $data->Fullname]); 
+                             return Html::a(Html::encode($data->Fullname), $url, [
+                                 'title' => $data->Fullname,
+                                 'data-pjax' => '0'
+                             ]); 
                          }
             ],
             //'Fullname',
@@ -152,6 +155,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                     return Html::a('<span class="glyphicon glyphicon-pencil"> '.Yii::t('app', 'Edit').'</span>', Yii::$app->urlManager->createUrl(['member/member/update','id' => $model->ID,'edit'=>'t']), [
                                                     'title' => Yii::t('app', 'Edit'),
                                                     'data-toggle' => 'tooltip',
+                                                    'data-pjax' => '0',
                                                     'class' => 'btn btn-primary btn-sm'
                                                   ]);},
 
@@ -159,6 +163,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                     return Html::a('<span class="glyphicon glyphicon-trash"> '.Yii::t('app', 'Delete').'</span>', Yii::$app->urlManager->createUrl(['member/member/delete','id' => $model->ID,'edit'=>'t']), [
                                                     'title' => Yii::t('app', 'Delete'),
                                                     'data-toggle' => 'tooltip',
+                                                    'data-pjax' => '0',
                                                     'class' => 'btn btn-danger btn-sm',
                                                     'data' => [
                                                         'confirm' => Yii::t('yii','Are you sure you want to delete this item?'),
