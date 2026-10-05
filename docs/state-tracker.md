@@ -143,6 +143,13 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *Penguatan Keamanan Kamera Web:* Menyematkan token CSRF eksplisit pada AJAX `save_photo()`.
   - [x] *Whitelist Ekstensi WEBP:* Menambahkan `image/webp` pada array whitelist `DirectoryHelpers::mimeType()`.
   - [x] *Audit Zero-Comments & Linter:* Seluruh 4 berkas yang dimodifikasi lolos uji sintaks `php -l` dengan exit code 0 dan 100% mematuhi Zero-Comments Rule (0 komentar di kode baru).
+- [x] **Fase 34: Resolusi Akar Masalah Upload Foto Anggota (Resilient Detection & Dual-Path Architecture):**
+  - [x] *Resilient Multi-Layer Image Detection (`DirectoryHelpers.php`):* Menyelesaikan false rejection pada berkas WebP yang sering terbaca sebagai `application/octet-stream` oleh `mime_content_type()` dengan 4 lapis inspeksi (whitelist ekstensi, `getimagesize()`, `exif_imagetype()`, dan pembacaan 12-byte binary magic signature `RIFF....WEBP`).
+  - [x] *Dual-Path Unified Architecture (Path A & Path B):*
+    - Path A (Kartu Foto): Tombol `[ Unggah & Simpan Foto ]` mengirimkan berkas via AJAX `FormData`, divalidasi via `isImageFile()`, foto lama dibersihkan (`@unlink`), dan memberikan notifikasi bahasa Indonesia ramah (`"Foto anggota berhasil diperbarui."`).
+    - Path B (Form Header Utama): Mengonfigurasi form `update.php` dengan `enctype="multipart/form-data"`, atribut `name="image"` pada file input `_formFoto.php`, dan penanganan `UploadedFile::getInstanceByName('image')` di `MemberController::actionUpdate()`. Tombol "Simpan" di header form utama kini otomatis memproses dan menyimpan berkas foto.
+  - [x] *Pesan Error & Sukses Deskriptif:* Menggantikan notifikasi generik `"Failed Upload"` dan `"Success Upload"` dengan pesan bahasa Indonesia deskriptif yang informatif bagi pengguna.
+  - [x] *Audit Zero-Comments & Linter:* Seluruh berkas PHP lolos verifikasi sintaks `php -l` dengan exit code 0 dan 100% patuh Zero-Comments Rule (0 komentar di kode baru).
 
 ## 4. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).

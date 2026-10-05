@@ -21,24 +21,16 @@ $this->params['breadcrumbs'][] = Yii::t('app', 'Update');
 $base=Yii::$app->homeUrl;
 ?>
 <?php $form = ActiveForm::begin(
-                      [
-                          'type'=>ActiveForm::TYPE_HORIZONTAL,
-                          'enableClientValidation' => true,
-                          'formConfig' => [
-                              'labelSpan' => '3',
-                              //'deviceSize' => ActiveForm::SIZE_TINY,
-                              'showErrors'=>false,
-                          ],
-                         /*'fieldConfig' => [
-                                          'template' => "<div class=\"row\">
-                                                          \n<div class=\"col-sm-12\">{label} {input}</div>
-                                                          \n
-                                                          <div class=\"col-xs-offset-3 col-xs-9\">
-                                                          <div style=\"margin-top: 5px;margin-bottom: 10px;\"></div></div>
-                                                          </div>",
-                                      ],*/
-                      ]
-                      );
+    [
+        'type' => ActiveForm::TYPE_HORIZONTAL,
+        'options' => ['enctype' => 'multipart/form-data'],
+        'enableClientValidation' => true,
+        'formConfig' => [
+            'labelSpan' => '3',
+            'showErrors' => false,
+        ],
+    ]
+);
 
 $url2           = Url::to('reset-password');
 $ajaxOptions    = [

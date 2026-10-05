@@ -426,6 +426,41 @@ class MemberController extends Controller
             $memloancat = $_POST['Members']['collectionCategory'];
             $trans = Yii::$app->db->beginTransaction();
             $model->Fullname = strtoupper($model->Fullname);
+            $uploadedPhoto = \yii\web\UploadedFile::getInstanceByName('image');
+            if ($uploadedPhoto) {
+                $dirpath = Yii::getAlias('@uploaded_files/foto_anggota/');
+                if (!is_dir($dirpath)) {
+                    mkdir($dirpath, 0777, true);
+                }
+                $ext = strtolower($uploadedPhoto->extension);
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) {
+                    $filepath = $dirpath . $uploadedPhoto->name;
+                    if (file_exists($filepath)) {
+                        $newPhotoName = DirectoryHelpers::getNewFileName($dirpath, $filepath, $uploadedPhoto->name);
+                    } else {
+                        $newPhotoName = $uploadedPhoto->name;
+                    }
+                    $fullPath = $dirpath . $newPhotoName;
+                    if ($uploadedPhoto->saveAs($fullPath)) {
+                        if (DirectoryHelpers::isImageFile($fullPath)) {
+                            if (!empty($model->PhotoUrl) && $model->PhotoUrl != $newPhotoName) {
+                                $oldFile = $dirpath . $model->PhotoUrl;
+                                if (file_exists($oldFile)) {
+                                    @unlink($oldFile);
+                                }
+                            }
+                            $model->PhotoUrl = $newPhotoName;
+                            try {
+                                Image::getImagine()->open($fullPath)
+                                    ->resize(new Box('400', '500'))->save($fullPath, ['quality' => 90]);
+                            } catch (\Exception $e) {
+                            }
+                        } else {
+                            @unlink($fullPath);
+                        }
+                    }
+                }
+            }
             $success = true;
           
             if($model->StatusAnggota_id == 6) { // BEBAS PUSTAKA
@@ -1464,8 +1499,8 @@ class MemberController extends Controller
 
             $files_uploaded = $dirpath . $newFileName;
             if ($file->saveAs($files_uploaded)) {
-                $mimetype = DirectoryHelpers::mimeType($files_uploaded);
-                if ($mimetype) {
+                $isImage = DirectoryHelpers::isImageFile($files_uploaded);
+                if ($isImage) {
                     $model_mem = Members::findOne($id);
                     if ($model_mem) {
                         if (!empty($model_mem->PhotoUrl) && $model_mem->PhotoUrl != $newFileName) {
@@ -1484,28 +1519,31 @@ class MemberController extends Controller
                     }
                     if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-                        return ['success' => true, 'photoUrl' => $newFileName];
+                        return ['success' => true, 'photoUrl' => $newFileName, 'message' => Yii::t('app', 'Foto anggota berhasil diperbarui.')];
                     }
                     Yii::$app->getSession()->setFlash('success', [
                         'type' => 'info',
                         'duration' => 2500,
                         'icon' => 'fa fa-info-circle',
-                        'message' => Yii::t('app', 'Success Upload'),
+                        'message' => Yii::t('app', 'Foto anggota berhasil diperbarui.'),
                         'title' => 'Info',
                         'positonY' => Yii::$app->params['flashMessagePositionY'],
                         'positonX' => Yii::$app->params['flashMessagePositionX']
                     ]);
                     return $this->redirect(['update', 'id' => $id]);
                 } else {
+                    if (file_exists($files_uploaded)) {
+                        @unlink($files_uploaded);
+                    }
                     if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-                        return ['error' => Yii::t('app', 'Failed Upload')];
+                        return ['error' => Yii::t('app', 'Format berkas tidak valid atau tidak terbaca sebagai gambar.')];
                     }
                     Yii::$app->getSession()->setFlash('error', [
                         'type' => 'error',
                         'duration' => 2500,
                         'icon' => 'fa fa-info-circle',
-                        'message' => Yii::t('app', 'Failed Upload'),
+                        'message' => Yii::t('app', 'Format berkas tidak valid atau tidak terbaca sebagai gambar.'),
                         'title' => 'Info',
                         'positonY' => Yii::$app->params['flashMessagePositionY'],
                         'positonX' => Yii::$app->params['flashMessagePositionX']

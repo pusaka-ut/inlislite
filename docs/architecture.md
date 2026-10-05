@@ -183,3 +183,18 @@ inlislite3/
    - Memberikan visual loading state pada tombol saat berkas dikirimkan dan menyajikan notifikasi SweetAlert ramah pengguna saat foto berhasil tersimpan.
    - Penguatan fungsi `save_photo()` pada kamera webcam dengan penyertaan token CSRF.
    - Penambahan tipe MIME `image/webp` pada array whitelist validasi `DirectoryHelpers::mimeType()`.
+
+
+## 15. Arsitektur Dual-Path Unified Upload & Resilient Multi-Layer Image Detection (Fase 34)
+1. **Resilient Multi-Layer Image Detection (`DirectoryHelpers::isImageFile`):**
+   - Menyelesaikan akar masalah false rejection pada berkas WebP (terutama yang bersumber dari SVG/vektor terkonversi) di mana `mime_content_type()` bawaan PHP mengidentifikasikannya sebagai `application/octet-stream`.
+   - Mengimplementasikan 4 lapis verifikasi gambar berkeamanan tinggi:
+     - *Layer 1 (Ekstensi Whitelist):* Hanya mengizinkan berkas dengan ekstensi `jpg`, `jpeg`, `png`, `gif`, dan `webp`.
+     - *Layer 2 (Binary Header Inspection):* Memeriksa dimensi dan MIME melalui `getimagesize()` dan `exif_imagetype()`.
+     - *Layer 3 (MIME Content Type):* Melakukan fallback ke `mime_content_type()` jika tersedia.
+     - *Layer 4 (Google WebP Magic Signature Verification):* Membaca langsung 12 byte pertama berkas secara biner (`RIFF....WEBP`). Jika signature cocok, berkas dijamin 100% merupakan format WebP valid.
+2. **Dual-Path Unified Architecture (Konsistensi Tombol Simpan Form & Tombol Unggah Foto):**
+   - Menghilangkan disparitas fungsional antara tombol "Simpan" di header form utama dan tombol "Unggah & Simpan Foto" di kartu foto tab Foto.
+   - *Alur Langsung Kartu Foto (Path A):* Menekan `[ Unggah & Simpan Foto ]` mengirimkan berkas via AJAX `FormData` ke `actionUploadFotoAnggota`, mengembalikan respons JSON terstruktur dengan feedback pesan bahasa Indonesia ramah pengguna (`Yii::t('app', 'Foto anggota berhasil diperbarui.')`) dan membersihkan berkas lama secara otomatis.
+   - *Alur Form Utama Header (Path B):* Form utama di `update.php` dikonfigurasi dengan `'options' => ['enctype' => 'multipart/form-data']`, input berkas di `_formFoto.php` disematkan `name="image"`, dan `MemberController::actionUpdate($id)` ditambahkan penanganan `UploadedFile::getInstanceByName('image')`. Menekan tombol "Simpan" di header atas kini otomatis memvalidasi, menyimpan foto ke server, dan memperbarui atribut `PhotoUrl` anggota.
+   - Penataan pesan error deskriptif yang ramah pustakawan (`"Format berkas tidak valid atau tidak terbaca sebagai gambar."`) menggantikan notifikasi samar `"Failed Upload"`.

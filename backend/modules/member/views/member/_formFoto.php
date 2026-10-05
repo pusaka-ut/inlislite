@@ -137,7 +137,7 @@ $currentPhotoUrl = $model->getImageUrl();
                 <div id="file_info_text" style="display: none; margin-top: 10px; font-size: 12px; color: #334155; font-weight: 600;"></div>
             </div>
 
-            <input type="file" id="member_photo_input" accept="image/jpeg,image/png,image/jpg,image/webp" style="display: none;">
+            <input type="file" id="member_photo_input" name="image" accept="image/jpeg,image/png,image/jpg,image/webp" style="display: none;">
 
             <div style="display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 16px; flex-wrap: wrap;">
                 <button type="button" id="btn_choose_photo" class="btn btn-primary" style="border-radius: 6px; font-weight: 600; padding: 7px 16px;">
@@ -181,8 +181,10 @@ $this->registerJs("
             $(this).val('');
             return;
         }
-        var validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-        if (validTypes.indexOf(file.type) === -1) {
+        var ext = file.name.split('.').pop().toLowerCase();
+        var validExts = ['jpg', 'jpeg', 'png', 'webp'];
+        var validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/pjpeg'];
+        if (validTypes.indexOf(file.type) === -1 && validExts.indexOf(ext) === -1) {
             swal({
                 title: '',
                 type: 'error',

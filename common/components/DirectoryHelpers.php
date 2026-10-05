@@ -36,15 +36,54 @@ class DirectoryHelpers
         return $model->Name;
     }
 
-    public function mimeType($file)
+    public static function isImageFile($file)
     {
-        $mimetype = mime_content_type($file);
-        if(in_array($mimetype, array('image/jpg', 'image/jpeg', 'image/gif', 'image/png', 'image/webp'))) {
-           return true;
-        } else {
-            unlink($file);
+        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+        $validExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        if (!in_array($ext, $validExts)) {
             return false;
         }
+
+        $imageInfo = @getimagesize($file);
+        if ($imageInfo !== false && !empty($imageInfo['mime'])) {
+            return true;
+        }
+
+        if (function_exists('exif_imagetype')) {
+            $exifType = @exif_imagetype($file);
+            if ($exifType !== false && $exifType > 0) {
+                return true;
+            }
+        }
+
+        if (function_exists('mime_content_type')) {
+            $mimetype = @mime_content_type($file);
+            if (in_array($mimetype, ['image/jpg', 'image/jpeg', 'image/gif', 'image/png', 'image/webp'])) {
+                return true;
+            }
+        }
+
+        if ($ext === 'webp') {
+            $handle = @fopen($file, 'rb');
+            if ($handle) {
+                $header = fread($handle, 12);
+                fclose($handle);
+                if (substr($header, 0, 4) === 'RIFF' && substr($header, 8, 4) === 'WEBP') {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function mimeType($file)
+    {
+        if (self::isImageFile($file)) {
+            return true;
+        }
+        @unlink($file);
+        return false;
     }
 
 
