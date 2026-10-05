@@ -146,3 +146,22 @@ inlislite3/
    - Penambahan pengelompokan kurung boolean `AND (...)` pada klausa WHERE gabungan filter lokasi dan ruang perpustakaan untuk menjamin presisi logika SQL.
 3. **Hardening View Defensif `pdf-view-kunjungan-periodik-data.php`:**
    - Loop data kunjungan diamankan dengan `if (!empty($TableLaporan) && is_array($TableLaporan))` dan verifikasi `isset($TableLaporan['count'])` guna mencegah warning notice `Undefined index: count` ketika laporan dicetak dalam kondisi tanpa data.
+
+## 13. Arsitektur Modul Keanggotaan & Resolusi Bug Foto Anggota (Fase 32)
+1. **Eliminasi Batasan Dimensi Ekstrem & Standarisasi Upload Foto (`_formFoto.php`):**
+   - Menghapus aturan validasi client-side `minImageWidth => 1004` dan `minImageHeight => 638` yang sebelumnya memblokir pas foto standar (300x400, 400x600 px).
+   - Memperluas dukungan format gambar ke `jpg`, `jpeg`, `png`, dan `webp` dengan ukuran maksimal 5 MB.
+   - Mengaktifkan `showPreview => true` sehingga pemustaka/pustakawan dapat melihat pratinjau foto sebelum disimpan.
+2. **Standardisasi Respons AJAX FileInput (`MemberController.php`):**
+   - Mengubah `actionUploadFotoAnggota()` untuk mengembalikan respons JSON murni (`['success' => true]` atau `['error' => '...']`) saat dipanggil via AJAX, memenuhi protokol asynchronous widget Kartik FileInput.
+   - Menghubungkan event handler `fileuploaded` di JavaScript untuk me-reload halaman secara mulus begitu unggahan berhasil.
+   - Menyisipkan pembersihan berkas fisik lama (`@unlink`) saat foto anggota diganti baru, mencegah penumpukan sampah berkas di server storage.
+3. **Graceful Degradation Webcam di Lingkungan Intranet HTTP (`_formFoto.php`):**
+   - Melindungi API `navigator.mediaDevices.getUserMedia` dengan pengecekan ketersediaan context aman (`https://` atau `localhost`).
+   - Menyajikan banner informasi ramah jika browser memblokir kamera di jaringan intranet HTTP (`http://172.30.14.94`), mengarahkan pustakawan menggunakan form Unggah Berkas Foto tanpa crash JavaScript.
+4. **Perapihan Komponen UI/UX Keanggotaan & Penataan Aksi Mandiri:**
+   - Menyediakan tombol aksi langsung **"Unggah / Ambil Foto"** di tab Detail Anggota (`_formEdit.php`) yang menghubungkan pengguna ke tab Foto tanpa kebingungan.
+   - Membersihkan tombol fiktif "Sesuaikan Foto" yang sebelumnya memanggil class tidak eksis `\backend\libs\ProfileImage`.
+   - Mengubah toolbar aksi batch di `member/index.php` dan `member/keranjang.php` dari margin negatif inline menjadi flex-container responsif.
+   - Menyertakan tombol `{update}` di ActionColumn tabel `index.php` dan memperbaiki link gii fiktif di `view.php` ke rute resmi keanggotaan.
+   - Menghapus baris debug `echo $memberId;` pada `MemberController::actionCreate()`.

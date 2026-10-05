@@ -750,51 +750,48 @@ if (!file_exists($img)) {
     <div class="col-sm-6">
 
 
-        <!-- FOTO ANGGOTA -->
-
-        <div id="frameFotoDef" class="img-frame-fotoaa">
+        <div id="frameFotoDef" class="img-frame-fotoaa" style="margin-bottom: 15px;">
             <?php
-            echo Html::img($imageOriginal, ['id' => 'fotoanggota', 'class' => 'img-thumbnail', 'style' => ['max-height' => '200px', 'margin-bottom' => '5px']]);
-            // echo CHtml::image($image . "?timestamp=" . rand(), 'foto anggota', array('id' => 'fotoanggota'));
-            if (file_exists($img)) {
-                // Jika ada foto
+            echo Html::img($imageOriginal, ['id' => 'fotoanggota', 'class' => 'img-thumbnail', 'style' => ['max-height' => '200px', 'margin-bottom' => '10px', 'display' => 'block']]);
+            echo Html::a('<i class="glyphicon glyphicon-camera"></i> ' . Yii::t('app', 'Unggah / Ambil Foto'), '#foto', [
+                'class' => 'btn btn-primary btn-sm',
+                'onclick' => '$(\'a[href="#foto"]\').tab(\'show\'); return false;',
+                'style' => 'border-radius: 6px; font-weight: 600;'
+            ]);
 
+            if (file_exists($img)) {
                 $ajaxOptionDelete = [
                     'type' => 'POST',
                     'url' => Url::to('hapus-foto'),
-                    'data' => array(
+                    'data' => [
                         'memberID' => $model->ID,
-                    ),
+                    ],
                     'success' => new yii\web\JsExpression('function(data){
                       if(data == "1"){
                         alertSwal("Foto Berhasil dihapus","success","2000");
                         location.reload();
                       }else{
                         alertSwal("Foto Gagal dihapus","warning","2000");
-
                       }
                    }'),
                     'error' => new yii\web\JsExpression('function(xhr, ajaxOptions, thrownError){
                         var msg = cleanResponseError(xhr.responseText,"Not Found (#404): ");
-                            alertSwal(msg,"info","1700");
-                          }'),
+                        alertSwal(msg,"info","1700");
+                    }'),
                 ];
-                echo "<br/>";
-                echo \common\widgets\AjaxButton::widget([
+                echo '&nbsp;' . \common\widgets\AjaxButton::widget([
                     'label' => Yii::t('app', 'Hapus Foto'),
                     'ajaxOptions' => $ajaxOptionDelete,
                     'htmlOptions' => [
                         'class' => 'btn btn-danger btn-sm',
                         'id' => 'hapus-foto',
-                        'type' => 'submit'
+                        'type' => 'submit',
+                        'style' => 'border-radius: 6px;'
                     ]
                 ]);
-
-                echo '&nbsp;' . Html::a(Yii::t('app', 'Sesuaikan Foto'), ['crop-profile-image'], ['class' => 'btn btn-info btn-sm', 'data-toggle' => 'modal', 'data-target' => '#crop-modal']);
             }
             ?>
         </div>
-        <!-- CROPING FOTO ANGGOTA -->
         
         <br/>
        <?php

@@ -70,68 +70,61 @@ $ajaxOptions    = [
 ?>
 <div class="members-update">
 
-    <div class="page-header">
-        <h3>
-        &nbsp;
-        <!--<span class="glyphicon glyphicon-edit"></span> Koreksi -->
+    <div class="page-header" style="margin-top: 0; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="btn-toolbar" role="toolbar" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                    <?= Html::submitButton($model->isNewRecord ? '<i class="glyphicon glyphicon-plus"></i> ' . Yii::t('app', 'Create') : '<i class="glyphicon glyphicon-floppy-disk"></i> ' . Yii::t('app', 'Save'), [
+                        'class' => $model->isNewRecord ? 'btn btn-success btn-sm' : 'btn btn-primary btn-sm',
+                        'style' => 'border-radius: 6px; font-weight: 600;'
+                    ]) ?>
 
-<!-- Button -->
-
-        <div class="pull-left">
-          
-            <?php
-            echo '<p>';
-            echo  Html::submitButton($model->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Save'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary btn-sm']);
-           /* echo  '&nbsp;' . Html::a(Yii::t('app', 'Salin dari Data Kependudukan'), ['detail-kependudukan'], ['class' => 'btn btn-primary btn-sm','data-toggle'=>"modal",
-                                                    'data-target'=>"#myModal",
-                                                    'data-title'=>"Detail Data",]);*/
-            if($modelUser->IsCanResetMemberPassword){
-             echo   '&nbsp;' . AjaxButton::widget([
-                            'label' => Yii::t('app','Reset Password Keanggotaan Online'),
+                    <?php if ($modelUser->IsCanResetMemberPassword): ?>
+                        <?= AjaxButton::widget([
+                            'label' => Yii::t('app', 'Reset Password Keanggotaan Online'),
                             'ajaxOptions' => $ajaxOptions,
                             'htmlOptions' => [
                                 'class' => 'btn btn-success btn-sm',
                                 'id' => 'cari',
-                                'type' => 'submit'
+                                'type' => 'submit',
+                                'style' => 'border-radius: 6px;'
                             ]
-                        ]);
-           }
-            //echo  '&nbsp;' .Html::a(Yii::t('app', 'Atur Foto'), ['crop-profile-image'], ['class' => 'btn btn-info btn-sm','data-toggle' => 'modal','data-target' => '#crop-modal']);
-            
+                        ]) ?>
+                    <?php endif; ?>
 
-            echo  '&nbsp;' .Html::a(Yii::t('app', 'Kartu Anggota'), ['/member/pdf/kartu-anggota-satuan/','tipe'=>'2','id'=>$model->ID], ['class' => 'btn bg-maroon btn-sm','target'=>'_blank']);
+                    <?= Html::a('<i class="glyphicon glyphicon-credit-card"></i> ' . Yii::t('app', 'Kartu Anggota'), ['/member/pdf/kartu-anggota-satuan/', 'tipe' => '2', 'id' => $model->ID], [
+                        'class' => 'btn bg-maroon btn-sm',
+                        'target' => '_blank',
+                        'style' => 'border-radius: 6px;'
+                    ]) ?>
 
-            echo  '&nbsp;' .Html::a(Yii::t('app', 'Selesai'), url::previous(), ['class' => 'btn btn-warning btn-sm']);
+                    <?= yii\bootstrap\ButtonDropdown::widget([
+                        'label' => Yii::t('app', 'Cetak Bebas Pustaka'),
+                        'options' => [
+                            'class' => 'btn bg-purple btn-sm',
+                            'style' => 'border-radius: 6px;'
+                        ],
+                        'dropdown' => [
+                            'items' => [
+                                [
+                                    'label' => 'Model 1 (A4)',
+                                    'url' => ['/member/pdf/cetak-bebas-pustaka/', 'id' => $model->ID, 'tipe' => '1']
+                                ],
+                                [
+                                    'label' => 'Model 2 (8,5" x 5,5")',
+                                    'url' => ['/member/pdf/cetak-bebas-pustaka/', 'id' => $model->ID, 'tipe' => '2']
+                                ],
+                            ],
+                        ],
+                    ]) ?>
 
-           ?>
-          </div>
-           <?php
-           echo yii\bootstrap\ButtonDropdown::widget([
-              'label' => Yii::t('app','Cetak Bebas Pustaka'),
-              'options' => [
-                'class'=>'btn bg-purple btn-sm'
-              ],
-              'dropdown' => [
-                  'items' => [
-                      [ 
-                        'label' => 'Model 1 (A4)', 
-                        'url' =>  ['/member/pdf/cetak-bebas-pustaka/',
-                          'id'=>$model->ID,'tipe'=>'1'
-                        ]
-                      ],
-                      [
-                        'label' => 'Model 2 (8,5" x 5,5")', 
-                        'url' =>  ['/member/pdf/cetak-bebas-pustaka/',
-                          'id'=>$model->ID,'tipe'=>'2'
-                        ]
-                      ],
-
-                  ],
-              ],
-          ]);
-            echo '</p>';
-            ?>
-      </h3>
+                    <?= Html::a('<i class="glyphicon glyphicon-ok"></i> ' . Yii::t('app', 'Selesai'), Url::previous(), [
+                        'class' => 'btn btn-warning btn-sm',
+                        'style' => 'border-radius: 6px;'
+                    ]) ?>
+                </div>
+            </div>
+        </div>
     </div>
     
 

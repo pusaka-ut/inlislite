@@ -335,8 +335,6 @@ class MemberController extends Controller
                 if ($model->save() && $validate) {
                     $success = true;
                     $memberId = $model->getPrimaryKey();
-                    echo $memberId;
-                    // Jika Lokasi tidak null maka insert ke memberloanauthorizeLocaitons
                     if ($memloan != "") {
                         foreach ($memloan as $key => $value) {
                             $modelMemberLoanAuth = new Memberloanauthorizelocation();
@@ -879,41 +877,38 @@ class MemberController extends Controller
 
 
     public function actionSaveFoto($id) {
-
         $model_mem = Members::findOne($id);
-        
         $pathSave = MemberHelpers::getRealPathFotoAnggota();
-        $fileName = $id .'.jpg';
-
-
+        if (!is_dir($pathSave)) {
+            mkdir($pathSave, 0777, true);
+        }
+        $fileName = $id . '.jpg';
         $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $_POST['imgBase64']));
-
-        $filepath = Yii::getAlias('@uploaded_files/foto_anggota/'.$fileName);
+        $filepath = Yii::getAlias('@uploaded_files/foto_anggota/' . $fileName);
         $dirpath = Yii::getAlias('@uploaded_files/foto_anggota/');
 
-        if (isset($model_mem->PhotoUrl)) {
-            $newFileName = $fileName;
-        } else
-        if (file_exists($filepath)) {
-            $newFileName = DirectoryHelpers::getNewFileName($dirpath ,$filepath,$fileName);
-        }else{
+        if (isset($model_mem->PhotoUrl) && !empty($model_mem->PhotoUrl)) {
+            $newFileName = $model_mem->PhotoUrl;
+        } else if (file_exists($filepath)) {
+            $newFileName = DirectoryHelpers::getNewFileName($dirpath, $filepath, $fileName);
+        } else {
             $newFileName = $fileName;
         }
-        
 
-        // Save the image in a defined path
-        file_put_contents($pathSave .$newFileName,$data);
-
-        // move_uploaded_file($_FILES['webcam']['tmp_name'], $pathSave .$newFileName);
-        $model = Members::findOne($id);
-        $model->PhotoUrl=$fileName;
-        $model->save(false);
-
-        //Temp
-        //copy($pathSave .$fileName, $pathSave .'temp/' .$fileName);
-        //move_uploaded_file($_FILES['webcam']['tmp_name'], $pathSave .'temp/' .$fileName);
-        //
-        //return $this->redirect(['update','id'=>$id]);
+        file_put_contents($pathSave . $newFileName, $data);
+        if ($model_mem) {
+            $model_mem->PhotoUrl = $newFileName;
+            $model_mem->save(false);
+        }
+        try {
+            Image::getImagine()->open($pathSave . $newFileName)
+                ->resize(new Box('400', '500'))->save($pathSave . $newFileName, ['quality' => 90]);
+        } catch (\Exception $e) {
+        }
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return ['success' => true, 'photoUrl' => $newFileName];
+        }
         return true;
     }
 
@@ -1445,70 +1440,90 @@ class MemberController extends Controller
      * @return [type]     [description]
      */
     public function actionUploadFotoAnggota() {
-
         $id = Yii::$app->request->get('id');
 
         if (isset($_FILES['image'])) {
             $file = \yii\web\UploadedFile::getInstanceByName('image');
-
-
-
-
-            $filepath = Yii::getAlias('@uploaded_files/foto_anggota/'.$file->name);
+            if (!$file) {
+                if (Yii::$app->request->isAjax) {
+                    Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                    return ['error' => Yii::t('app', 'Berkas foto tidak ditemukan.')];
+                }
+                return $this->redirect(['update', 'id' => $id]);
+            }
             $dirpath = Yii::getAlias('@uploaded_files/foto_anggota/');
-
-
+            if (!is_dir($dirpath)) {
+                mkdir($dirpath, 0777, true);
+            }
+            $filepath = $dirpath . $file->name;
             if (file_exists($filepath)) {
-                $newFileName = DirectoryHelpers::getNewFileName($dirpath ,$filepath,$file->name);
-            }else{
+                $newFileName = DirectoryHelpers::getNewFileName($dirpath, $filepath, $file->name);
+            } else {
                 $newFileName = $file->name;
             }
-        
-            
 
-            $files_uploaded = Yii::getAlias('@uploaded_files/foto_anggota/'.$newFileName);
+            $files_uploaded = $dirpath . $newFileName;
             if ($file->saveAs($files_uploaded)) {
-
-                $mimetype=DirectoryHelpers::mimeType($files_uploaded);
+                $mimetype = DirectoryHelpers::mimeType($files_uploaded);
                 if ($mimetype) {
                     $model_mem = Members::findOne($id);
-                    $model_mem->PhotoUrl=$newFileName;
-                    $model_mem->save(false);
-                    //resize original pict
-                    Image::getImagine()->open(Yii::getAlias('@uploaded_files/foto_anggota/'.$newFileName))
-                        ->resize(new Box('400', '500'))->save(Yii::getAlias('@uploaded_files/foto_anggota/'.$newFileName) , ['quality' => 90]);
-
-                    /*Image::getImagine()->open(Yii::getAlias('@uploaded_files/foto_anggota/'. $id . '.jpg'))
-                        ->resize(new Box('400', '500'))->save(Yii::getAlias('@uploaded_files/foto_anggota/temp/'. $id . '.jpg') , ['quality' => 90]);*/
-
-
-                    //Now save file data to database
+                    if ($model_mem) {
+                        if (!empty($model_mem->PhotoUrl) && $model_mem->PhotoUrl != $newFileName) {
+                            $oldFile = $dirpath . $model_mem->PhotoUrl;
+                            if (file_exists($oldFile)) {
+                                @unlink($oldFile);
+                            }
+                        }
+                        $model_mem->PhotoUrl = $newFileName;
+                        $model_mem->save(false);
+                    }
+                    try {
+                        Image::getImagine()->open($files_uploaded)
+                            ->resize(new Box('400', '500'))->save($files_uploaded, ['quality' => 90]);
+                    } catch (\Exception $e) {
+                    }
+                    if (Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                        return ['success' => true, 'photoUrl' => $newFileName];
+                    }
                     Yii::$app->getSession()->setFlash('success', [
                         'type' => 'info',
-                        'duration' => 500,
+                        'duration' => 2500,
                         'icon' => 'fa fa-info-circle',
                         'message' => Yii::t('app', 'Success Upload'),
                         'title' => 'Info',
                         'positonY' => Yii::$app->params['flashMessagePositionY'],
                         'positonX' => Yii::$app->params['flashMessagePositionX']
                     ]);
-                    $this->redirect(['update','id'=>$id]);
-                    return true;
-                }else {
-                //Now save file data to database
+                    return $this->redirect(['update', 'id' => $id]);
+                } else {
+                    if (Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                        return ['error' => Yii::t('app', 'Failed Upload')];
+                    }
                     Yii::$app->getSession()->setFlash('error', [
                         'type' => 'error',
-                        'duration' => 500,
+                        'duration' => 2500,
                         'icon' => 'fa fa-info-circle',
                         'message' => Yii::t('app', 'Failed Upload'),
                         'title' => 'Info',
                         'positonY' => Yii::$app->params['flashMessagePositionY'],
                         'positonX' => Yii::$app->params['flashMessagePositionX']
                     ]);
-                    $this->redirect(['update','id'=>$id]);
+                    return $this->redirect(['update', 'id' => $id]);
+                }
+            } else {
+                if (Yii::$app->request->isAjax) {
+                    Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+                    return ['error' => Yii::t('app', 'Gagal menyimpan berkas di server.')];
                 }
             }
         }
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            return ['error' => Yii::t('app', 'Tidak ada berkas yang diunggah.')];
+        }
+        return $this->redirect(['update', 'id' => $id]);
     }
 
     public function actionHapusFoto()

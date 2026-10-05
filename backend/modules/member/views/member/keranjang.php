@@ -179,90 +179,89 @@ $this->params['breadcrumbs'][] = $this->title;
         'panel' => [
             'heading'=>'<h3 class="panel-title"><i class="glyphicon glyphicon-th-list"></i> '.Html::encode($this->title).' </h3>',
             'type'=>'info',
-            'before'=>'
-
-<div class="form-group" style="padding-bottom:30px">
-  <label for="cbAction" class="col-md-1 control-label control-label-sm" style="margin-right: -46px;">'.Yii::t('app','Action').' : </label>
-  <div class="col-md-2">' . Select2::widget([
-    'id' => 'cbAction',
-    'name' => 'cbAction',
-    'data' => [
-            'aktivasi'=>yii::t('app','Aktivasi'),
-            'cetak'=>yii::t('app','Cetak kartu anggota'),
-            'cetak-bebas-pustaka'=>yii::t('app','Cetak bebas pustaka'),
-            //'keranjang-anggota'=>'Masukan ke keranjang anggota',
-            'delete-bulk-keranjang'=>yii::t('app','Hapus dari keranjang anggota'),
-            
-        ],
-    'size'=>'sm',
-    'pluginEvents' => [
-        "select2:select" => 'function() { 
-            var id = $("#cbAction").val();
-             if(id == "cetak"){
-                $("#actionDropdown").show();
-                $("#actionDropdownPustaka").hide();
-            }else if(id == "cetak-bebas-pustaka"){
-                $("#actionDropdownPustaka").show();
-                $("#actionDropdown").hide();
-            }else
-            {
-                 $("#actionDropdown").hide();
-                 $("#actionDropdownPustaka").hide();
-            }
-        }',
-    ]
-    
-]) . '</div>
-   <div id="actionDropdown" class="col-md-3" style="display: none; margin-left: -18px;">'. Select2::widget([
-    'id' => 'cbActionDetail',
-    'name' => 'cbActionDetail',
-    'data' => [
-            'model1'=>'Cetak kartu anggota terpilih (satuan)',
-            //'cetak1'=>'Standar Barcode Kartu Anggota Jateng',
-            //'delete-bulk1'=>'Cetak kartu anggota terpilih (lembar A4)',
-            'model2'=>'Standar A4 Kartu Anggota',
-        ],
-    'size'=>'sm',
-    'pluginEvents' => [
-        "select2:select" => 'function() { 
-            var id = $("#cbAction").val();
-            if(id == "cetak"){
-                $("#actionDropdown").show();
-            }else
-            {
-                 $("#actionDropdown").hide();
-            }
-        }',
-    ]
-    
-]) .'</div> <div id="actionDropdownPustaka" class="col-md-3" style="display: none; margin-left: -18px;">'. Select2::widget([
-    'id' => 'cbActionBebasPustaka',
-    'name' => 'cbActionBebasPustaka',
-    'data' => [
-            'model1'=>'Model 1',
-            'model2'=>'Model 2',
-        ],
-    'size'=>'sm',
-    
-]) .'</div>
-   <div class="col-md-4" style="margin-left: -21px;">'.
-     Html::submitButton('<i class="glyphicon glyphicon-check"></i> '.yii::t('app','Proses'), [
-                        'id'=>'btnCheckprocess',
-                        'class' => 'btn btn-primary btn-sm ', 
-                        'title' => 'Proses', 
-                        'data-toggle' => 'tooltip'
-                    ]).' '.
-
- Html::submitButton('<i class="glyphicon glyphicon-check"></i> '.yii::t('app','Kosongkan keranjang anggota'), [
-                        'id'=>'btnDeleteAllKeranjang',
-                        'class' => 'btn btn-danger btn-sm ', 
-                        'title' => yii::t('app','Klik untuk kosongkan keranjang anggota'), 
-                        'data-toggle' => 'tooltip'
-                    ])   
-    .'</div>
-</div>'
-            ,
-    'after'=>Html::a('<i class="glyphicon glyphicon-repeat"></i> '.Yii::t('app','Reset List'), ['index'], ['class' => 'btn btn-info']),
+            'before' => '
+<div class="row" style="margin: 0; padding: 6px 0;">
+    <div class="col-xs-12" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 0;">
+        <label for="cbAction" style="margin: 0; font-weight: 600; color: #1e293b; white-space: nowrap;">' . Yii::t('app', 'Action') . ' :</label>
+        <div style="min-width: 220px;">' . Select2::widget([
+            'id' => 'cbAction',
+            'name' => 'cbAction',
+            'data' => [
+                'aktivasi' => Yii::t('app', 'Aktivasi'),
+                'cetak' => Yii::t('app', 'Cetak kartu anggota'),
+                'cetak-bebas-pustaka' => Yii::t('app', 'Cetak bebas pustaka'),
+                'delete-bulk-keranjang' => Yii::t('app', 'Hapus dari keranjang anggota'),
+            ],
+            'size' => 'sm',
+            'options' => ['placeholder' => Yii::t('app', 'Pilih Aksi...')],
+            'pluginOptions' => ['allowClear' => true],
+            'pluginEvents' => [
+                "select2:select" => 'function() {
+                    var id = $("#cbAction").val();
+                    if(id == "cetak"){
+                        $("#actionDropdown").show();
+                        $("#actionDropdownPustaka").hide();
+                    }else if(id == "cetak-bebas-pustaka"){
+                        $("#actionDropdownPustaka").show();
+                        $("#actionDropdown").hide();
+                    }else{
+                        $("#actionDropdown").hide();
+                        $("#actionDropdownPustaka").hide();
+                    }
+                }',
+                "select2:unselect" => 'function() {
+                    $("#actionDropdown").hide();
+                    $("#actionDropdownPustaka").hide();
+                }'
+            ]
+        ]) . '</div>
+        <div id="actionDropdown" style="display: none; min-width: 240px;">' . Select2::widget([
+            'id' => 'cbActionDetail',
+            'name' => 'cbActionDetail',
+            'data' => [
+                'model1' => 'Cetak kartu anggota terpilih (satuan)',
+                'model2' => 'Standar A4 Kartu Anggota',
+            ],
+            'size' => 'sm',
+            'pluginEvents' => [
+                "select2:select" => 'function() {
+                    var id = $("#cbAction").val();
+                    if(id == "cetak"){
+                        $("#actionDropdown").show();
+                    }else{
+                        $("#actionDropdown").hide();
+                    }
+                }',
+            ]
+        ]) . '</div>
+        <div id="actionDropdownPustaka" style="display: none; min-width: 200px;">' . Select2::widget([
+            'id' => 'cbActionBebasPustaka',
+            'name' => 'cbActionBebasPustaka',
+            'data' => [
+                'model1' => 'Model 1',
+                'model2' => 'Model 2',
+            ],
+            'size' => 'sm',
+        ]) . '</div>
+        <div style="display: flex; gap: 8px;">' .
+            Html::submitButton('<i class="glyphicon glyphicon-check"></i> ' . Yii::t('app', 'Proses'), [
+                'id' => 'btnCheckprocess',
+                'class' => 'btn btn-primary btn-sm',
+                'title' => 'Proses',
+                'data-toggle' => 'tooltip',
+                'style' => 'border-radius: 6px; font-weight: 600;'
+            ]) .
+            Html::submitButton('<i class="glyphicon glyphicon-trash"></i> ' . Yii::t('app', 'Kosongkan keranjang anggota'), [
+                'id' => 'btnDeleteAllKeranjang',
+                'class' => 'btn btn-danger btn-sm',
+                'title' => Yii::t('app', 'Klik untuk kosongkan keranjang anggota'),
+                'data-toggle' => 'tooltip',
+                'style' => 'border-radius: 6px;'
+            ]) .
+        '</div>
+    </div>
+</div>',
+            'after' => Html::a('<i class="glyphicon glyphicon-repeat"></i> ' . Yii::t('app', 'Reset List'), ['index'], ['class' => 'btn btn-info']),
             'showFooter'=>false
         ],
     ]);  ?>
