@@ -150,6 +150,12 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
     - Path B (Form Header Utama): Mengonfigurasi form `update.php` dengan `enctype="multipart/form-data"`, atribut `name="image"` pada file input `_formFoto.php`, dan penanganan `UploadedFile::getInstanceByName('image')` di `MemberController::actionUpdate()`. Tombol "Simpan" di header form utama kini otomatis memproses dan menyimpan berkas foto.
   - [x] *Pesan Error & Sukses Deskriptif:* Menggantikan notifikasi generik `"Failed Upload"` dan `"Success Upload"` dengan pesan bahasa Indonesia deskriptif yang informatif bagi pengguna.
   - [x] *Audit Zero-Comments & Linter:* Seluruh berkas PHP lolos verifikasi sintaks `php -l` dengan exit code 0 dan 100% patuh Zero-Comments Rule (0 komentar di kode baru).
+- [x] **Fase 35: Resolusi Sistemik Bug Loading Spinning PJAX GridView & Universal Interceptor Guardian:**
+  - [x] *Universal Pre-PJAX Click Sniffer (`backend/assets_b/js/app.js`):* Otomatis mendeteksi klik pada seluruh tag `td a` di GridView dan menyematkan `data-pjax="0"` untuk link navigasi eksternal (bukan paginasi `page=`, bukan sort `th a`, dan bukan modal).
+  - [x] *PJAX Event Guardrail:* Menangkap event `pjax:click` pada sel data tabel dan membatalkan intersepsi PJAX (`event.preventDefault()`) dengan fallback navigasi native (`window.location.href = href`).
+  - [x] *Anti-Freeze Watchdog:* Membersihkan class `.kv-grid-loading` secara otomatis saat `pjax:complete`, `pjax:error`, dan `pjax:end`, serta menyertakan watchdog timer 5 detik untuk menjamin tabel tidak pernah membeku di layar.
+  - [x] *Explicit View Hardening (Modul Akuisisi):* Menyematkan `'data-pjax' => '0'` pada link `NomorBarcode` dan tombol `restore` di `koleksi/index.php`, tombol `{view}` di `koleksi-jilid/index.php` dan `koleksi-usulan/index.php`, serta tombol `{update}` dan `{delete}` di `pengiriman-koleksi/index.php`.
+  - [x] *Audit Zero-Comments & Linter:* Seluruh berkas PHP dan JS lolos uji sintaks `php -l` dengan exit code 0 dan 100% patuh Zero-Comments Rule (0 komentar baru).
 
 ## 4. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).

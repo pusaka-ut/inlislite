@@ -102,8 +102,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 'view' => function ($url, $model) {
                                     return Html::a('<span class="glyphicon glyphicon-book"></span> '.Yii::t('app', 'View'), Yii::$app->urlManager->createUrl(['akuisisi/koleksi-jilid/view','idjilid' => $model->IDJILID,'idcat' => $model->Catalog_id]), [
                                                     'title' => Yii::t('app', 'View'), 
-                                                    //'data-toggle' => 'tooltip',
-                                                    'class' => 'btn btn-primary btn-sm'
+                                                    'class' => 'btn btn-primary btn-sm',
+                                                    'data-pjax' => '0',
                                                   ]);},
 
                 ],

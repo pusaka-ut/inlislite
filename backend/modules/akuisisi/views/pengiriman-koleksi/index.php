@@ -76,13 +76,13 @@ $this->params['breadcrumbs'][] = $this->title;
                 'template' => '{update} {delete}',
                 'buttons' => [
 				'update' => function ($url, $model) {
-                                    return Html::a('<span class="glyphicon glyphicon-pencil"></span>', Yii::$app->urlManager->createUrl(['pengiriman-koleksi/update','id' => $model->ID,'edit'=>'t']), [
+                                    return Html::a('<span class="glyphicon glyphicon-pencil"></span>', Yii::$app->urlManager->createUrl(['pengiriman-koleksi/update','id' => $model->ID,'edit'=>'t']), ['data-pjax' => '0',
                                                     'title' => Yii::t('app', 'Edit'),
                                                     'class' => 'btn btn-primary btn-sm'
                                                   ]);},
 												  
                 'delete' => function ($url, $model) {
-                                    return Html::a('<span class="glyphicon glyphicon-trash"></span>', Yii::$app->urlManager->createUrl(['pengiriman-koleksi/delete','id' => $model->ID,'edit'=>'t']), [
+                                    return Html::a('<span class="glyphicon glyphicon-trash"></span>', Yii::$app->urlManager->createUrl(['pengiriman-koleksi/delete','id' => $model->ID,'edit'=>'t']), ['data-pjax' => '0',
                                                     'title' => Yii::t('app', 'Delete'),
                                                     'class' => 'btn btn-danger btn-sm',
                                                     'data' => [

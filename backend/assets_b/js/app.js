@@ -132,4 +132,53 @@ function endLoading()
             }
         }, 1800);
     });
+
+    $(document).on('click', '[data-pjax-container] td a, .grid-view td a', function() {
+        var $link = $(this);
+        var href = $link.attr('href');
+        var isExplicitPjax = $link.attr('data-pjax') === '1' || $link.attr('data-pjax') === true;
+        var isModal = $link.attr('data-toggle') === 'modal' || $link.hasClass('showModalButton');
+        var isJsVoid = !href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;';
+
+        if (!isExplicitPjax && !isModal && !isJsVoid) {
+            if ($link.attr('data-pjax') === undefined) {
+                $link.attr('data-pjax', '0');
+            }
+        }
+    });
+
+    $(document).on('pjax:click', function(event, options) {
+        var target = event.target || (options ? options.target : null);
+        if (!target) {
+            return;
+        }
+        var $link = $(target).closest('a');
+        if (!$link.length) {
+            return;
+        }
+
+        var $td = $link.closest('td');
+        if ($td.length && $link.closest('[data-pjax-container], .grid-view').length) {
+            var href = $link.attr('href');
+            var isExplicitPjax = $link.attr('data-pjax') === '1' || $link.attr('data-pjax') === true;
+            var isModal = $link.attr('data-toggle') === 'modal' || $link.hasClass('showModalButton');
+            var isJsVoid = !href || href === '#' || href === 'javascript:void(0)' || href === 'javascript:;';
+
+            if (!isExplicitPjax && !isModal && !isJsVoid && href) {
+                event.preventDefault();
+                window.location.href = href;
+                return false;
+            }
+        }
+    });
+
+    $(document).on('pjax:complete pjax:error pjax:end', function() {
+        $('.kv-grid-loading').removeClass('kv-grid-loading');
+    });
+
+    $(document).on('pjax:send', function() {
+        setTimeout(function() {
+            $('.kv-grid-loading').removeClass('kv-grid-loading');
+        }, 5000);
+    });
 })(jQuery);

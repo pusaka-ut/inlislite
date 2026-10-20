@@ -198,3 +198,20 @@ inlislite3/
    - *Alur Langsung Kartu Foto (Path A):* Menekan `[ Unggah & Simpan Foto ]` mengirimkan berkas via AJAX `FormData` ke `actionUploadFotoAnggota`, mengembalikan respons JSON terstruktur dengan feedback pesan bahasa Indonesia ramah pengguna (`Yii::t('app', 'Foto anggota berhasil diperbarui.')`) dan membersihkan berkas lama secara otomatis.
    - *Alur Form Utama Header (Path B):* Form utama di `update.php` dikonfigurasi dengan `'options' => ['enctype' => 'multipart/form-data']`, input berkas di `_formFoto.php` disematkan `name="image"`, dan `MemberController::actionUpdate($id)` ditambahkan penanganan `UploadedFile::getInstanceByName('image')`. Menekan tombol "Simpan" di header atas kini otomatis memvalidasi, menyimpan foto ke server, dan memperbarui atribut `PhotoUrl` anggota.
    - Penataan pesan error deskriptif yang ramah pustakawan (`"Format berkas tidak valid atau tidak terbaca sebagai gambar."`) menggantikan notifikasi samar `"Failed Upload"`.
+
+
+## 16. Arsitektur Universal PJAX Interceptor Guardian & Anti-Freeze Watchdog (Fase 35)
+1. **Universal Pre-PJAX Click Sniffer (`backend/assets_b/js/app.js`):**
+   - Menyelesaikan kelemahan sistemik di mana tautan navigasi eksternal di dalam sel data tabel (`td a`) pada GridView dicegat oleh pustaka `jquery.pjax.js`.
+   - Mencegat klik sebelum PJAX dieksekusi. Jika tautan memiliki URL tujuan valid, bukan pemicu modal (`data-toggle="modal"` atau `.showModalButton`), bukan dummy URL (`#` / `javascript:void(0)`), dan tidak secara eksplisit meminta PJAX (`data-pjax="1"`): sistem secara dinamis menyematkan atribut `data-pjax="0"`.
+   - PJAX Yii2 otomatis mengabaikan tautan tersebut sehingga browser mengeksekusi navigasi native HTTP secara mulus tanpa memicu spinner muter-muter.
+2. **PJAX Event Guardrail & Hard-Redirect Fallback:**
+   - Menangkap event `pjax:click`. Jika target klik berada di dalam sel data tabel non-internal, handler memanggil `event.preventDefault()` dan mengeksekusi `window.location.href = href`.
+   - Menjamin kontrol internal GridView (sorting di `th a` dan paginasi di `.pagination a`) tetap berjalan normal via AJAX tanpa terganggu.
+3. **Anti-Freeze Watchdog & Auto-Cleanup Spinner:**
+   - Mendaftarkan listener pada `pjax:complete`, `pjax:error`, dan `pjax:end` untuk selalu membersihkan class `.kv-grid-loading` milik Kartik GridView.
+   - Menyertakan timer pengaman 5 detik pada `pjax:send` untuk memastikan tabel tidak pernah membeku di layar jika terjadi kelambatan jaringan intranet atau timeout server.
+4. **Explicit View Hardening (Modul Akuisisi):**
+   - Menyematkan `'data-pjax' => '0'` secara langsung pada kolom `NomorBarcode` dan tombol `restore` di `backend/modules/akuisisi/views/koleksi/index.php`.
+   - Menyematkan `'data-pjax' => '0'` pada tombol `{view}` di `backend/modules/akuisisi/views/koleksi-jilid/index.php` dan `koleksi-usulan/index.php`.
+   - Menyematkan `'data-pjax' => '0'` pada tombol `{update}` dan `{delete}` di `backend/modules/akuisisi/views/pengiriman-koleksi/index.php`.

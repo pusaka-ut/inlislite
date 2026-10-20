@@ -267,7 +267,7 @@ if($for != 'karantina'){
                         $url = Yii::$app->urlManager->createUrl(['/pengkatalogan/katalog/update','for' => 'coll','rda' => (int)$data->catalog->IsRDA,'id'=>$data->ID,'edit'=>'t']);
                      }
                      
-                     return Html::a($data->NomorBarcode, $url, ['title' => $data->NomorBarcode]); 
+                     return Html::a($data->NomorBarcode, $url, ['title' => $data->NomorBarcode, 'data-pjax' => '0']); 
                  }
             ],
             //'RFID',
@@ -327,8 +327,8 @@ if($for != 'karantina'){
                 'restore' => function ($url, $model) {
                                     return Html::a('<span class="glyphicon glyphicon-retweet"></span> '.Yii::t('app', 'Restore'), Yii::$app->urlManager->createUrl(['akuisisi/koleksi/restore','id' => $model->ID,'edit'=>'t']), [
                                                     'title' => Yii::t('app', 'Restore'),
-                                                    //'data-toggle' => 'tooltip',
                                                     'class' => 'btn btn-success btn-sm',
+                                                    'data-pjax' => '0',
                                                     'data' => [
                                                         'confirm' => Yii::t('yii','Are you sure you want to restore this item?'),
                                                         'method' => 'post',
