@@ -23,6 +23,10 @@ class BrowseController extends \yii\web\Controller {
     public $location;
 
     public function actionIndex() {
+        if ((isset($_GET['action']) || isset($_GET['tag'])) && OpacHelpers::isCrawlerBot()) {
+            throw new \yii\web\ForbiddenHttpException('Access denied.');
+        }
+
         $location = Yii::$app->request->cookies->getValue('location_opac_id') ? Yii::$app->request->cookies->getValue('location_opac_id') : 0;
         $jmlBookMaks = Yii::$app->config->get('JumlahBookingMaksimal');
         $bookExp = Yii::$app->config->get('BookingExpired');

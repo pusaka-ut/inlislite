@@ -1873,7 +1873,49 @@ class OpacHelpers
 
     }
 
-
-
+    public static function isCrawlerBot()
+    {
+        $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? strtolower(trim($_SERVER['HTTP_USER_AGENT'])) : '';
+        if ($userAgent === '') {
+            return true;
+        }
+        $botSignatures = [
+            'oai-searchbot',
+            'gptbot',
+            'chatgpt-user',
+            'amazonbot',
+            'claudebot',
+            'anthropic-ai',
+            'bytespider',
+            'ahrefsbot',
+            'semrushbot',
+            'mj12bot',
+            'petalbot',
+            'meta-externalagent',
+            'facebookexternalhit',
+            'googlebot',
+            'bingbot',
+            'yandexbot',
+            'baiduspider',
+            'duckduckbot',
+            'applebot',
+            'slurp',
+            'scrapy',
+            'python-requests',
+            'go-http-client',
+            'curl/',
+            'wget/',
+            'headlesschrome',
+            'bot/',
+            'crawler',
+            'spider'
+        ];
+        foreach ($botSignatures as $sig) {
+            if (strpos($userAgent, $sig) !== false) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

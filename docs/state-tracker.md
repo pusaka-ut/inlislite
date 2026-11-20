@@ -156,6 +156,12 @@ File ini digunakan untuk melacak fitur yang sedang dikerjakan, selesai, serta ca
   - [x] *Anti-Freeze Watchdog:* Membersihkan class `.kv-grid-loading` secara otomatis saat `pjax:complete`, `pjax:error`, dan `pjax:end`, serta menyertakan watchdog timer 5 detik untuk menjamin tabel tidak pernah membeku di layar.
   - [x] *Explicit View Hardening (Modul Akuisisi):* Menyematkan `'data-pjax' => '0'` pada link `NomorBarcode` dan tombol `restore` di `koleksi/index.php`, tombol `{view}` di `koleksi-jilid/index.php` dan `koleksi-usulan/index.php`, serta tombol `{update}` dan `{delete}` di `pengiriman-koleksi/index.php`.
   - [x] *Audit Zero-Comments & Linter:* Seluruh berkas PHP dan JS lolos uji sintaks `php -l` dengan exit code 0 dan 100% patuh Zero-Comments Rule (0 komentar baru).
+- [x] **Fase 36: Pengamanan OPAC Anti-Crawler, Search Result Caching, & Guardrail XSLTProcessor:**
+  - [x] *Blokir Crawler di `robots.txt` & `opac/robots.txt`:* Melarang AI crawler (`OAI-SearchBot`, `Amazonbot`, `GPTBot`, `ClaudeBot`, `Bytespider`, dll.) serta melarang indexing endpoint pencarian dan facet (`/pencarian-sederhana`, `/pencarian-lanjut`, `/browse`, `/detail-opac`).
+  - [x] *Detektor Bot Controller (`OpacHelpers::isCrawlerBot()`):* Memblokir request crawler dengan HTTP 403 di `PencarianSederhanaController`, `PencarianLanjutController`, dan `BrowseController` sebelum menyentuh MySQL dan `opaclogs`.
+  - [x] *Search & Facet Caching (`PencarianSederhanaController`):* Caching hasil pencarian halaman 1, hitung total, dan 6 agregasi facet selama 300 detik via `Yii::$app->cache` untuk meredam lonjakan query paralel `Sending data`.
+  - [x] *Guardrail `XSLTProcessor` (`MarcHelpers.php`):* Menambahkan pemeriksaan `class_exists('\XSLTProcessor')` dan pembersihan temp file agar tidak terjadi Fatal Error berulang yang memenuhi `error.log`.
+  - [x] *Audit Zero-Comments & Linter:* Seluruh berkas lolos uji sintaks `php -l` (exit code 0) dan 100% patuh Zero-Comments Rule.
 
 ## 4. Current Sprint / Fokus Pengujian Saat Ini
 - [x] Eksekusi DDL `master_rak.sql` di database server UT (IP: `172.30.13.81` / `dbsirkulasi`).

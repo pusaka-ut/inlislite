@@ -35,6 +35,10 @@ class PencarianSederhanaController extends \yii\web\Controller {
     public $layout = 'main-sederhana';
     public $location;
     public function actionIndex() {
+        if (isset($_GET['action']) && OpacHelpers::isCrawlerBot()) {
+            throw new \yii\web\ForbiddenHttpException('Access denied.');
+        }
+
         $location = Yii::$app->request->cookies->getValue('location_opac_id');
         $jmlBookMaks = Yii::$app->config->get('JumlahBookingMaksimal');
         $bookExp = Yii::$app->config->get('BookingExpired');
@@ -250,10 +254,37 @@ class PencarianSederhanaController extends \yii\web\Controller {
             $dataFacedBahasa = [];
 
             if ($page === 1) {
-                $hasilSearch = $this->getDirectSearchData($KeywordParam, $ruas, $bahan1, $location, 0, $limit, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
-                $count = $this->getDirectSearchCount($KeywordParam, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                $cacheKey = 'opac_simple_' . md5(json_encode([
+                    $KeywordParam,
+                    $ruas,
+                    $bahan1,
+                    $location,
+                    $limit,
+                    $fAuthor,
+                    $fPublisher,
+                    $fPublishLoc,
+                    $fPublishYear,
+                    $fSubject,
+                    $fBahasa
+                ]));
+                $cached = Yii::$app->cache ? Yii::$app->cache->get($cacheKey) : false;
+                if ($cached !== false && is_array($cached)) {
+                    $hasilSearch = $cached['hasilSearch'];
+                    $count = $cached['count'];
+                    $facets = $cached['facets'];
+                } else {
+                    $hasilSearch = $this->getDirectSearchData($KeywordParam, $ruas, $bahan1, $location, 0, $limit, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                    $count = $this->getDirectSearchCount($KeywordParam, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                    $facets = $this->getDirectSearchFacets($KeywordParam, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
+                    if (Yii::$app->cache) {
+                        Yii::$app->cache->set($cacheKey, [
+                            'hasilSearch' => $hasilSearch,
+                            'count' => $count,
+                            'facets' => $facets,
+                        ], 300);
+                    }
+                }
                 $_SESSION['countSearch'] = $count;
-                $facets = $this->getDirectSearchFacets($KeywordParam, $ruas, $bahan1, $location, $fAuthor, $fPublisher, $fPublishLoc, $fPublishYear, $fSubject, $fBahasa);
                 $dataFacedAuthor = $facets['author'];
                 $dataFacedPublisher = $facets['publisher'];
                 $dataFacedPublishLocation = $facets['publishLocation'];

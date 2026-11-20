@@ -215,3 +215,13 @@ inlislite3/
    - Menyematkan `'data-pjax' => '0'` secara langsung pada kolom `NomorBarcode` dan tombol `restore` di `backend/modules/akuisisi/views/koleksi/index.php`.
    - Menyematkan `'data-pjax' => '0'` pada tombol `{view}` di `backend/modules/akuisisi/views/koleksi-jilid/index.php` dan `koleksi-usulan/index.php`.
    - Menyematkan `'data-pjax' => '0'` pada tombol `{update}` dan `{delete}` di `backend/modules/akuisisi/views/pengiriman-koleksi/index.php`.
+
+
+## 17. Arsitektur Pengamanan Anti-Crawler, Search Result Caching, & Guardrail XSLT (Fase 36)
+1. **Proteksi Multi-Lapis Anti-Crawler OPAC (`robots.txt` & `OpacHelpers::isCrawlerBot`):**
+   - Menutup akses crawling pada `robots.txt` dan `opac/robots.txt` untuk AI crawler (`OAI-SearchBot`, `GPTBot`, `Amazonbot`, `ClaudeBot`, `Bytespider`, dll.) serta melarang indexing endpoint pencarian dan facet (`/pencarian-sederhana`, `/pencarian-lanjut`, `/browse`, `/detail-opac`).
+   - Mengimplementasikan `OpacHelpers::isCrawlerBot()` yang diaktifkan di awal `actionIndex()` pada `PencarianSederhanaController`, `PencarianLanjutController`, dan `BrowseController`. Permintaan dari bot otomatis ditolak dengan HTTP `403 Forbidden` sebelum mengeksekusi query database atau menulis ke tabel `opaclogs`.
+2. **Search & Facet Caching (`PencarianSederhanaController`):**
+   - Memanfaatkan `Yii::$app->cache` (`FileCache`) berdurasi 300 detik (5 menit) untuk menyimpan hasil pencarian halaman 1, total hitung (`COUNT`), dan 6 agregasi facet berdasarkan hash seluruh parameter query, mencegah *thundering herd* pada tabel `catalogs` dan `catalog_ruas`.
+3. **Guardrail Ketersediaan `XSLTProcessor` (`common/components/MarcHelpers.php`):**
+   - Menyematkan pemeriksaan `class_exists('\XSLTProcessor')` sebelum transformasi XSL MARC21 dan membersihkan berkas temporer (`@unlink($temp)`), mencegah PHP Fatal Error berulang yang membengkakkan `error.log`.

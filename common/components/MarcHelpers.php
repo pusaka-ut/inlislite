@@ -224,16 +224,22 @@ class MarcHelpers
                     $xslfile = "MARC21slim2SRWDC.xsl";
                 }
 
+                if (!\class_exists('\XSLTProcessor')) {
+                    echo $output;
+                    @unlink($temp);
+                    break;
+                }
+
                 $xslDoc = new \DOMDocument();
                 $xslDoc->load(\dirname(__FILE__)."/xsl/".$xslfile);
 
                 $xmlDoc = new \DOMDocument();
                 $xmlDoc->load($temp);
 
-
                 $proc = new \XSLTProcessor();
                 $proc->importStylesheet($xslDoc);
                 echo $proc->transformToXML($xmlDoc);
+                @unlink($temp);
 
             break;
         }
@@ -369,16 +375,22 @@ class MarcHelpers
                     $xslfile = "MARC21slim2SRWDC.xsl";
                 }
 
+                if (!\class_exists('\XSLTProcessor')) {
+                    echo $output;
+                    @unlink($temp);
+                    break;
+                }
+
                 $xslDoc = new \DOMDocument();
                 $xslDoc->load(\dirname(__FILE__)."/xsl/".$xslfile);
 
                 $xmlDoc = new \DOMDocument();
                 $xmlDoc->load($temp);
 
-
                 $proc = new \XSLTProcessor();
                 $proc->importStylesheet($xslDoc);
                 echo $proc->transformToXML($xmlDoc);
+                @unlink($temp);
 
             break;
         }

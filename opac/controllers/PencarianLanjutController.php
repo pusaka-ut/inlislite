@@ -146,6 +146,10 @@ class PencarianLanjutController extends \yii\web\Controller {
 
 
     public function actionIndex() {
+        if (isset($_GET['action']) && OpacHelpers::isCrawlerBot()) {
+            throw new \yii\web\ForbiddenHttpException('Access denied.');
+        }
+
         $location = Yii::$app->request->cookies->getValue('location_opac_id');
         $jmlBookMaks = Yii::$app->config->get('JumlahBookingMaksimal');
         $bookExp = Yii::$app->config->get('BookingExpired');
